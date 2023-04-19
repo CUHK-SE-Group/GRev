@@ -1,3 +1,13 @@
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+console_handler.setLevel(logging.DEBUG)
+logger.addHandler(console_handler)
+
 class Node:
     def __init__(self, _id, _name, _labels):
         self.id, self.name = _id, _name
