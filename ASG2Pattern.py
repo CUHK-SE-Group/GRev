@@ -36,7 +36,7 @@ def TransformASG2Pattern(G):
         start_id = random.choice(Availiable_Nodes)
         result.append(traversal(G, start_id, 0))
     result = ", ".join(result)
-    print(result)
+    # print(result)
     return result
     
 
