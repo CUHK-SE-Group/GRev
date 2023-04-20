@@ -1,12 +1,5 @@
-import logging
+from abc import ABC, abstractmethod
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-console_handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(formatter)
-console_handler.setLevel(logging.DEBUG)
-logger.addHandler(console_handler)
 
 class Node:
     def __init__(self, _id, _name, _labels):
@@ -16,20 +9,30 @@ class Node:
         if type(self.labels) == type(set()):
             for label in self.labels:
                 self.content += " :" + label
-        self.content = self.content + ")" 
-        
+        self.content = self.content + ")"
+
     def AddEdge(self, target_node_id, content, edge_id):
-        edge = {"v" : target_node_id, 
-                "content" : content, 
+        edge = {"v": target_node_id,
+                "content": content,
                 "id": edge_id
-        }
+                }
         self.edges.append(edge)
+
 
 class ASG:
     def __init__(self):
         self.N, self.M, self.Nodes = 0, 0, []
         self.DeletedEdge, self.DeletedNode = set(), set()
-    
+
+    # def __eq__(self, other):
+    #     if self.N == other.N \
+    #             and self.M == other.M \
+    #             and self.Nodes == other.Nodes \
+    #             and self.DeletedEdge == other.DeletedEdge \
+    #             and self.DeletedNode == other.DeletedNode:
+    #         return True
+    #     return False
+
     def AddNode(self, _node):
         self.Nodes.append(_node)
         self.N += 1
@@ -47,3 +50,11 @@ class ASG:
         self.M += 1
 
 
+class AbstractASGOperator(ABC):
+    @abstractmethod
+    def asg2pattern(self, asg: ASG):
+        pass
+
+    @abstractmethod
+    def pattern2asg(self, pattern: str):
+        pass
