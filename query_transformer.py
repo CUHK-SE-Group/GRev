@@ -35,7 +35,7 @@ class QueryTransformer():
             P = PatternTransformer()
             asg = P.pattern2asg(pattern)
             new_pattern = P.asg2pattern(asg)
-            new_query = new_query + new_pattern
+            new_query = new_query + new_pattern + " "
             index = pos[1]
         while index < len(query):
             new_query = new_query + query[index]
