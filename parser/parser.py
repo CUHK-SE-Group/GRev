@@ -63,5 +63,6 @@ def parse(query_string):
 
 if __name__ == '__main__':
     # tree = parse('MATCH (n0 :L1 :L5)<-[r0 :T3]-(n1 :L3)-[r1 :T3]->(n2 :L1), (n2 :L5)<-[r2 :T4]-(n1) WHERE (((((r0.id) > -1) AND ((r0.id) <> (r1.id))) AND ((r0.id) <> (r2.id))) AND ((r1.id) <> (r2.id))) UNWIND [(n1.k24)] AS a0 OPTIONAL MATCH (n2 :L1)<-[]-(n1 :L3) RETURN a0')
-    tree = parse('MATCH (n) RETURN Count(n);')
-    print(tree)
+    s = "MATCH (n0 :L1 :L5)<-[r0 :T3]-(n1 :L3)-[r1 :T3]->(n2 :L1), (n2 :L5)<-[r2 :T4]-(n1) RETURN *"
+    tree = parse('MATCH (n0 :L1 :L5)<-[r0 :T3]-(n1 :L3)-[r1 :T3]->(n2 :L1), (n2 :L5)<-[r2 :T4]-(n1) RETURN *')
+    print(tree)    
