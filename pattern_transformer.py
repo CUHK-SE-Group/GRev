@@ -49,8 +49,8 @@ class PatternTransformer(AbstractASGOperator):
                     r = r + pattern[i]
             if edge_counter == 0 and len(v1) > 0:
                 isolated_nodes.append(v1)
-        logger.debug(result)
-        logger.debug(isolated_nodes)
+        # logger.debug(result)
+        # logger.debug(isolated_nodes)
         return result, isolated_nodes
 
     def __pattern2node(self, pattern):
@@ -83,7 +83,7 @@ class PatternTransformer(AbstractASGOperator):
                         Node2Labels[name] = Node2Labels[name] & labels
 
         for node in isolated_nodes:
-            logger.debug(node)
+            # logger.debug(node)
             r = self.__pattern2node(node)
             name, labels = r["name"], r["labels"]
             if name not in Node2Labels.keys():
@@ -117,7 +117,7 @@ class PatternTransformer(AbstractASGOperator):
             start_id = random.choice(Availiable_Nodes)
             result.append(self.__traversal(asg, start_id, 0))
         result = ", ".join(result)
-        logger.debug(result)
+        # logger.debug(result)
         return result
 
 
