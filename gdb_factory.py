@@ -54,9 +54,7 @@ if __name__ == "__main__":
     client.create_graph("query_file/create.log")
     with open("query_file/query.log", 'r') as f:
         query = f.readline()
-        counter = 0
         while query != '':
-            counter += 1
             query.replace('\n', '')
             try:
                 result, query_time = client.run(query)
