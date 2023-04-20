@@ -80,7 +80,7 @@ class PatternTransformer(AbstractASGOperator):
                     if Node2Labels[name] == "ALL":
                         Node2Labels[name] = labels
                     else:
-                        Node2Labels[name] = Node2Labels[name] & labels
+                        Node2Labels[name] = Node2Labels[name] | labels
 
         for node in isolated_nodes:
             # logger.debug(node)
@@ -94,7 +94,7 @@ class PatternTransformer(AbstractASGOperator):
                 if Node2Labels[name] == "ALL":
                     Node2Labels[name] = labels
                 else:
-                    Node2Labels[name] = Node2Labels[name] & labels
+                    Node2Labels[name] = Node2Labels[name] | labels
 
         for name in sorted(Node2Labels.keys(), key=lambda x: Node2Id[x]):
             labels, Id = Node2Labels[name], Node2Id[name]
