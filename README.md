@@ -4,3 +4,5 @@
 1. 在`test_cases.ini`里添加pattern作为测试用例。
 2. 在当前目录运行pytest，单元测试会读取文件里的测试用例进行测试
 
+### Detected Bugs:
+[Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168)
