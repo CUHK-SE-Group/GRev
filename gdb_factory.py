@@ -1,3 +1,4 @@
+import time
 import logging
 
 from neo4j import GraphDatabase, basic_auth
@@ -23,7 +24,10 @@ class Neo4j:
 
 
     def run(self, query):
-        return self.session.run(query)
+        start_time = time.time()
+        result = self.session.run(query)
+        end_time = time.time()
+        return result, end_time - start_time
     
     def create_graph(self, file_path):
         self.clear()
@@ -55,7 +59,7 @@ if __name__ == "__main__":
             counter += 1
             query.replace('\n', '')
             try:
-                result = client.run(query)
+                result, query_time = client.run(query)
             except Neo4jError as e:
                 logging.error("An error occurred: ", e)
             query = f.readline()
