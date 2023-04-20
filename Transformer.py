@@ -1,4 +1,4 @@
-from ASG2Pattern import TransformASG2Pattern
+from pattern_transformer import TransformASG2Pattern
 from Pattern2ASG import TransformPattern2ASG
 
 
