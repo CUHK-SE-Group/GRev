@@ -19,7 +19,7 @@ def test_pattern2asg():
         line = file.readline()
         while line != '':
             p = PatternTransformer()
-            pattern0 = line
+            pattern0 = line.replace('\n', '')
             asg0 = p.pattern2asg(pattern0)
             pattern1 = p.asg2pattern(asg0)
             asg1 = p.pattern2asg(pattern1)
