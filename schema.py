@@ -39,13 +39,11 @@ class ASG:
 
     def AddEdge(self, v1_id, v2_id, edge_content):
         edge_content = edge_content.strip(" ")
-        # print(v1_id, edge_content, v2_id)
         self.Nodes[v1_id].AddEdge(v2_id, edge_content, self.M)
         if edge_content.startswith("<"):
             edge_content = edge_content[1:] + ">"
         elif edge_content.endswith(">"):
             edge_content = "<" + edge_content[:-1]
-        # print(v2_id, edge_content, v1_id)
         self.Nodes[v2_id].AddEdge(v1_id, edge_content, self.M)
         self.M += 1
 

@@ -11,7 +11,7 @@ class PatternTransformer(AbstractASGOperator):
             if edge["id"] not in G.DeletedEdge:
                 Availiable_edges.append(edge)
         length = len(Availiable_edges)
-        logger.debug(len(G.Nodes[u_id].edges))
+        # logger.debug(len(G.Nodes[u_id].edges))
         if length == 0:
             G.DeletedNode.add(u_id)
             return res
@@ -30,11 +30,12 @@ class PatternTransformer(AbstractASGOperator):
         return res
 
     def __pattern2list(self, pattern):
-        patterns, result = pattern.split(","), []
+        patterns, result, isolated_nodes = pattern.split(","), [], []
         for pattern in patterns:
             pattern = pattern.strip(" ")
             pattern = pattern.strip("\n")
             v1, r, v2 = "", "", ""
+            edge_counter = 0
             for i in range(0, len(pattern)):
                 if not (v1.endswith(")")):
                     v1 = v1 + pattern[i]
@@ -43,10 +44,14 @@ class PatternTransformer(AbstractASGOperator):
                     if pattern[i] == ")":
                         result.append((v1, r, v2))
                         v1, r, v2 = v2, "", ""
+                        edge_counter += 1
                 else:
                     r = r + pattern[i]
+            if edge_counter == 0 and len(v1) > 0:
+                isolated_nodes.append(v1)
         logger.debug(result)
-        return result
+        logger.debug(isolated_nodes)
+        return result, isolated_nodes
 
     def __pattern2node(self, pattern):
         pattern = pattern.strip(" ").strip(")").strip("(")
@@ -61,7 +66,7 @@ class PatternTransformer(AbstractASGOperator):
     def pattern2asg(self, pattern: str):
         G = ASG()
         Node2Labels, Node2Id, Id_index = dict(), dict(), 0
-        patterns = self.__pattern2list(pattern)
+        patterns, isolated_nodes = self.__pattern2list(pattern)
         for edge in patterns:
             v1, v2 = edge[0], edge[2]
             r1, r2 = self.__pattern2node(v1), self.__pattern2node(v2)
@@ -77,6 +82,20 @@ class PatternTransformer(AbstractASGOperator):
                     else:
                         Node2Labels[name] = Node2Labels[name] & labels
 
+        for node in isolated_nodes:
+            logger.debug(node)
+            r = self.__pattern2node(node)
+            name, labels = r["name"], r["labels"]
+            if name not in Node2Labels.keys():
+                Node2Labels[name] = "ALL"
+                Node2Id[name] = Id_index
+                Id_index += 1
+            if len(labels) > 0:
+                if Node2Labels[name] == "ALL":
+                    Node2Labels[name] = labels
+                else:
+                    Node2Labels[name] = Node2Labels[name] & labels
+
         for name in sorted(Node2Labels.keys(), key=lambda x: Node2Id[x]):
             labels, Id = Node2Labels[name], Node2Id[name]
             G.AddNode(Node(Id, name, labels))
@@ -84,14 +103,13 @@ class PatternTransformer(AbstractASGOperator):
         for edge in patterns:
             v1, v2 = edge[0], edge[2]
             r1, r2 = self.__pattern2node(v1), self.__pattern2node(v2)
-            # logger.debug(r1["name"], r2["name"])
             G.AddEdge(Node2Id[r1["name"]], Node2Id[r2["name"]], edge[1])
 
         return G
 
     def asg2pattern(self, asg: ASG):
         result = []
-        while len(asg.DeletedEdge) < asg.M and len(asg.DeletedNode) < asg.N:
+        while len(asg.DeletedEdge) < asg.M or len(asg.DeletedNode) < asg.N:
             Availiable_Nodes = list()
             for i in range(0, asg.N):
                 if i not in asg.DeletedNode:

@@ -10,6 +10,7 @@ def comparable_map(asg0):
         candidate0[i.content]["edges"] = {}
         for e in i.edges:
             del e['id']
+            e['v'] = asg0.Nodes[e['v']].content
             candidate0[i.content]["edges"][e['content']] = e['content']
     return candidate0
 

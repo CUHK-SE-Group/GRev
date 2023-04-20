@@ -27,7 +27,7 @@ class Neo4j:
 
 if __name__ == "__main__":
     client = Neo4j("bolt://10.20.10.27:7687", "neo4j", "testtest")
-    with open("query_file/query.log", 'r') as f:
+    with open("query_file/create.log", 'r') as f:
         query = f.readline()
         while query != '':
             query.replace('\n', '')
