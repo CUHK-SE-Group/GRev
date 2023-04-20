@@ -1,1 +1,1 @@
-MATCH (n:Person) RETURN n
+MATCH (n0 :L1 :L5)<-[r0 :T3]-(n1 :L3)-[r1 :T3]->(n2 :L1), (n2 :L5)<-[r2 :T4]-(n1) RETURN *
