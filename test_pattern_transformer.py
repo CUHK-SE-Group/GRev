@@ -1,5 +1,4 @@
 from pattern_transformer import *
-import configparser
 
 
 def comparable_map(asg0):
