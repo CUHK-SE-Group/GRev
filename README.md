@@ -25,4 +25,6 @@ query_file: 用于测试的原始query请求的集合
 如果是命令行执行需要 ```export PYTHONPATH=./:$PYTHONPATH```
 
 ## Detected Bugs:
-[Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) duplicated with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085)
+[Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) Status: Duplicated (with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085))
+
+[Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Intended (can not be detected by PatternTransformation but can be detected by TP)
