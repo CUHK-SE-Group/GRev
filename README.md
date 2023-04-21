@@ -24,5 +24,5 @@ query_file: 用于测试的原始query请求的集合
 在根目录运行测试，如测试Neo4j 使用 ```python ./database_test/neo4j/TestNeo4j.py```
 如果是命令行执行需要 ```export PYTHONPATH=./:$PYTHONPATH```
 
-### Detected Bugs:
+## Detected Bugs:
 [Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) duplicated with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085)
