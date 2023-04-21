@@ -21,7 +21,7 @@ def timeout_decorator2(timeout):
                 result = func(*args, **kwargs)
             except KeyboardInterrupt:
                 timer.cancel()
-                raise TimeoutError("Function execution timed out.")
+                raise FunctionTimeoutError("Function execution timed out.")
             else:
                 timer.cancel()
                 return result
