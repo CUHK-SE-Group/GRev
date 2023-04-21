@@ -24,7 +24,6 @@ class Neo4j:
         self.session.run("MATCH (n) DETACH DELETE n")
         print("Clear Graph Schema.")
 
-    @timeout_decorator2(timeout=30)
     def run(self, query):
         start_time = time.time()
         result = self.session.run(query)
