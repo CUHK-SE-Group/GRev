@@ -1,16 +1,19 @@
 import concurrent.futures
 import threading
-
-from configs.config import logger
-from gdb_clients import *
 from copy import deepcopy
+
+from gdb_clients import *
+from configs.config import logger
 from mutator.query_transformer import QueryTransformer
+from compare.hash_nested_dict import hash_dictionary
 
 
 def compare(result1, result2):
     data1 = deepcopy(result1)
     data2 = deepcopy(result2)
-    return not (data1 == data2)
+    if len(data1) != len(data2): return 0 
+    return not ( sorted([hash_dictionary(x) for x in data1]) \
+        == sorted([hash_dictionary(x) for x in data2]) )
 
 
 class Neo4jTester():
@@ -30,10 +33,10 @@ class Neo4jTester():
             result, query_time1 = client.run(query)
             result1 = result.data()
         except Neo4jError as e:
-            logger.info(f"Neo4j exception: {e}. Triggering Query: {query}")
+            logger.info(f"Neo4j exception: {e}. \n Triggering Query: {query}")
             return
         except Exception as e:
-            logger.info(f"Unexpected exception: {e}. Triggering Query: {query}")
+            logger.info(f"Unexpected exception: {e}. \n Triggering Query: {query}")
             return
 
         for step in range(0, 5):
@@ -42,15 +45,15 @@ class Neo4jTester():
                 result, query_time2 = client.run(new_query)
                 result2 = result.data()
                 if compare(result1, result2):
-                    logger.warning(f"Logic inconsistency: Query1[{query}], Query2[{new_query}]")
+                    logger.warn(f"Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 elif query_time1 > 1 and query_time2 > 1 and \
                         (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
-                    logger.warning(
-                        f"Performance inconsistency: Query1[{query}] using time {query_time1}, Query2[{new_query}] using time {query_time2}")
+                    logger.info(
+                        f"Performance inconsistency. \n Query1: {query} \n using time: {query_time1} \n Query2: {new_query} \n using time: {query_time2}")
             except Neo4jError as e:
-                logger.info(f"Neo4j exception: {e}. Triggering Query: {query}")
+                logger.info(f"Neo4j exception: {e}. \n Triggering Query: {query}")
             except Exception as e:
-                logger.info(f"Unexpected exception: {e}. Triggering Query: {query}")
+                logger.info(f"Unexpected exception: {e}. \n Triggering Query: {query}")
 
     def Testing(self, create_file, query_file):
         client = Neo4j("bolt://10.20.10.27:7687", "neo4j", "testtest")

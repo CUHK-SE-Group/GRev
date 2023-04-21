@@ -20,5 +20,9 @@ query_file: 用于测试的原始query请求的集合
 1. 在`mutator/test_cases.ini`里添加pattern作为测试用例。
 2. 在当前目录运行pytest，单元测试会读取文件里的测试用例进行测试
 
+## 运行测试
+在根目录运行测试，如测试Neo4j 使用 ```python ./database_test/neo4j/TestNeo4j.py```
+如果是命令行执行需要 ```export PYTHONPATH=./:$PYTHONPATH```
+
 ### Detected Bugs:
 [Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168)
