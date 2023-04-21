@@ -26,9 +26,10 @@ class Neo4j:
 
     def run(self, query):
         start_time = time.time()
-        result = self.session.run(query)
+        result = self.session.run(query, time_out=3)
+        di = result.data()
         end_time = time.time()
-        return result, end_time - start_time
+        return di, end_time - start_time
 
     def create_graph(self, file_path):
         self.clear()
@@ -51,17 +52,15 @@ class Neo4j:
 if __name__ == "__main__":
     client = Neo4j("bolt://10.20.10.27:7687", "neo4j", "testtest")
     result, query_time = client.run(
-        "MATCH (n0 :L0 :L2 :L6)-[r0 :T1]->(n1 :L5), (n3 :L6) WHERE ((r0.id) > -1) OPTIONAL MATCH (n0 :L0)-[]->(n1 "
-        ":L5)<-[]-(n2), (n3 :L6) WHERE ((n1.k33) OR (n0.k4)) OPTIONAL MATCH (n3 :L6), (n1 :L5)<-[]-(n0), (n1 :L5)<-["
-        "]-(n2 :L5)WITH DISTINCT max('S') AS a0, r0, (r0.k51) AS a1 WHERE (-1577216923 = -1577216923) RETURN a1, "
-        "(r0.k51) AS a2")
-    client.create_graph("query_file/create.log")
-    with open("../query_file/query.log", 'r') as f:
-        query = f.readline()
-        while query != '':
-            query.replace('\n', '')
-            try:
-                result, query_time = client.run(query)
-            except Neo4jError as e:
-                logging.error("An error occurred: ", e)
-            query = f.readline()
+        "MATCH (n0 :L6), (n1 :L3) WHERE true UNWIND [-1759295320, -1759295320] AS a0 UNWIND [(n1.k24), -1637829610] AS a1 OPTIONAL MATCH (n2 :L2)<-[r0 :T5]-(n3 :L0) WHERE ((r0.id) > -1) OPTIONAL MATCH (n0), (n0 :L6) WHERE ((r0.k77) OR (n0.k39)) WITH (n0.k37) AS a2, a1, r0 OPTIONAL MATCH (n0) OPTIONAL MATCH (n0) RETURN (r0.k75) AS a3, (r0.k76) AS a4")
+    print(len(result), query_time)
+    # client.create_graph("/Users/lincyaw/PycharmProjects/pattern-transformer/query_file/create.log")
+    # with open("/Users/lincyaw/PycharmProjects/pattern-transformer/query_file/query.log", 'r') as f:
+    #     query = f.readline()
+    #     while query != '':
+    #         query.replace('\n', '')
+    #         try:
+    #             result, query_time = client.run(query)
+    #         except Neo4jError as e:
+    #             logging.error("An error occurred: ", e)
+    #         query = f.readline()
