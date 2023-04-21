@@ -1,0 +1,8 @@
+{
+  "printgraph@4.4.13": {
+      "port": 7688,
+      "host": "localhost",
+      "username": "neo4j",
+      "password": "sqlancer"
+  }
+}
