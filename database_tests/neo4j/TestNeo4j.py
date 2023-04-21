@@ -36,14 +36,14 @@ class Neo4jTester():
             return False
         client = self.get_connection()
         result, query_time1 = client.run(query)
-        result1 = result.data()
+        result1 = result
 
         for step in range(0, 5):
             if stop_event.is_set():
                 return False
             new_query = transformer.mutant_query_generator(query)
             result, query_time2 = client.run(new_query)
-            result2 = result.data()
+            result2 = result
             if compare(result1, result2):
                 if configs.global_env == 'live':
                     post("Logic inconsistency", query)
@@ -52,7 +52,7 @@ class Neo4jTester():
             elif query_time1 > 1 and query_time2 > 1 and \
                     (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
                 if configs.global_env == 'live':
-                    post("Performance inconsistency", query)
+                    post("Performance inconsistency", f"Query1: {query}\n using time: {query_time1}  \n Query2: {new_query} \n using time: {query_time2}")
                 logger.info(
                     f"Performance inconsistency. \n Query1: {query} \n using time: {query_time1} \n Query2: {new_query} \n using time: {query_time2}")
                 return False
