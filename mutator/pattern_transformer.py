@@ -1,5 +1,4 @@
 import random
-from config import logger
 from schema import *
 
 
