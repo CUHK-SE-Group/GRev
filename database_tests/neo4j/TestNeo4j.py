@@ -46,15 +46,19 @@ class Neo4jTester():
                 result2 = result.data()
                 if compare(result1, result2):
                     logger.warn(f"Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
+                    break
                 elif query_time1 > 1 and query_time2 > 1 and \
                         (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
                     logger.info(
                         f"Performance inconsistency. \n Query1: {query} \n using time: {query_time1} \n Query2: {new_query} \n using time: {query_time2}")
+                    break
             except Neo4jError as e:
-                logger.info(f"Neo4j exception: {e}. \n Triggering Query: {query}")
+                logger.info(f"Neo4j exception: {e}. \n Triggering Query: {new_query}")
+                break
             except Exception as e:
-                logger.info(f"Unexpected exception: {e}. \n Triggering Query: {query}")
-
+                logger.info(f"Unexpected exception: {e}. \n Triggering Query: {new_query}")
+                break
+                
     def Testing(self, create_file, query_file):
         client = Neo4j("bolt://10.20.10.27:7687", "neo4j", "testtest")
         client.create_graph(create_file)
