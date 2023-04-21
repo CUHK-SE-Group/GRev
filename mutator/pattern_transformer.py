@@ -1,5 +1,5 @@
 import random
-from schema import *
+from mutator.schema import *
 
 
 class PatternTransformer(AbstractASGOperator):
