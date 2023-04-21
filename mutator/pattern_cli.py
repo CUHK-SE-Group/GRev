@@ -1,5 +1,5 @@
 import click
-from pattern_transformer import *
+from mutator.pattern_transformer import *
 
 @click.group()
 def cli():

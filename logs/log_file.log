@@ -1,0 +1,3 @@
+2023-04-21 10:59:56,548 - numexpr.utils - INFO - NumExpr defaulting to 8 threads.
+2023-04-21 11:02:15,830 - numexpr.utils - INFO - NumExpr defaulting to 8 threads.
+2023-04-21 11:02:47,645 - root - INFO - Triggering Query: MATCH (n1), (n1)<-[r2 :T3]-(n3 :L0) WHERE ((r2.id) > -1) OPTIONAL MATCH (n4 :L4)<-[r3 :T5]-(n0 :L0) WHERE ((n4.k29) >= '1kV3AF5') WITH min(1975971580) AS a0, (n3.k2) AS a1, min('K') AS a2, (r3.k73) AS a3 WHERE true MATCH (n0 :L1)-[]->(n1)<-[]-(n2 :L2) WHERE (NOT true) MATCH (n0)-[]->(n1)<-[]-(n2 :L0) WITH a1 ORDER BY a1 WHERE true OPTIONAL MATCH (n4 :L4)<-[]-(n0) OPTIONAL MATCH (n2 :L2)-[]->(n1)<-[]-(n3) WHERE ((n2.k12) <= (n2.k14)) OPTIONAL MATCH (n2)-[]->(n1)<-[]-(n3) RETURN a1
