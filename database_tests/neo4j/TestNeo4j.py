@@ -139,7 +139,7 @@ def scheduler():
     for file_path in sorted_file_paths:
         res = table.search(session.FileName == file_path)
         if not res:
-            table.update({'status': 'doing'}, session.FileName == file_path)
+            table.insert({'FileName': file_path, 'status': 'doing'})
             success = t.single_file_testing(file_path)
             if success:
                 table.update({'status': 'done'}, session.FileName == file_path)
