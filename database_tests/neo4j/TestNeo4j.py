@@ -123,8 +123,9 @@ def scheduler():
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
         for file in filenames:
-            file_path = os.path.join(dirpath, file)
-            file_paths.append(file_path)
+            if 'cur.log' in file:
+                file_path = os.path.join(dirpath, file)
+                file_paths.append(file_path)
 
     sorted_file_paths = sorted(file_paths)
 
