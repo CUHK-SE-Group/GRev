@@ -26,6 +26,16 @@ def compare(result1, result2):
 
 class Neo4jTester():
     def __init__(self, database):
+        temp_conn = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, '')
+        logger.info("Initializing dabtases...")
+        result, _ = temp_conn.run("SHOW DATABASES")
+        database_names = [record['name'] for record in result]
+        # 检查指定的数据库是否在数据库名称列表中
+        if database in database_names:
+            logger.info("The database exists...")
+        else:
+            logger.info("Creating database...")
+            temp_conn.run(f"CREATE DATABASE {database}")
         self.connections = {}
         self.database = database
 
@@ -149,7 +159,7 @@ def scheduler():
 
 if __name__ == "__main__":
     if configs.global_env == "debug":
-        Tester = Neo4jTester('test1')
+        Tester = Neo4jTester('test4')
         Tester.single_file_testing("query_file/database0-cur.log")
         stop_event.set()
     else:
