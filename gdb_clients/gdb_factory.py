@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 
 from neo4j.exceptions import Neo4jError
 
+from configs import logger
 from utils.decorator import timeout_decorator, timeout_decorator2
 
 
@@ -31,17 +32,13 @@ class Neo4j:
         end_time = time.time()
         return di, end_time - start_time
 
-    def create_graph(self, file_path):
+    def create_graph(self, queries: []):
         self.clear()
-        with open(file_path, "r") as f:
-            query = f.readline()
-            while query != '':
-                query.replace('\n', '')
-                try:
-                    result = self.session.run(query)
-                except Neo4jError as e:
-                    logging.error("An error occurred: ", e)
-                query = f.readline()
+        for stmt in queries:
+            try:
+                self.session.run(stmt)
+            except Exception as e:
+                logger.error("create session error, ", e)
         print("Graph schema Created.")
 
     def __del__(self):
