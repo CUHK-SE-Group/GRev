@@ -1,4 +1,5 @@
 import concurrent.futures
+import random
 import threading
 from concurrent.futures import CancelledError
 from copy import deepcopy
@@ -24,13 +25,25 @@ def compare(result1, result2):
 
 
 class Neo4jTester():
-    def __init__(self):
+    def __init__(self, database):
+        temp_conn = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, '')
+        logger.info("Initializing dabtases...")
+        result, _ = temp_conn.run("SHOW DATABASES")
+        database_names = [record['name'] for record in result]
+        # 检查指定的数据库是否在数据库名称列表中
+        if database in database_names:
+            logger.info("The database exists...")
+        else:
+            logger.info("Creating database...")
+            temp_conn.run(f"CREATE DATABASE {database}")
         self.connections = {}
+        self.database = database
 
     def get_connection(self):
         thread_id = threading.get_ident()
         if thread_id not in self.connections:
-            self.connections[thread_id] = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd)
+            self.connections[thread_id] = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd,
+                                                self.database)
         return self.connections[thread_id]
 
     def process_query(self, query: str, transformer: QueryTransformer, logfile):
@@ -48,21 +61,21 @@ class Neo4jTester():
             result2 = result
             if compare(result1, result2):
                 if configs.global_env == 'live':
-                    post(f"[{logfile}]Logic inconsistency", query)
-                logger.warn(f"[{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
+                    post(f"[{self.database}][{logfile}]Logic inconsistency", query)
+                logger.warn(f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 return False
             elif query_time1 > 1000 and query_time2 > 1000 and \
                     (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
                 if configs.global_env == 'live':
-                    post(f"[{logfile}]Performance inconsistency",
+                    post(f"[{self.database}][{logfile}]Performance inconsistency",
                          f"[Query1: {query}\n using time: {query_time1}ms  \n Query2: {new_query} \n using time: {query_time2}ms")
                 logger.info(
-                    f"[{logfile}]Performance inconsistency. \n Query1: {query} \n using time: {query_time1}ms \n Query2: {new_query} \n using time: {query_time2}ms")
+                    f"[{self.database}][{logfile}]Performance inconsistency. \n Query1: {query} \n using time: {query_time1}ms \n Query2: {new_query} \n using time: {query_time2}ms")
                 return False
         return True
 
     def single_file_testing(self, logfile):
-        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd)
+        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, 'test2')
 
         with open(logfile, 'r') as f:
             content = f.read()
@@ -85,21 +98,21 @@ class Neo4jTester():
                     query = futures[future]
                     result = future.result(configs.timeout)
                 except CancelledError as e:
-                    logger.info(f"[{logfile}] Execute cancelled: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}] Execute cancelled: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f'[{logfile}]Execute cancelled', query)
+                        post(f'[{self.database}][{logfile}]Execute cancelled', query)
                 except TimeoutError as e:
-                    logger.info(f"[{logfile}]Execute timeout: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}]Execute timeout: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f'[{logfile}]Execute timeout', query)
+                        post(f'[{self.database}][{logfile}]Execute timeout', query)
                 except Neo4jError as e:
-                    logger.info(f"[{logfile}]Neo4j exception: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}]Neo4j exception: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f'[{logfile}]{e.title}.{e.category}.{e.classification}', query)
+                        post(f'[{self.database}][{logfile}]{e.title}.{e.category}.{e.classification}', query)
                 except Exception as e:
-                    logger.info(f"[{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f"[{logfile}]Unknown Exception", query)
+                        post(f"[{self.database}][{logfile}]Unknown Exception", query)
         return True
 
 
@@ -119,6 +132,7 @@ def producer():
 
 def scheduler():
     db = TinyDB('db.json')
+    table = db.table('pattern_transformer')
     folder_path = 'query_producer/logs/composite'
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
@@ -129,19 +143,23 @@ def scheduler():
 
     sorted_file_paths = sorted(file_paths)
 
-    t = Neo4jTester()
+    idx = random.randint(0, 1000000000000)
+    t = Neo4jTester(f"pattern{idx}")
     session = Query()
     for file_path in sorted_file_paths:
-        res = db.search(session.FileName == file_path)
+        res = table.search(session.FileName == file_path)
         if not res:
+            table.insert({'FileName': file_path, 'status': 'doing'})
             success = t.single_file_testing(file_path)
             if success:
-                db.insert({'FileName': file_path, "status": 'done'})
+                table.update({'status': 'done'}, session.FileName == file_path)
+            else:
+                table.remove(session.FileName == file_path)
 
 
 if __name__ == "__main__":
     if configs.global_env == "debug":
-        Tester = Neo4jTester()
+        Tester = Neo4jTester('test4')
         Tester.single_file_testing("query_file/database0-cur.log")
         stop_event.set()
     else:
