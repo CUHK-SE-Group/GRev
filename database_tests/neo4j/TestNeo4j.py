@@ -61,16 +61,16 @@ class Neo4jTester():
             result2 = result
             if compare(result1, result2):
                 if configs.global_env == 'live':
-                    post(f"[{logfile}]Logic inconsistency", query)
-                logger.warn(f"[{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
+                    post(f"[{self.database}][{logfile}]Logic inconsistency", query)
+                logger.warn(f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 return False
             elif query_time1 > 1000 and query_time2 > 1000 and \
                     (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
                 if configs.global_env == 'live':
-                    post(f"[{logfile}]Performance inconsistency",
+                    post(f"[{self.database}][{logfile}]Performance inconsistency",
                          f"[Query1: {query}\n using time: {query_time1}ms  \n Query2: {new_query} \n using time: {query_time2}ms")
                 logger.info(
-                    f"[{logfile}]Performance inconsistency. \n Query1: {query} \n using time: {query_time1}ms \n Query2: {new_query} \n using time: {query_time2}ms")
+                    f"[{self.database}][{logfile}]Performance inconsistency. \n Query1: {query} \n using time: {query_time1}ms \n Query2: {new_query} \n using time: {query_time2}ms")
                 return False
         return True
 
@@ -98,21 +98,21 @@ class Neo4jTester():
                     query = futures[future]
                     result = future.result(configs.timeout)
                 except CancelledError as e:
-                    logger.info(f"[{logfile}] Execute cancelled: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}] Execute cancelled: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f'[{logfile}]Execute cancelled', query)
+                        post(f'[{self.database}][{logfile}]Execute cancelled', query)
                 except TimeoutError as e:
-                    logger.info(f"[{logfile}]Execute timeout: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}]Execute timeout: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f'[{logfile}]Execute timeout', query)
+                        post(f'[{self.database}][{logfile}]Execute timeout', query)
                 except Neo4jError as e:
-                    logger.info(f"[{logfile}]Neo4j exception: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}]Neo4j exception: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f'[{logfile}]{e.title}.{e.category}.{e.classification}', query)
+                        post(f'[{self.database}][{logfile}]{e.title}.{e.category}.{e.classification}', query)
                 except Exception as e:
-                    logger.info(f"[{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
+                    logger.info(f"[{self.database}][{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
-                        post(f"[{logfile}]Unknown Exception", query)
+                        post(f"[{self.database}][{logfile}]Unknown Exception", query)
         return True
 
 
