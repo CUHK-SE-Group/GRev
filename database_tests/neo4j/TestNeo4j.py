@@ -55,9 +55,9 @@ class Neo4jTester():
                     (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
                 if configs.global_env == 'live':
                     post(f"[{logfile}]Performance inconsistency",
-                         f"[Query1: {query}\n using time: {query_time1}  \n Query2: {new_query} \n using time: {query_time2}")
+                         f"[Query1: {query}\n using time: {query_time1}ms  \n Query2: {new_query} \n using time: {query_time2}ms")
                 logger.info(
-                    f"[{logfile}]Performance inconsistency. \n Query1: {query} \n using time: {query_time1} \n Query2: {new_query} \n using time: {query_time2}")
+                    f"[{logfile}]Performance inconsistency. \n Query1: {query} \n using time: {query_time1}ms \n Query2: {new_query} \n using time: {query_time2}ms")
                 return False
         return True
 
@@ -140,7 +140,7 @@ def scheduler():
 
 
 if __name__ == "__main__":
-    # Tester = Neo4jTester()
-    # Tester.single_file_testing("query_file/database0-cur.log")
-    # stop_event.set()
-    scheduler()
+    Tester = Neo4jTester()
+    Tester.single_file_testing("query_file/database0-cur.log")
+    stop_event.set()
+    # scheduler()

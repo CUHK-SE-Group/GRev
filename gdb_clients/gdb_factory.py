@@ -26,11 +26,13 @@ class Neo4j:
         print("Clear Graph Schema.")
 
     def run(self, query):
-        start_time = time.time()
         result = self.session.run(query, time_out=3)
         di = result.data()
-        end_time = time.time()
-        return di, end_time - start_time
+
+        res = result.consume()
+        t1 = res.result_available_after
+        t2 = res.result_consumed_after
+        return di, t1
 
     def create_graph(self, queries: []):
         self.clear()
