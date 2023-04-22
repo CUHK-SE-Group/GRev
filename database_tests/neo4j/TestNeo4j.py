@@ -140,7 +140,9 @@ def scheduler():
 
 
 if __name__ == "__main__":
-    Tester = Neo4jTester()
-    Tester.single_file_testing("query_file/database0-cur.log")
-    stop_event.set()
-    # scheduler()
+    if configs.global_env == "debug":
+        Tester = Neo4jTester()
+        Tester.single_file_testing("query_file/database0-cur.log")
+        stop_event.set()
+    else:
+        scheduler()
