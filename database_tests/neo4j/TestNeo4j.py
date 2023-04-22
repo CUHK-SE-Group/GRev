@@ -75,7 +75,7 @@ class Neo4jTester():
         return True
 
     def single_file_testing(self, logfile):
-        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, 'test2')
+        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, self.database)
 
         with open(logfile, 'r') as f:
             content = f.read()
