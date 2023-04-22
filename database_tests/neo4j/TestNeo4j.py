@@ -65,7 +65,7 @@ class Neo4jTester():
                 logger.warn(f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 return False
             elif query_time1 > 1000 and query_time2 > 1000 and \
-                    (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
+                    (query_time1 > 10 * query_time2 or query_time1 < 0.1 * query_time2):
                 if configs.global_env == 'live':
                     post(f"[{self.database}][{logfile}]Performance inconsistency",
                          f"[Query1: {query}\n using time: {query_time1}ms  \n Query2: {new_query} \n using time: {query_time2}ms")
@@ -131,8 +131,6 @@ def producer():
 
 
 def scheduler():
-    db = TinyDB('db.json')
-    table = db.table('pattern_transformer')
     folder_path = 'query_producer/logs/composite'
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
@@ -145,8 +143,10 @@ def scheduler():
 
     idx = random.randint(0, 1000000000000)
     t = Neo4jTester(f"pattern{idx}")
-    session = Query()
     for file_path in sorted_file_paths:
+        db = TinyDB('db.json')
+        table = db.table('pattern_transformer')
+        session = Query()
         res = table.search(session.FileName == file_path)
         if not res:
             table.insert({'FileName': file_path, 'status': 'doing'})
