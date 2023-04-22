@@ -36,6 +36,7 @@ class Neo4jTester():
         else:
             logger.info("Creating database...")
             temp_conn.run(f"CREATE DATABASE {database}")
+        temp_conn = None
         self.connections = {}
         self.database = database
 
@@ -65,7 +66,7 @@ class Neo4jTester():
                 logger.warn(f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 return False
             elif query_time1 > 1000 and query_time2 > 1000 and \
-                    (query_time1 > 10 * query_time2 or query_time1 < 0.1 * query_time2):
+                    (query_time1 > 5 * query_time2 or query_time1 < 0.2 * query_time2):
                 if configs.global_env == 'live':
                     post(f"[{self.database}][{logfile}]Performance inconsistency",
                          f"[Query1: {query}\n using time: {query_time1}ms  \n Query2: {new_query} \n using time: {query_time2}ms")
@@ -86,6 +87,7 @@ class Neo4jTester():
         create_statements = contents[4:-5000]
 
         client.create_graph(create_statements)
+        client = None
         Q = QueryTransformer()
         cnt = 1
         with concurrent.futures.ThreadPoolExecutor(max_workers=configs.concurrency) as executor:
