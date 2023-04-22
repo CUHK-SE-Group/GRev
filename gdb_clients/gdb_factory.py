@@ -20,6 +20,17 @@ class Neo4j:
     def __init__(self, uri, username, passwd, database):
         self.database = database
         self.driver = GraphDatabase.driver(uri, auth=basic_auth(username, passwd))
+
+        # 获取所有数据库的名称
+        with self.driver.session() as session:
+            result = session.run("SHOW DATABASES")
+            database_names = [record['name'] for record in result]
+
+        # 检查指定的数据库是否在数据库名称列表中
+        if database in database_names:
+            print("The database exists.")
+        else:
+            session.run(f"CREATE DATABASE {self.database}")
         self.session = self.driver.session(database=database)
 
     def clear(self):
@@ -27,17 +38,7 @@ class Neo4j:
         print("Clear Graph Schema.")
 
     def run(self, query):
-        try:
-            result = self.session.run(query, time_out=3)
-        except Exception as e:
-            if 'Neo.ClientError.Database.DatabaseNotFound' in e.code:
-                logger.info(f"Database {self.database} not found, creating")
-                with self.driver.session() as session:
-                    session.run(f"CREATE DATABASE {self.database}")
-                    self.session = self.driver.session(database=self.database)
-                    result = self.session.run(query, time_out=3)
-            else:
-                raise
+        result = self.session.run(query, time_out=3)
         di = result.data()
 
         res = result.consume()
