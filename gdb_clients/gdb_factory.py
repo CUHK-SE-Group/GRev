@@ -4,7 +4,7 @@ import logging
 from neo4j import GraphDatabase, basic_auth
 from abc import ABC, abstractmethod
 
-from neo4j.exceptions import Neo4jError
+from neo4j.exceptions import Neo4jError, DatabaseError
 
 from configs import logger
 from utils.decorator import timeout_decorator, timeout_decorator2
@@ -17,16 +17,27 @@ class GdbFactory(ABC):
 
 
 class Neo4j:
-    def __init__(self, uri, username, passwd):
+    def __init__(self, uri, username, passwd, database):
+        self.database = database
         self.driver = GraphDatabase.driver(uri, auth=basic_auth(username, passwd))
-        self.session = self.driver.session()
+        self.session = self.driver.session(database=database)
 
     def clear(self):
-        self.session.run("MATCH (n) DETACH DELETE n")
+        self.run("MATCH (n) DETACH DELETE n")
         print("Clear Graph Schema.")
 
     def run(self, query):
-        result = self.session.run(query, time_out=3)
+        try:
+            result = self.session.run(query, time_out=3)
+        except Exception as e:
+            if 'Neo.ClientError.Database.DatabaseNotFound' in e.code:
+                logger.info(f"Database {self.database} not found, creating")
+                with self.driver.session() as session:
+                    session.run(f"CREATE DATABASE {self.database}")
+                    self.session = self.driver.session(database=self.database)
+                    result = self.session.run(query, time_out=3)
+            else:
+                raise
         di = result.data()
 
         res = result.consume()

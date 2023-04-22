@@ -1,4 +1,5 @@
 import concurrent.futures
+import random
 import threading
 from concurrent.futures import CancelledError
 from copy import deepcopy
@@ -24,13 +25,15 @@ def compare(result1, result2):
 
 
 class Neo4jTester():
-    def __init__(self):
+    def __init__(self, database):
         self.connections = {}
+        self.database = database
 
     def get_connection(self):
         thread_id = threading.get_ident()
         if thread_id not in self.connections:
-            self.connections[thread_id] = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd)
+            self.connections[thread_id] = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd,
+                                                self.database)
         return self.connections[thread_id]
 
     def process_query(self, query: str, transformer: QueryTransformer, logfile):
@@ -62,7 +65,7 @@ class Neo4jTester():
         return True
 
     def single_file_testing(self, logfile):
-        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd)
+        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, 'test2')
 
         with open(logfile, 'r') as f:
             content = f.read()
@@ -119,6 +122,7 @@ def producer():
 
 def scheduler():
     db = TinyDB('db.json')
+    table = db.table('pattern_transformer')
     folder_path = 'query_producer/logs/composite'
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
@@ -129,19 +133,23 @@ def scheduler():
 
     sorted_file_paths = sorted(file_paths)
 
-    t = Neo4jTester()
+    idx = random.randint(0, 1000000000000)
+    t = Neo4jTester(f"pattern{idx}")
     session = Query()
     for file_path in sorted_file_paths:
-        res = db.search(session.FileName == file_path)
+        res = table.search(session.FileName == file_path)
         if not res:
+            table.update({'status': 'doing'}, session.FileName == file_path)
             success = t.single_file_testing(file_path)
             if success:
-                db.insert({'FileName': file_path, "status": 'done'})
+                table.update({'status': 'done'}, session.FileName == file_path)
+            else:
+                table.remove(session.FileName == file_path)
 
 
 if __name__ == "__main__":
     if configs.global_env == "debug":
-        Tester = Neo4jTester()
+        Tester = Neo4jTester('test1')
         Tester.single_file_testing("query_file/database0-cur.log")
         stop_event.set()
     else:
