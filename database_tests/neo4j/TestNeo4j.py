@@ -92,8 +92,10 @@ class Neo4jTester():
         cnt = 1
         with concurrent.futures.ThreadPoolExecutor(max_workers=configs.concurrency) as executor:
             futures = {executor.submit(self.process_query, query, Q, logfile): query for query in match_statements}
-
-            for future in concurrent.futures.as_completed(futures):
+            done, not_done = concurrent.futures.wait(
+                futures, timeout=2, return_when=concurrent.futures.FIRST_EXCEPTION
+            )
+            for future in done:
                 print(cnt)
                 cnt += 1
                 try:
@@ -115,6 +117,10 @@ class Neo4jTester():
                     logger.info(f"[{self.database}][{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
                         post(f"[{self.database}][{logfile}]Unknown Exception", query)
+            for future in not_done:
+                query = futures[future]
+                future.cancel()
+                print(f"Cancelled [{query}] due to timeout.")
         return True
 
 
