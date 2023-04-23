@@ -15,6 +15,8 @@ timeout = config.getint('neo4j', 'timeout')
 neo4j_uri = config.get('neo4j', 'uri')
 neo4j_username = config.get('neo4j', 'username')
 neo4j_passwd = config.get('neo4j', 'passwd')
+query_len = config.getint('neo4j', 'query_len')
+input_path = config.get('neo4j', 'input_path')
 
 logger = logging.getLogger()
 logger.setLevel(log_level)

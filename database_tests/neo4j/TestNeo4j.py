@@ -83,8 +83,8 @@ class Neo4jTester():
 
         contents = content.strip().split('\n')
         # 分离CREATE和MATCH语句
-        match_statements = contents[-5000:]
-        create_statements = contents[4:-5000]
+        match_statements = contents[-configs.query_len:]
+        create_statements = contents[4:-configs.query_len]
 
         client.create_graph(create_statements)
         client = None
@@ -133,7 +133,7 @@ def producer():
 
 
 def scheduler():
-    folder_path = 'query_producer/logs/composite'
+    folder_path = configs.input_path
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
         for file in filenames:
