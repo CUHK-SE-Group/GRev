@@ -36,6 +36,7 @@ class Neo4jTester():
         else:
             logger.info("Creating database...")
             temp_conn.run(f"CREATE DATABASE {database}")
+        temp_conn = None
         self.connections = {}
         self.database = database
 
@@ -65,7 +66,7 @@ class Neo4jTester():
                 logger.warn(f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 return False
             elif query_time1 > 1000 and query_time2 > 1000 and \
-                    (query_time1 > 2 * query_time2 or query_time1 < 0.5 * query_time2):
+                    (query_time1 > 5 * query_time2 or query_time1 < 0.2 * query_time2):
                 if configs.global_env == 'live':
                     post(f"[{self.database}][{logfile}]Performance inconsistency",
                          f"[Query1: {query}\n using time: {query_time1}ms  \n Query2: {new_query} \n using time: {query_time2}ms")
@@ -75,28 +76,31 @@ class Neo4jTester():
         return True
 
     def single_file_testing(self, logfile):
-        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, 'test2')
+        client = Neo4j(configs.neo4j_uri, configs.neo4j_username, configs.neo4j_passwd, self.database)
 
         with open(logfile, 'r') as f:
             content = f.read()
 
         contents = content.strip().split('\n')
         # 分离CREATE和MATCH语句
-        match_statements = contents[-5000:]
-        create_statements = contents[4:-5000]
+        match_statements = contents[-configs.query_len:]
+        create_statements = contents[4:-configs.query_len]
 
         client.create_graph(create_statements)
+        client = None
         Q = QueryTransformer()
         cnt = 1
         with concurrent.futures.ThreadPoolExecutor(max_workers=configs.concurrency) as executor:
             futures = {executor.submit(self.process_query, query, Q, logfile): query for query in match_statements}
-
-            for future in concurrent.futures.as_completed(futures):
+            done, not_done = concurrent.futures.wait(
+                futures, timeout=configs.timeout*configs.query_len, return_when=concurrent.futures.FIRST_EXCEPTION
+            )
+            for future in done:
                 print(cnt)
                 cnt += 1
                 try:
                     query = futures[future]
-                    result = future.result(configs.timeout)
+                    result = future.result()
                 except CancelledError as e:
                     logger.info(f"[{self.database}][{logfile}] Execute cancelled: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
@@ -113,7 +117,14 @@ class Neo4jTester():
                     logger.info(f"[{self.database}][{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
                     if configs.global_env == 'live':
                         post(f"[{self.database}][{logfile}]Unknown Exception", query)
-        return True
+            for future in not_done:
+                query = futures[future]
+                future.cancel()
+                logger.info(f"Cancelled [{query}] due to timeout.")
+                if configs.global_env == 'live':
+                    post(f'[{self.database}][{logfile}]Execute timeout', query)
+            return True
+        
 
 
 def producer():
@@ -131,9 +142,7 @@ def producer():
 
 
 def scheduler():
-    db = TinyDB('db.json')
-    table = db.table('pattern_transformer')
-    folder_path = 'query_producer/logs/composite'
+    folder_path = configs.input_path
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
         for file in filenames:
@@ -145,8 +154,10 @@ def scheduler():
 
     idx = random.randint(0, 1000000000000)
     t = Neo4jTester(f"pattern{idx}")
-    session = Query()
     for file_path in sorted_file_paths:
+        db = TinyDB('db.json')
+        table = db.table('pattern_transformer')
+        session = Query()
         res = table.search(session.FileName == file_path)
         if not res:
             table.insert({'FileName': file_path, 'status': 'doing'})
