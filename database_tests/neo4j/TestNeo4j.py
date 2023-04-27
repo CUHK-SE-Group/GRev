@@ -93,7 +93,7 @@ class Neo4jTester():
         with concurrent.futures.ThreadPoolExecutor(max_workers=configs.concurrency) as executor:
             futures = {executor.submit(self.process_query, query, Q, logfile): query for query in match_statements}
             done, not_done = concurrent.futures.wait(
-                futures, timeout=configs.timeout*configs.query_len, return_when=concurrent.futures.FIRST_EXCEPTION
+                futures, timeout=configs.timeout*configs.query_len, return_when=concurrent.futures.ALL_COMPLETED
             )
             for future in done:
                 print(cnt)

@@ -11,7 +11,7 @@ log_file = config.get('LOG', 'file')
 lark_token = config.get('lark', 'token')
 
 concurrency = config.getint('neo4j', 'concurrency')
-timeout = config.getint('neo4j', 'timeout')
+timeout = config.getfloat('neo4j', 'timeout')
 neo4j_uri = config.get('neo4j', 'uri')
 neo4j_username = config.get('neo4j', 'username')
 neo4j_passwd = config.get('neo4j', 'passwd')

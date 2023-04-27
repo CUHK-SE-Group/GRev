@@ -27,7 +27,7 @@ class Neo4j:
         print("Clear Graph Schema.")
 
     def run(self, query):
-        result = self.session.run(query, time_out=3)
+        result = self.session.run(query)
         di = result.data()
 
         res = result.consume()
