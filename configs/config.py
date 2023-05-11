@@ -1,6 +1,7 @@
 import logging
 import configparser
-
+import os
+print(os.getcwd())
 config = configparser.ConfigParser()
 config.read('configs/config.ini')
 
