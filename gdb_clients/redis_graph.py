@@ -25,5 +25,7 @@ class Redis:
 
 if __name__ == "__main__":
     r = Redis("10.20.10.27", "test_graph")
-    re = r.run("MATCH (n0)<-[r0 :T3]-(n1), (n2 :L2) WHERE ((r0.id) > -1) MATCH (n2) OPTIONAL MATCH (n3 :L0 :L3 :L5)-[r1 :T0]->(n1)-[r2 :T1]->(n0) WHERE (((r0.k55) <= (r2.k46)) AND ((r1.id) <> (r2.id))) OPTIONAL MATCH (n3)-[]->(n1)-[]->(n0) WHERE ((n2.k15) >= (n2.k15)) RETURN (r1.k43) AS a0, (r0.k57) AS a1, (r1.k40) AS a2, (r1.k43) AS a3")
+
+    q = "MATCH (n0 :L4 :L0 :L3), (n0 :L4 :L0 :L3)<-[r0 :T5]-(n1 :L1 :L2), (n2)<-[r1 :T3]-(n1 :L1 :L2), (n4 :L2 :L0)-[r3 :T5]->(n5 :L1 :L4 :L3) WHERE (((((r1.k53) <> (n0.k27)) AND ((r0.id) <> (r1.id))) AND ((r0.id) <> (r3.id))) AND ((r1.id) <> (r3.id))) OPTIONAL MATCH (n1), (n1)-[]->(n0), (n8), (n7 :L4)<-[r5 :T5]-(n8), (n1)-[]->(n2), (n7 :L4), (n6 :L2), (n6 :L2)-[r4 :T2]->(n7 :L4) WHERE (((r4.id) > -1) AND ((r4.id) <> (r5.id))) OPTIONAL MATCH (n7)<-[r6 :T4]-(n5 :L3), (n9 :L4), (n9 :L4)-[r7 :T2]->(n5 :L3) WHERE (((r6.id) > -1) AND ((r6.id) <> (r7.id))) RETURN (n5.k21) AS a0, (n0.k24) AS a1, (n9.k25) AS a2, (r6.k58) AS a3 ORDER BY a3"
+    re = r.run(q)
     print(re)

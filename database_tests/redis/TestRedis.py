@@ -1,4 +1,5 @@
 import concurrent.futures
+import csv
 import random
 import threading
 from collections import defaultdict
@@ -18,6 +19,7 @@ import subprocess
 
 stop_event = threading.Event()
 
+
 def list_to_dict(lst):
     # 定义一个defaultdict，用于创建一个默认值为0的字典
     result = defaultdict(int)
@@ -33,10 +35,22 @@ def list_to_dict(lst):
     return dict(result)
 
 
+def test_compare():
+    Tester = RedisTester('test_graph')
+    q1 = """MATCH (n0 :L5) UNWIND [(n0.k36), (n0.k36), 31850948] AS a0 UNWIND [-1519172260, (n0.k36)] AS a1 UNWIND [(n0.k36), 232429337, (n0.k36)] AS a2 MATCH (n0), (n1 :L1)<-[r0 :T4]-(n2 :L4)<-[r1 :T3]-(n3), (n2)<-[r2 :T0]-(n4 :L4)-[r3 :T2]->(n5 :L2) WHERE (((((((r2.k40) AND ((r0.id) <> (r1.id))) AND ((r0.id) <> (r2.id))) AND ((r0.id) <> (r3.id))) AND ((r1.id) <> (r2.id))) AND ((r1.id) <> (r3.id))) AND ((r2.id) <> (r3.id))) WITH r2, (r1.k55) AS a3 ORDER BY (r2.k41) DESC MATCH (n0 :L5), (n6 :L4 :L0)-[r4 :T3]->(n3) WHERE (r2.k40) RETURN a3, (r4.k55) AS a4, (r2.k42) AS a5"""
+    q2 = """MATCH (n0 :L5) UNWIND [(n0.k36), (n0.k36), 31850948] AS a0 UNWIND [-1519172260, (n0.k36)] AS a1 UNWIND [(n0.k36), 232429337, (n0.k36)] AS a2 MATCH (n2 :L4), (n3)-[r1 :T3]->(n2 :L4)<-[r2 :T0]-(n4 :L4)-[r3 :T2]->(n5 :L2), (n1 :L1)<-[r0 :T4]-(n2 :L4), (n0) WHERE (((((((r2.k40) AND ((r0.id) <> (r1.id))) AND ((r0.id) <> (r2.id))) AND ((r0.id) <> (r3.id))) AND ((r1.id) <> (r2.id))) AND ((r1.id) <> (r3.id))) AND ((r2.id) <> (r3.id))) WITH r2, (r1.k55) AS a3 ORDER BY (r2.k41) DESC MATCH (n3), (n3)<-[r4 :T3]-(n6 :L4 :L0), (n0 :L5) WHERE (r2.k40) RETURN a3, (r4.k55) AS a4, (r2.k42) AS a5"""
+    result1 = Tester.get_connection().run(q1)
+    result2 = Tester.get_connection().run(q2)
+    print(result1, result2)
+    assert compare(result1, result2) == True
+
+
 def compare(list1, list2):
     if len(list1) != len(list2):
         return False
-    return list_to_dict(list1) == list_to_dict(list2)
+    t1 = list_to_dict(list1)
+    t2 = list_to_dict(list2)
+    return t1 == t2
 
 
 class RedisTester:
@@ -62,9 +76,13 @@ class RedisTester:
             result2 = result
             if not compare(result1, result2):
                 if configs.global_env == 'live':
-                    post(f"[{self.database}][{logfile}]Logic inconsistency", query)
-                logger.warn(
+                    post(f"[{self.database}][{logfile}]Logic inconsistency", query + "\n" + new_query)
+                logger.warning(
                     f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
+                # 打开CSV文件进行追加，如果文件不存在则创建
+                with open('logic_error.tsv', mode='a', newline='') as file:
+                    writer = csv.writer(file,delimiter='\t')
+                    writer.writerow([self.database, logfile, query, new_query])
                 return False
         return True
 
@@ -127,21 +145,6 @@ class RedisTester:
                     post(f"[{self.database}][{logfile}]Unknown Exception", query)
         return True
 
-
-def producer():
-    current_dir = os.getcwd()
-    new_dir = "query_producer"
-    os.chdir(new_dir)
-    command = ['java', '-jar', 'GDsmith.jar', '--num-tries', '1', '--num-queries', '5000', '--algorithm',
-               'compared3', '--num-threads', '12', 'composite']
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
-    if process.returncode != 0:
-        print(f"执行命令时出现错误: {error.decode('utf-8')}")
-    else:
-        print(f"命令执行成功，输出信息: {output.decode('utf-8')}")
-
-
 def scheduler():
     folder_path = configs.input_path
     file_paths = []
@@ -153,8 +156,7 @@ def scheduler():
 
     sorted_file_paths = sorted(file_paths)
 
-    idx = random.randint(0, 1000000000000)
-    t = RedisTester(f"pattern{idx}")
+    t = RedisTester(f"test_graph")
     for file_path in sorted_file_paths:
         db = TinyDB('db.json')
         table = db.table('redis')
