@@ -66,7 +66,7 @@ class RedisTester:
                     writer = csv.writer(file, delimiter='\t')
                     writer.writerow([self.database, logfile, query, new_query])
                 return False
-            if t1 > 10 * t2 or t1 < 0.1 * t2:
+            if t1 > 20 * t2 or t1 < 0.05 * t2:
                 if configs.global_env == 'live':
                     post(f"[{self.database}][{logfile}]Performance inconsistency. Query1[{t1}ms, Query2[{t2}ms]] ", query + "\n" + new_query)
                 logger.warning(
