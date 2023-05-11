@@ -68,7 +68,7 @@ class RedisTester:
                 return False
             if t1 > 10 * t2 or t1 < 0.1 * t2:
                 if configs.global_env == 'live':
-                    post(f"[{self.database}][{logfile}]Performance inconsistency", query + "\n" + new_query)
+                    post(f"[{self.database}][{logfile}]Performance inconsistency. Query1[{t1}ms, Query2[{t2}ms]] ", query + "\n" + new_query)
                 logger.warning(
                     f"[{self.database}][{logfile}]Performance inconsistency. Query1[{t1}ms, Query2[{t2}ms]] \n Query1: {query} \n Query2: {new_query}")
         return True
