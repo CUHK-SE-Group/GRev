@@ -1,10 +1,6 @@
-import concurrent.futures
 import csv
-import random
 import threading
 from collections import defaultdict
-from concurrent.futures import CancelledError
-from copy import deepcopy
 
 import redis
 from tinydb import TinyDB, Query
@@ -13,9 +9,7 @@ import configs
 from gdb_clients import *
 from configs.config import logger
 from mutator.query_transformer import QueryTransformer
-from compare.hash_nested_dict import hash_dictionary
 from webhook.lark import post
-import subprocess
 
 stop_event = threading.Event()
 
@@ -33,16 +27,6 @@ def list_to_dict(lst):
         else:
             result[elem] += 1
     return dict(result)
-
-
-def test_compare():
-    Tester = RedisTester('test_graph')
-    q1 = """MATCH (n0 :L5) UNWIND [(n0.k36), (n0.k36), 31850948] AS a0 UNWIND [-1519172260, (n0.k36)] AS a1 UNWIND [(n0.k36), 232429337, (n0.k36)] AS a2 MATCH (n0), (n1 :L1)<-[r0 :T4]-(n2 :L4)<-[r1 :T3]-(n3), (n2)<-[r2 :T0]-(n4 :L4)-[r3 :T2]->(n5 :L2) WHERE (((((((r2.k40) AND ((r0.id) <> (r1.id))) AND ((r0.id) <> (r2.id))) AND ((r0.id) <> (r3.id))) AND ((r1.id) <> (r2.id))) AND ((r1.id) <> (r3.id))) AND ((r2.id) <> (r3.id))) WITH r2, (r1.k55) AS a3 ORDER BY (r2.k41) DESC MATCH (n0 :L5), (n6 :L4 :L0)-[r4 :T3]->(n3) WHERE (r2.k40) RETURN a3, (r4.k55) AS a4, (r2.k42) AS a5"""
-    q2 = """MATCH (n0 :L5) UNWIND [(n0.k36), (n0.k36), 31850948] AS a0 UNWIND [-1519172260, (n0.k36)] AS a1 UNWIND [(n0.k36), 232429337, (n0.k36)] AS a2 MATCH (n2 :L4), (n3)-[r1 :T3]->(n2 :L4)<-[r2 :T0]-(n4 :L4)-[r3 :T2]->(n5 :L2), (n1 :L1)<-[r0 :T4]-(n2 :L4), (n0) WHERE (((((((r2.k40) AND ((r0.id) <> (r1.id))) AND ((r0.id) <> (r2.id))) AND ((r0.id) <> (r3.id))) AND ((r1.id) <> (r2.id))) AND ((r1.id) <> (r3.id))) AND ((r2.id) <> (r3.id))) WITH r2, (r1.k55) AS a3 ORDER BY (r2.k41) DESC MATCH (n3), (n3)<-[r4 :T3]-(n6 :L4 :L0), (n0 :L5) WHERE (r2.k40) RETURN a3, (r4.k55) AS a4, (r2.k42) AS a5"""
-    result1 = Tester.get_connection().run(q1)
-    result2 = Tester.get_connection().run(q2)
-    print(result1, result2)
-    assert compare(result1, result2) == True
 
 
 def compare(list1, list2):
@@ -65,15 +49,13 @@ class RedisTester:
         if stop_event.is_set():
             return False
         client = self.get_connection()
-        result = client.run(query)
-        result1 = result
+        result1, t1 = client.run(query)
 
         for step in range(0, 5):
             if stop_event.is_set():
                 return False
             new_query = transformer.mutant_query_generator(query)
-            result = client.run(new_query)
-            result2 = result
+            result2, t2 = client.run(new_query)
             if not compare(result1, result2):
                 if configs.global_env == 'live':
                     post(f"[{self.database}][{logfile}]Logic inconsistency", query + "\n" + new_query)
@@ -81,9 +63,14 @@ class RedisTester:
                     f"[{self.database}][{logfile}]Logic inconsistency. \n Query1: {query} \n Query2: {new_query}")
                 # 打开CSV文件进行追加，如果文件不存在则创建
                 with open('logic_error.tsv', mode='a', newline='') as file:
-                    writer = csv.writer(file,delimiter='\t')
+                    writer = csv.writer(file, delimiter='\t')
                     writer.writerow([self.database, logfile, query, new_query])
                 return False
+            if t1 > 10 * t2 or t1 < 0.1 * t2:
+                if configs.global_env == 'live':
+                    post(f"[{self.database}][{logfile}]Performance inconsistency", query + "\n" + new_query)
+                logger.warning(
+                    f"[{self.database}][{logfile}]Performance inconsistency. Query1[{t1}ms, Query2[{t2}ms]] \n Query1: {query} \n Query2: {new_query}")
         return True
 
     def single_file_testing(self, logfile):
@@ -145,6 +132,7 @@ class RedisTester:
                     post(f"[{self.database}][{logfile}]Unknown Exception", query)
         return True
 
+
 def scheduler():
     folder_path = configs.input_path
     file_paths = []
@@ -174,7 +162,6 @@ def scheduler():
 if __name__ == "__main__":
     if configs.global_env == "debug":
         Tester = RedisTester('test_graph')
-        Tester.get_connection().clear()
         Tester.single_file_testing("query_file/database0-cur.log")
         stop_event.set()
     else:
