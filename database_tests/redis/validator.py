@@ -27,7 +27,7 @@ def validate(database, log_file, query_pairs):
         content = f.read()
         contents = content.strip().split('\n')
         create_statements = contents[4:-configs.query_len]
-        client.create_graph(create_statements)
+        client.batch_run(create_statements)
 
     for query1, query2 in query_pairs:
         print("query1: " + query1)
