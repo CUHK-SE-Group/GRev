@@ -1,9 +1,7 @@
-from collections import defaultdict
 from tqdm import tqdm
 import redis
 from database_tests.helper import parse_query_file, TestConfig, process_query, scheduler, TesterAbs, prepare
-from gdb_clients import *
-from configs.conf import logger, config
+from configs.conf import new_logger, config
 from gdb_clients.mem_graph import MemGraph
 from webhook.lark import post
 
@@ -26,6 +24,7 @@ class MemgraphTester(TesterAbs):
         self.database = database
 
     def single_file_testing(self, logfile):
+        logger = new_logger("logs/memgraph.log")
         logger.info("Initializing configuration...")
         conf = TestConfig(
             client=MemGraph(),
@@ -85,7 +84,7 @@ class MemgraphTester(TesterAbs):
 
 
 def schedule():
-    scheduler(config.get('memgraph', 'input_path'), MemgraphTester(f"live_graph"), "memgraph")
+    scheduler(config.get('memgraph', 'input_path'), MemgraphTester(f"memgraph_misc"), "memgraph")
 
 
 if __name__ == "__main__":

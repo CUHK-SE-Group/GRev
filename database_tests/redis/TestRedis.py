@@ -3,7 +3,7 @@ from tqdm import tqdm
 import redis
 from database_tests.helper import parse_query_file, TestConfig, process_query, scheduler, TesterAbs, prepare
 from gdb_clients import *
-from configs.conf import logger, config
+from configs.conf import new_logger, config
 from webhook.lark import post
 
 
@@ -35,6 +35,7 @@ class RedisTester(TesterAbs):
         self.database = database
 
     def single_file_testing(self, logfile):
+        logger = new_logger("logs/redis.log")
         logger.info("Initializing configuration...")
         conf = TestConfig(
             client=Redis(config.get("redis", 'uri'), self.database),
@@ -94,7 +95,7 @@ class RedisTester(TesterAbs):
 
 
 def schedule():
-    scheduler(config.get('redis', 'input_path'), RedisTester(f"live_graph"), "redis")
+    scheduler(config.get('redis', 'input_path'), RedisTester(f"redis_misc"), "redis")
 
 
 if __name__ == "__main__":
