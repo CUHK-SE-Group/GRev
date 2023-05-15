@@ -8,7 +8,7 @@ class MemGraph(GdbFactory):
 
     def run(self, query):
         res = self.connection.execute_and_fetch(query)
-        return list(res)
+        return list(res), 0
 
     def batch_run(self, query):
         for q in query:

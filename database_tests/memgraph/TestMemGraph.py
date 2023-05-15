@@ -4,45 +4,36 @@ import redis
 from database_tests.helper import parse_query_file, TestConfig, process_query, scheduler, TesterAbs, prepare
 from gdb_clients import *
 from configs.conf import logger, config
+from gdb_clients.mem_graph import MemGraph
 from webhook.lark import post
 
 
-def list_to_dict(lst):
-    # 定义一个defaultdict，用于创建一个默认值为0的字典
-    result = defaultdict(int)
-    # 对于列表中的每个元素，如果它是一个列表，则递归调用list_to_dict函数
-    # 如果不是列表，则将其作为键添加到字典中，并增加其出现次数
-    for elem in lst:
-        if isinstance(elem, list):
-            nested_dict = list_to_dict(elem)
-            for key, value in nested_dict.items():
-                result[key] += value
-        else:
-            result[elem] += 1
-    return dict(result)
+def sort_key(dictionary: dict):
+    # 根据字典中的 'key' 键进行排序
+    return '{' + ', '.join(f"{repr(key)}: {dictionary[key]}" for key in sorted(dictionary.keys())) + '}'
 
 
 def compare(list1, list2):
     if len(list1) != len(list2):
         return False
-    t1 = list_to_dict(list1)
-    t2 = list_to_dict(list2)
+    t1 = sorted(list1, key=sort_key)
+    t2 = sorted(list2, key=sort_key)
     return t1 == t2
 
 
-class RedisTester(TesterAbs):
+class MemgraphTester(TesterAbs):
     def __init__(self, database):
         self.database = database
 
     def single_file_testing(self, logfile):
         logger.info("Initializing configuration...")
         conf = TestConfig(
-            client=Redis(config.get("redis", 'uri'), self.database),
+            client=MemGraph(),
             logger=logger,
             compare_function=compare,
             source_file=logfile,
-            logic_inconsistency_trace_file='logs/redis_logic_error.tsv',
-            database_name='redis',
+            logic_inconsistency_trace_file='logs/memgraph_logic_error.tsv',
+            database_name='memgraph',
             query_len=5000
         )
 
@@ -94,12 +85,12 @@ class RedisTester(TesterAbs):
 
 
 def schedule():
-    scheduler(config.get('redis', 'input_path'), RedisTester(f"live_graph"), "redis")
+    scheduler(config.get('memgraph', 'input_path'), MemgraphTester(f"live_graph"), "memgraph")
 
 
 if __name__ == "__main__":
     if config.get('GLOBAL', 'env') == "debug":
-        Tester = RedisTester('dev_graph')
+        Tester = MemgraphTester('dev_graph')
         Tester.single_file_testing("query_file/database0-cur.log")
     else:
         schedule()

@@ -1,24 +1,14 @@
-import concurrent.futures
 import random
 import threading
 from concurrent.futures import CancelledError
 from copy import deepcopy
-
 from neo4j.exceptions import Neo4jError
-from tinydb import TinyDB, Query
-import os
-
 from tqdm import tqdm
-
 from database_tests.helper import TestConfig, parse_query_file, prepare, process_query, scheduler, TesterAbs
 from gdb_clients import *
 from configs.conf import logger, config
-from mutator.query_transformer import QueryTransformer
 from compare.hash_nested_dict import hash_dictionary
 from webhook.lark import post
-import subprocess
-
-stop_event = threading.Event()
 
 
 def compare(result1, result2):
