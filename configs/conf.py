@@ -33,6 +33,7 @@ def new_logger(file):
     file_handler.setLevel(logging.INFO)
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
+    return logger
 
 
 logger = new_logger("logs/log_file.log")
