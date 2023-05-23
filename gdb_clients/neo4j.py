@@ -1,7 +1,7 @@
 from gdb_clients import GdbFactory
 from configs import logger
 from neo4j import GraphDatabase, basic_auth
-
+from typing import List
 
 class Neo4j(GdbFactory):
     def __init__(self, uri, username, passwd, database):
@@ -12,7 +12,7 @@ class Neo4j(GdbFactory):
     def clear(self):
         self.run("MATCH (n) DETACH DELETE n")
 
-    def run(self, query):
+    def run(self, query: str):
         result = self.session.run(query)
         di = result.data()
 
@@ -21,7 +21,7 @@ class Neo4j(GdbFactory):
         t2 = res.result_consumed_after
         return di, t1
 
-    def batch_run(self, queries: []):
+    def batch_run(self, queries: List[str]):
         self.clear()
         for stmt in queries:
             try:

@@ -7,3 +7,4 @@ logs/*
 query_producer/logs
 query_producer/coverage_info
 query_producer/coverage_log
+data
