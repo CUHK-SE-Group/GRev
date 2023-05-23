@@ -1,6 +1,7 @@
 import logging
 import configparser
 import os
+
 print(os.getcwd())
 config = configparser.ConfigParser()
 config.read('configs/config.ini')
@@ -19,14 +20,20 @@ neo4j_passwd = config.get('neo4j', 'passwd')
 query_len = config.getint('neo4j', 'query_len')
 input_path = config.get('neo4j', 'input_path')
 
-logger = logging.getLogger()
-logger.setLevel(log_level)
-console_handler = logging.StreamHandler()
-file_handler = logging.FileHandler(log_file)
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(message)s')
-console_handler.setFormatter(formatter)
-console_handler.setLevel(logging.INFO)
-file_handler.setFormatter(formatter)
-file_handler.setLevel(logging.INFO)
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+
+def new_logger(file):
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+    console_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler(file)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(message)s')
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+    return logger
+
+
+logger = new_logger("logs/log_file.log")

@@ -1,22 +1,23 @@
 import redis
 from redisgraph import Graph
 
+from gdb_clients import GdbFactory
 
-class Redis:
+
+class Redis(GdbFactory):
     def __init__(self, uri, database):
         self.redis_con = redis.Redis(host=uri, port=6379)
         self.graph = Graph(database, self.redis_con)
 
     def clear(self):
         self.run("MATCH (n) DETACH DELETE n")
-        print("Clear Graph Schema.")
 
     def run(self, query):
         query = query.replace(';', '')
         result = self.graph.query(query)
         return result.result_set, result.run_time_ms
 
-    def create_graph(self, queries):
+    def batch_run(self, queries):
         for i in queries:
             i = i.replace(';', '')
             self.run(i)

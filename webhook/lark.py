@@ -25,7 +25,7 @@ def post(title: str, content):
             }
         }
     }
-
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    print(response)
-    # logger.info("lark response"+response.json())
+    try:
+        requests.post(url, headers=headers, data=json.dumps(data))
+    except Exception as e:
+        logger.info("lark post error: ", e)
