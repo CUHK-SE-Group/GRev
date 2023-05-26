@@ -26,6 +26,7 @@ def validate(database, log_file, query_pairs):
         content = f.read()
         contents = content.strip().split('\n')
         create_statements = contents[4:-configs.query_len]
+        client.clear()
         client.batch_run(create_statements)
 
     for query1, query2 in query_pairs:

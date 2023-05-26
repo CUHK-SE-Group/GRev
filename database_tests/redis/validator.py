@@ -7,8 +7,83 @@ from typing import List
 import pandas as pd
 import time
 
+import re
+
+def find_keywords(string, keywords):
+    results = []
+    for keyword in keywords:
+        pattern = re.compile(keyword)
+        matches = pattern.finditer(string)
+        for match in matches:
+            results.append([match.start(), match.end() - 1])
+    results.sort()
+    return results
+
+
+def get_inverse_intervals(string, intervals):
+    inverse_intervals = []
+    string_length = len(string)
+    if len(intervals) == 0:
+        inverse_intervals.append([0, string_length - 1])
+    else:
+        start = 0
+        for interval in intervals:
+            end = interval[0] - 1
+            if start <= end:
+                inverse_intervals.append([start, end])
+            start = interval[1] + 1
+        if start <= string_length - 1:
+            inverse_intervals.append([start, string_length - 1])
+    return inverse_intervals
+
+
+def simplify_expression(expression):
+    stack = []
+    result = ""
+    for char in expression:
+        if char == "(":
+            stack.append(result)
+            result = ""
+        elif char == ")":
+            if stack:
+                result = stack.pop() + "(" + result + ")"
+        else:
+            result += char
+    return result
+
+
+def reduce(query1: str, query2: str):
+    keywords = ["MATCH ","RETURN ", "OPTIONAL MATCH ", "WHERE ", "CONTAINS ", "WITHIN ",
+                    "WITH ", "UNION ", "ALL ", "UNWIND ", "AS ", "MERGE ", "ON ",
+                    "CREATE ", "SET ", "DETACH ", "DELETE ", "REMOVE ", "CALL ",
+                    "YIELD ", "DISTINCT ", "ORDER ", "BY ", "L_SKIP ", "LIMIT ",
+                    "ASCENDING ", "ASC ", "DESCENDING ", "DESC ", "OR ", "XOR ",
+                    "STARTS ", "ENDS ", "CONTAINS ", "IN ", "IS ",
+                    "NULL ", "COUNT ", "CASE ", "ELSE ", "END ", "WHEN ", "THEN ",
+                    "ANY"]
+    
+    #  "AND ", "NOT ",
+    
+    kw_pos1 = find_keywords(query1, keywords)
+    kw_pos2 = find_keywords(query2, keywords)
+    
+    print([query1[i[0]:i[1]+1] for i in kw_pos1])
+    print([query2[i[0]:i[1]+1] for i in kw_pos2])
+    
+    
+    splited_q1 = get_inverse_intervals(query1, kw_pos1)
+    splited_q2 = get_inverse_intervals(query2, kw_pos2)
+    
+    splited_str1 = [query1[i[0]:i[1]+1] for i in splited_q1]
+    splited_str2 = [query2[i[0]:i[1]+1] for i in splited_q2]
+    
+    for i in splited_str1:
+        if i in splited_str2:
+            print(simplify_expression(i))
+            
+                    
 def read_logic_error_file():
-    with open('logs/redis_logic_error.tsv', mode='r') as file:
+    with open('logs/redis_reduce.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')
 
         # cluster the query with file name
@@ -39,6 +114,8 @@ def validate(database, log_file, query_pairs):
             result2, _ = client.run(query2)
 
             eq, df = compare(result1, result2)
+            reduce(query1, query2)
+            
             if not eq:
                 dfs.append(df)
         except Exception as e:
@@ -84,9 +161,9 @@ def compare(array1: List[list], array2: List[list]):
 
     if compare_result1 == {} and compare_result2 == {}:
         return True, None
-    df = pd.DataFrame([compare_result1, compare_result2])
-    ts = int(time.time() * 1000)
-    df.to_csv(f'data/dataframe_{ts}.csv', index=False)
+    # df = pd.DataFrame([compare_result1, compare_result2])
+    # ts = int(time.time() * 1000)
+    # df.to_csv(f'data/dataframe_{ts}.csv', index=False)
     return False, None
             
                 
