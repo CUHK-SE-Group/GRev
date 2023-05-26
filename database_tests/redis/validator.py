@@ -5,7 +5,7 @@ import configs
 from database_tests.reduce_module.simplify_query import eliminate_useless_clauses
 from gdb_clients import Redis
 from typing import List
-import pandas as pd
+# import pandas as pd
 import time
 
 import re
