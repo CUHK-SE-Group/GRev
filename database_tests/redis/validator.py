@@ -8,7 +8,7 @@ import pandas as pd
 import time
 
 def read_logic_error_file():
-    with open('logs/redis_logic_error.tsv', mode='r') as file:
+    with open('logs/redis_reduce.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')
 
         # cluster the query with file name
@@ -84,9 +84,9 @@ def compare(array1: List[list], array2: List[list]):
 
     if compare_result1 == {} and compare_result2 == {}:
         return True, None
-    df = pd.DataFrame([compare_result1, compare_result2])
-    ts = int(time.time() * 1000)
-    df.to_csv(f'data/dataframe_{ts}.csv', index=False)
+    # df = pd.DataFrame([compare_result1, compare_result2])
+    # ts = int(time.time() * 1000)
+    # df.to_csv(f'data/dataframe_{ts}.csv', index=False)
     return False, None
             
                 
