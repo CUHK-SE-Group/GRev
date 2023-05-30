@@ -15,7 +15,6 @@ class GraphSchema:
         self.property_set = set()
         self.Type = {}
         self.Constants = Constant_Generator()
-        self.Constants.max_count = 10000000
         self.Vertex2Label = {}
         self.Vertex2Prop = {}
         self.Edge2Label = {}
@@ -70,7 +69,7 @@ class GraphSchema:
             P = 'hugegraph.schema().vertexLabel(' + '"' + label_name + '"' + ').useAutomaticId().properties('
             for prop in properties:
                 P = P + '"' + prop + '", '
-            P = P + '"PersonalId").create()'
+            P = P + '"Id").create()'
             self.__output_statement(P)
 
     def __GenerateElabel(self, Elabel_num):
@@ -90,7 +89,7 @@ class GraphSchema:
             ").targetLabel(" + '"' + self.Elabel2ST[label_name][1] + '"' +").properties("
             for prop in properties:
                 P = P + '"' + prop + '", '
-            P = P + '"PersonalId").create()'
+            P = P + '"Id").create()'
             self.__output_statement(P)
 
     def __GenerateVertex(self, vertex_num):
@@ -104,7 +103,7 @@ class GraphSchema:
             for prop in properties:
                 value = self.Constants.Generate(self.Type[prop])
                 dict[prop] = value
-            dict["PersonalId"] = (i, str(i))
+            dict["Id"] = (i, str(i))
             P = self.GDB_header + "addV(" + '"' + label_name + '"' + ")"
             self.Vertex2Prop[i] = dict
 
@@ -122,13 +121,13 @@ class GraphSchema:
                 value = self.Constants.Generate(self.Type[prop])
                 dict[prop] = value
 
-            dict["PersonalId"] = (i, str(i))
+            dict["Id"] = (i, str(i))
             self.Edge2Prop[i] = dict
             S, T = self.Elabel2ST[label_name][0], self.Elabel2ST[label_name][1]
             self.Edge2Ends[i] = [list(random.sample(self.label2Vertex[S], 1))[0], list(random.sample(self.label2Vertex[T], 1))[0]]
             P = self.GDB_header + "addE(" + '"' + label_name + '"' + \
-            ').from(__.V().where(__.values("PersonalId").is(eq(' + str(self.Edge2Ends[i][0]) \
-            + ')))).to(__.V().where(__.values("PersonalId").is(eq(' + str(self.Edge2Ends[i][1]) + "))))"
+            ').from(__.V().where(__.values("Id").is(eq(' + str(self.Edge2Ends[i][0]) \
+            + ')))).to(__.V().where(__.values("Id").is(eq(' + str(self.Edge2Ends[i][1]) + "))))"
 
             for prop in dict.keys():
                 P = P + ".property(" + '"' + prop + '", ' + dict[prop][1] + ")"

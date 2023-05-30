@@ -4,7 +4,9 @@ from configs.conf import new_logger, config
 
 
 class Constant_Generator:
-    def __init__(self): self.logger = new_logger("logs/gremlin.log")
+    def __init__(self, max_count = 10000000): 
+        self.max_count = max_count
+        self.logger = new_logger("logs/gremlin.log")
 
     def Generate(self, my_type):
         '''
