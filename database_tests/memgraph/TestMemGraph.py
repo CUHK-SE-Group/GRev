@@ -33,7 +33,8 @@ class MemgraphTester(TesterAbs):
             source_file=logfile,
             logic_inconsistency_trace_file='logs/memgraph_logic_error.tsv',
             database_name='memgraph',
-            query_len=5000
+            query_len=5000,
+            performance_inconsistency_rate=10
         )
 
         create_statements, match_statements = prepare(conf)
