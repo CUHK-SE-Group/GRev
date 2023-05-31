@@ -29,20 +29,20 @@ def validate(database, log_file, query_pairs):
         client.clear()
         client.batch_run(create_statements)
 
-    for query1, query2 in query_pairs:
-        print("query1: " + query1)
-        print("query2: " + query2)
+    # for query1, query2 in query_pairs:
+    #     print("query1: " + query1)
+    #     print("query2: " + query2)
 
-        try:
-            result1, _ = client.run(query1)
-            result2, _ = client.run(query2)
-            # print("result1: ", result1)
-            # print("result2: ", result2)
-            eq = TestMemGraph.compare(result1, result2)
-            print("eq or not: ", eq)
-            print("\n=============\n")
-        except Exception as e:
-            print(e)
+    #     try:
+    #         result1, _ = client.run(query1)
+    #         result2, _ = client.run(query2)
+    #         # print("result1: ", result1)
+    #         # print("result2: ", result2)
+    #         eq = TestMemGraph.compare(result1, result2)
+    #         print("eq or not: ", eq)
+    #         print("\n=============\n")
+    #     except Exception as e:
+    #         print(e)
     return None
 
 

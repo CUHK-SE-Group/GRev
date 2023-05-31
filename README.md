@@ -27,4 +27,13 @@ query_file: 用于测试的原始query请求的集合
 ## Detected Bugs
 [Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) Status: Duplicated (with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085))
 
-[Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Intended (can not be detected by PatternTransformation but can be detected by TP)
+[Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Fixed
+
+[Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Intended
+
+[RedisGraph-3081](https://github.com/RedisGraph/RedisGraph/issues/3081) Status: Intended
+
+[RedisGraph-3091](https://github.com/RedisGraph/RedisGraph/issues/3091) Status: Intended
+
+
+

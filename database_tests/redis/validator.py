@@ -23,7 +23,7 @@ keywords = ["MATCH ", "RETURN ", "OPTIONAL MATCH ", "WHERE ", "CONTAINS ", "WITH
 #  "AND ", "NOT ",
 
 def read_logic_error_file():
-    with open('logs/redis_logic_error.tsv', mode='r') as file:
+    with open('logs/redis_reduce.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')
 
         # cluster the query with file name
