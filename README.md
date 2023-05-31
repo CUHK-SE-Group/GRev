@@ -35,5 +35,7 @@ query_file: 用于测试的原始query请求的集合
 
 [RedisGraph-3091](https://github.com/RedisGraph/RedisGraph/issues/3091) Status: Intended
 
+[RedisGraph-3093](https://github.com/RedisGraph/RedisGraph/issues/3093) Status: Intended
+
 
 
