@@ -5,7 +5,7 @@ import configs
 
 
 def read_logic_error_file():
-    with open('logs/memgraph_logic_error.tsv', mode='r') as file:
+    with open('logs/memgraph_ue.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')
 
         # 逐行读取数据

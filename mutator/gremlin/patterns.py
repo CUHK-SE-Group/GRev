@@ -1,4 +1,5 @@
 import random
+from mutator.gremlin.schema import GraphSchema
 from mutator.gremlin.generator import PatternGenerator
 from configs.conf import new_logger, config
 
@@ -11,31 +12,32 @@ class NodePattern:
     
 class GraphPattern:
     def __init__(self, PG : PatternGenerator, patterns = []):
-        self.G = PG
+        self.PG = PG
         self.n = 0
         self.patterns = patterns
     
     def GetNode(self):
-        if random.randomint(1, self.n + 1) > self.n / 2:
+        if random.randint(1, self.n + 1) > self.n / 2:
             self.n += 1
             return "n" + str(self.n)
         else:
-            return "n" + str(random.randomint(1, self.n))
+            return "n" + str(random.randint(1, self.n))
         
     def GenChain(self):
-        len, res = random.randomint(2, 8), []
+        len, res = random.randint(2, 5), []
         for i in range(0, len):
             id = self.GetNode()
-            filters = self.PG.GenFilter()
-            if i == 0: in_path, rev_path = "__.", "__."
+            if random.randint(0, 3) == 0: filters = self.PG.GenFilter()
+            else: filters = ""
+            if i == 0: in_path, rev_path = "__", "__"
             else: in_path, rev_path = self.PG.GenPath()
             res.append(NodePattern(id, filters, in_path, rev_path))
         return res
 
     def GenPatterns(self):
         self.n, self.patterns = 0, []
-        len = random.randomint(1, 5)
-        for i in range(0, len): self.patterns.append(self.Getchain())
+        len = random.randint(1, 5)
+        for i in range(0, len): self.patterns.append(self.GenChain())
 
     def to_string(self):
         res = ".match("
@@ -45,11 +47,18 @@ class GraphPattern:
                 node = pattern[j] 
                 chain = chain + node.in_path
                 chain = chain + node.constrains
-                chain = chain + "as('" + node.id + "')" 
-                if j < len(pattern): chain = chain + "."
+                chain = chain + '.as("' + node.id + '")' 
+                # if j < len(pattern) - 1: chain = chain + "."
                 
             res = res + chain
-            if i < len(self.patterns): res = res + ","
+            if i < len(self.patterns) - 1: res = res + ","
             else: res = res + ")"
+        return res
 
-        
+
+if __name__ == "__main__":
+    G = GraphSchema()
+    G.Graph_Generate()
+    PG = PatternGenerator(G)
+    Pattern = GraphPattern(PG)
+    print("OK")
