@@ -227,10 +227,10 @@ class PatternGenerator:
             # invP = invP + Edge_Filter + "." + V_InvDir + "()"
             return [P + Edge_Filter + "." + V_Dir + "()", Q + Edge_Filter + "." + inv_V_Dir + "()"]
         
-if __name__ == "__main__":
-    G = GraphSchema()
-    G.Graph_Generate()
-    PG = PatternGenerator(G)
-    print("OK")
+# if __name__ == "__main__":
+#     # G = GraphSchema()
+#     # G.Graph_Generate()
+#     # PG = PatternGenerator(G)
+#     # print("OK")
 
         
