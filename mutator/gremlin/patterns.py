@@ -1,4 +1,5 @@
 import random
+from mutator.gremlin.asg import ASG
 from mutator.gremlin.schema import GraphSchema
 from mutator.gremlin.generator import PatternGenerator
 from configs.conf import new_logger, config
@@ -38,6 +39,19 @@ class GraphPattern:
         self.n, self.patterns = 0, []
         len = random.randint(1, 5)
         for i in range(0, len): self.patterns.append(self.GenChain())
+    
+    def to_asg(self):
+        #TODO Convert a pattern class to an ASG (list<list> -> graph)
+        target_asg = ASG(self.n)
+        for pattern in self.patterns:
+            for j in range(0, len(pattern)):
+                node = pattern[j]
+                if node.constrains != "": target_asg.constrains[node.id].add(node.constrains)
+                if j < len(pattern) - 1:
+                    _node = pattern[j+1]
+                    target_asg.addedge(node.id, _node.id, _node.in_path, _node.rev_path)
+        return target_asg
+
 
     def to_string(self):
         res = ".match("
@@ -51,14 +65,16 @@ class GraphPattern:
                 # if j < len(pattern) - 1: chain = chain + "."
                 
             res = res + chain
-            if i < len(self.patterns) - 1: res = res + ","
+            if i < len(self.patterns) - 1: res = res + ", "
             else: res = res + ")"
         return res
 
 
-if __name__ == "__main__":
-    G = GraphSchema()
-    G.Graph_Generate()
-    PG = PatternGenerator(G)
-    Pattern = GraphPattern(PG)
-    print("OK")
+# if __name__ == "__main__":
+#     # G = GraphSchema()
+#     # G.Graph_Generate()
+#     # PG = PatternGenerator(G)
+#     # Pattern = GraphPattern(PG)
+#     # Pattern.GenPatterns()
+#     # asg = Pattern.to_asg()
+#     # print("OK")
