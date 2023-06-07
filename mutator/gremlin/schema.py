@@ -134,14 +134,14 @@ class GraphSchema:
             self.__output_statement(P)
 
     def Graph_Generate(self, vertex_num = 10, edge_num = 50, Vlabel_num = 5, Elabel_num = 10, property_num = 30):
-        self.logger.info("Generating Gremlin Schema ...")
+        # self.logger.info("Generating Gremlin Schema ...")
         self.__GenerateProp(property_num)
         self.__GenerateVlabel(Vlabel_num)
         self.__GenerateElabel(Elabel_num)
         self.__GenerateVertex(vertex_num)
         self.__GenerateEdge(edge_num)
-        self.logger.info("Gremlin Schema Generated !")
+        # self.logger.info("Gremlin Schema Generated !")
 
-if __name__ == "__main__":
-    G = GraphSchema()
-    print("OK")
+# if __name__ == "__main__":
+#     G = GraphSchema()
+#     print("OK")
