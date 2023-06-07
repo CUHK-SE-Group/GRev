@@ -7,4 +7,5 @@ logs/*
 query_producer/logs
 query_producer/coverage_info
 query_producer/coverage_log
+query_producer/gremlin
 data
