@@ -4,5 +4,6 @@ from .redis_graph import *
 from .neo4j_db import *
 from .age_db import *
 from .tinkerpop import *
+from .hugegraph import *
 
-__all__ = ['Neo4j', 'Redis', 'GdbFactory', 'AgeDB', 'Tinkerpop']
+__all__ = ['Neo4j', 'Redis', 'GdbFactory', 'AgeDB', 'Tinkerpop', 'HugeGraph']
