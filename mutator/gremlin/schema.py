@@ -133,7 +133,7 @@ class GraphSchema:
                 P = P + ".property(" + '"' + prop + '", ' + dict[prop][1] + ")"
             self.__output_statement(P)
 
-    def Graph_Generate(self, vertex_num = 10, edge_num = 50, Vlabel_num = 5, Elabel_num = 10, property_num = 30):
+    def Graph_Generate(self, vertex_num = 30, edge_num = 150, Vlabel_num = 5, Elabel_num = 10, property_num = 30):
         # self.logger.info("Generating Gremlin Schema ...")
         self.__GenerateProp(property_num)
         self.__GenerateVlabel(Vlabel_num)
