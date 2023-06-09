@@ -42,7 +42,7 @@ class GraphPattern:
         in_path, rev_path = "__", "__"
         res.append(NodePattern(start_node, filters, in_path, rev_path))
 
-        if random.randint(0, 10) == 0: filters = self.PG.GenFilter()
+        if random.randint(0, 4) == 0: filters = self.PG.GenFilter()
         else: filters = ""
         in_path, rev_path = "", ""
         len = random.randint(1, 5)
@@ -68,7 +68,7 @@ class GraphPattern:
     def GenPatterns(self):
         #TODO Need to test 
         self.n, self.patterns = 0, []
-        len = random.randint(1, 8)
+        len = random.randint(2, 8)
         for i in range(0, len): self.patterns.append(self.GenChain())
     
     def to_asg(self):
