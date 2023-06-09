@@ -34,8 +34,10 @@ class ASG:
         return res
 
     def traversal(self, u, depth):
-        res = self.__sample_constrains(u)
-        res = res + '.as("' + u + '")' 
+        constrains = self.__sample_constrains(u)
+        if depth > 0: res = constrains + '.as("' + u + '")' 
+        else: res = '.as("' + u + '")' + constrains
+        
         avail_edges = []
         for edge in self.edges[u]:
             if edge["id"] not in self.DeletedEdges:
@@ -68,7 +70,7 @@ class ASG:
             res = "__"
             avail_nodes = []
             for i in range(1, self.n + 1): 
-                if i not in self.DeletedNodes: avail_nodes.append("n"+str(i))
+                if "n" + str(i) not in self.DeletedNodes: avail_nodes.append("n"+str(i))
             start_id = random.choice(avail_nodes)
             res = res + self.traversal(start_id, 0)
             res_string = res_string + res

@@ -130,21 +130,21 @@ class PatternGenerator:
         if RandomType == 2: #Case2 has(property, predicate)
             selected_property = list(random.sample(self.G.property_set, 1))[0]
             return ".has(" + '"' + selected_property + '"' + ", " + self.__Predicate_Generator(self.G.Type[selected_property]) + ")"
-        if RandomType == 2:
+        if RandomType == 3:
             #Case4 has(property)
             selected_property = list(random.sample(self.G.property_set, 1))[0]
             return ".has(" + '"' + selected_property + '"' + ")"
-        if RandomType == 3:
+        if RandomType == 4:
             #Case5 hasNot(property)
             selected_property = list(random.sample(self.G.property_set, 1))[0]
             return ".hasNot(" + '"' + selected_property + '"' + ")"
-        if RandomType == 4:
+        if RandomType == 5:
             #Case5 where(aggregate.is(predicate))
             my_aggregate, my_type = self.__Aggregate_Generator(my_type)
             my_aggregate = "__" + my_aggregate
             return ".where(" + my_aggregate + ".is(" + self.__Predicate_Generator(my_type) + "))"
 
-    def GenFilter(self, my_type = "vertex", max_length = 3):
+    def GenFilter(self, my_type = "vertex", max_length = 2):
         length = random.randint(1, max_length)
         P = ""
         predicates = [".and(", ".or("]
@@ -164,7 +164,7 @@ class PatternGenerator:
             Dir = Directions[id]
             inv_Dir = inv_Directions[id]
 
-            if random.randint(0, 3) > 0:
+            if random.randint(0, 4) > 0:
                 #Case 1-1: Vertex -> Vertex no requirement for Edge label
 
                 return "." + Dir + "()", "." + inv_Dir + "()"
