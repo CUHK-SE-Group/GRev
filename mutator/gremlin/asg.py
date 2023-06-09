@@ -4,6 +4,7 @@ class ASG:
     def __init__(self, n): 
         self.n = n
         self.m = 0
+        self.VisitedNodes = set()
         self.DeletedEdges, self.DeletedNodes = set(), set()
         self.constrains, self.edges = dict(), dict()
         for i in range(0, n): 
@@ -34,7 +35,9 @@ class ASG:
         return res
 
     def traversal(self, u, depth):
+        self.VisitedNodes.add(u)
         constrains = self.__sample_constrains(u)
+        
         if depth > 0: res = constrains + '.as("' + u + '")' 
         else: res = '.as("' + u + '")' + constrains
         
@@ -49,8 +52,8 @@ class ASG:
                 self.DeletedNodes.add(u)
             return res
         
-        if depth > 0 and random.randint(0, length) == 0:
-            return res
+        if depth > 0: return res
+        
         if depth == 0 and random.randint(0, length * 3) == 0:
             return res
         
@@ -65,12 +68,17 @@ class ASG:
         return res
 
     def to_string(self):
+        root_node = "n" + str(random.randint(1, self.n))
+        self.VisitedNodes.add(root_node)
+
         res_string = ".match("
         while len(self.DeletedEdges) < self.m or len(self.DeletedNodes) < self.n:
             res = "__"
             avail_nodes = []
-            for i in range(1, self.n + 1): 
-                if "n" + str(i) not in self.DeletedNodes: avail_nodes.append("n"+str(i))
+            for node in self.VisitedNodes: 
+                if node not in self.DeletedNodes: 
+                        avail_nodes.append(node)
+
             start_id = random.choice(avail_nodes)
             res = res + self.traversal(start_id, 0)
             res_string = res_string + res

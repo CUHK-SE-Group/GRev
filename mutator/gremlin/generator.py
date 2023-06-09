@@ -112,7 +112,7 @@ class PatternGenerator:
         return P
 
     def __Sub_Filter_Generator(self, my_type):
-        RandomType = random.randint(1, 4)
+        RandomType = random.randint(1, 5)
         if RandomType == 1: #Case1 hasLabel()
             if my_type == "vertex":
                 num = random.randint(1, len(self.G.Vlabelset))
@@ -156,7 +156,7 @@ class PatternGenerator:
         return P + ")"
 
     def GenPath(self):
-        if random.randint(1, 2) == 1:
+        if random.randint(1, 5) > 0:
             #Case 1 Vertex -> Vertex with Edge label
             Directions = ["out", "in", "both"]
             inv_Directions = ["in", "out", "both"]
@@ -164,7 +164,7 @@ class PatternGenerator:
             Dir = Directions[id]
             inv_Dir = inv_Directions[id]
 
-            if random.randint(0, 4) > 0:
+            if random.randint(0, 1) > 0:
                 #Case 1-1: Vertex -> Vertex no requirement for Edge label
 
                 return "." + Dir + "()", "." + inv_Dir + "()"
