@@ -12,11 +12,13 @@ def GenTestcase(createfile, queryfile, query_num, GDB_header = "g."):
     Pattern = GraphPattern(PG)
 
     res = []
+    tails = [".dedup().count()", ".count()"]
     for i in range(0, query_num):
+        tail = random.choice(tails)
         Pattern.GenPatterns()
-        q1 = GDB_header + "V()" + Pattern.to_string() + ".count()"
+        q1 = GDB_header + "V()" + Pattern.to_string() + tail
         asg = Pattern.to_asg()
-        q2 = GDB_header + "V()" + asg.to_string() + ".count()"
+        q2 = GDB_header + "V()" + asg.to_string() + tail
         res.append({"Query1" : q1, "Query2" : q2})
 
     with open(queryfile, "w", encoding="utf+8") as f:
