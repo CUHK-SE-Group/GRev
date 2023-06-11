@@ -2,6 +2,7 @@ from gdb_clients import GdbFactory
 from configs import config
 import subprocess
 from .wrapper.tinkergraph_client import TinkerGraphClient
+from gdb_clients.wrapper.cypher2gremlin import cypher2gremlin
 import re
 
 class Tinkerpop(GdbFactory):
@@ -9,10 +10,10 @@ class Tinkerpop(GdbFactory):
         self.client = TinkerGraphClient("10.26.1.146")
 
     def run(self, query):
+        query = cypher2gremlin(query)
         ret = self.client.send_gremlin(query)
         return [i['@value'] for i in ret['result']['data']['@value'] if i], 0
         
-
     def batch_run(self, query):
         for q in query:
             self.run(q)

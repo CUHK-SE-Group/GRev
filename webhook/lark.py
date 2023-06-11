@@ -1,12 +1,11 @@
 import requests
 import json
 
-import configs
 from configs import logger
 
 
-def post(title: str, content):
-    url = f"https://open.feishu.cn/open-apis/bot/v2/hook/{configs.lark_token}"
+def post(token:str, title: str, content):
+    url = f"https://open.feishu.cn/open-apis/bot/v2/hook/{token}"
     headers = {"Content-Type": "application/json"}
     data = {
         "msg_type": "post",

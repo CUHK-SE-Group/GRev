@@ -1,10 +1,11 @@
+import csv
 import random
 import threading
 from concurrent.futures import CancelledError
 from copy import deepcopy
 from neo4j.exceptions import Neo4jError
 from tqdm import tqdm
-from database_tests.helper import TestConfig, parse_query_file, prepare, process_query, scheduler, TesterAbs
+from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
 from gdb_clients import *
 from configs.conf import logger, config
 from webhook.lark import post
@@ -59,6 +60,20 @@ def compare(result1, result2):
     return (sorted([hash_dictionary(x) for x in data1]) == sorted([hash_dictionary(x) for x in data2]))
 
 
+# result: is returned by client.run()
+def oracle(conf: TestConfig, result1, result2):
+    # todo: 测试
+    if not compare(result1[0], result2[0]):
+        if conf.mode == 'live':
+            conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
+                        conf.q1 + "\n" + conf.q2)
+            conf.logger.warning(
+                f"[{config.database_name}][{config.source_file}]Logic inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+        with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
+            writer = csv.writer(file, delimiter='\t')
+            writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
+
+
 class Neo4jTester(TesterAbs):
     def __init__(self, database):
         temp_conn = Neo4j(config.get('neo4j', 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
@@ -85,45 +100,30 @@ class Neo4jTester(TesterAbs):
         return self.connections[thread_id]
 
     def single_file_testing(self, logfile):
+        def query_producer():
+            with open(logfile, 'r') as f:
+                content = f.read()
+            contents = content.strip().split('\n')
+            match_statements = contents[-5000:]
+            create_statements = contents[4:-5000]
+            return create_statements, match_statements
+
         logger.info("Initializing configuration...")
         conf = TestConfig(
             client=Neo4j(config.get("neo4j", 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
                          self.database),
             logger=logger,
-            compare_function=compare,
             source_file=logfile,
             logic_inconsistency_trace_file='logs/neo4j_logic_error.tsv',
             database_name='neo4j',
-            query_len=5000,
-            mode="debug",
-            performance_inconsistency_rate=10000
+            query_producer_func=query_producer,
+            oracle_func=oracle,
+            report_token=config.get('lark','neo4j')
         )
-
-        create_statements, match_statements = prepare(conf)
-        logger.info("Formal test begin...")
-        progress_bar = tqdm(total=len(match_statements))
-        env = config.get("GLOBAL", 'env')
-        for query in match_statements:
-            try:
-                process_query(query, conf)
-            except CancelledError as e:
-                logger.info(f"[{self.database}][{logfile}] Execute cancelled: {e}. \n Triggering Query: {query}")
-                if env == 'live':
-                    post(f'[{self.database}][{logfile}]Execute cancelled', query)
-            except TimeoutError as e:
-                logger.info(f"[{self.database}][{logfile}]Execute timeout: {e}. \n Triggering Query: {query}")
-                if env == 'live':
-                    post(f'[{self.database}][{logfile}]Execute timeout', query)
-            except Neo4jError as e:
-                logger.info(f"[{self.database}][{logfile}]Neo4j exception: {e}. \n Triggering Query: {query}")
-                if env == 'live':
-                    post(f'[{self.database}][{logfile}]{e.title}.{e.category}.{e.classification}', query)
-            except Exception as e:
-                logger.info(f"[{self.database}][{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
-                if env == 'live':
-                    post(f"[{self.database}][{logfile}]Unknown Exception", query)
-            progress_bar.update(1)
-        return True
+        try:
+            general_testing_procedure(conf)
+        except:
+            conf.logger.error("initialize fail")
 
 
 def schedule():
