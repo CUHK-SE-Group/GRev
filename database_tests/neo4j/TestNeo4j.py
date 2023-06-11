@@ -63,7 +63,7 @@ def compare(result1, result2):
 # result: is returned by client.run()
 def oracle(conf: TestConfig, result1, result2):
     # todo: 测试
-    if not compare(result1, result2):
+    if not compare(result1[0], result2[0]):
         if conf.mode == 'live':
             conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
@@ -118,6 +118,7 @@ class Neo4jTester(TesterAbs):
             database_name='neo4j',
             query_producer_func=query_producer,
             oracle_func=oracle,
+            report_token=config.get('lark','neo4j')
         )
         try:
             general_testing_procedure(conf)

@@ -27,36 +27,45 @@ def compare(list1, list2):
     t2 = list_to_dict(list2)
     return t1 == t2
 
+def oracle(conf: TestConfig, result1, result2):
+    if not compare(result1[0], result2[0]):
+        if conf.mode == 'live':
+            conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
+                        conf.q1 + "\n" + conf.q2)
+        conf.logger.warning(
+                f"[{conf.database_name}][{conf.source_file}]Logic inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+        with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
+            writer = csv.writer(file, delimiter='\t')
+            writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
+
 
 class TinkerTester(TesterAbs):
     def __init__(self, database):
         self.database = database
 
     def single_file_testing(self, logfile):
+        def query_producer():
+            with open(logfile, 'r') as f:
+                content = f.read()
+            contents = content.strip().split('\n')
+            match_statements = contents[-5000:]
+            create_statements = contents[4:-5000]
+            return create_statements, match_statements
+        
         logger = new_logger("logs/tinkerpop.log")
         logger.info("Initializing configuration...")
         conf = TestConfig(
             client=Tinkerpop(),
             logger=logger,
-            compare_function=compare,
             source_file=logfile,
             logic_inconsistency_trace_file='logs/tinkerpop_logic_error.tsv',
             database_name=self.database,
-            query_len=5000
+            query_producer_func=query_producer,
+            oracle_func=oracle,
+            report_token=config.get('lark', 'tinkerpop')
         )
 
-        create_statements, match_statements = prepare(conf)
-        logger.info("Formal test begin...")
-        progress_bar = tqdm(total=len(match_statements))
-        for query in match_statements:
-            env = config.get("GLOBAL", "env")
-            try:
-                process_query(query, conf)
-            except Exception as e:
-                logger.info(f"[{self.database}][{logfile}]Unexpected exception: {e}. \n Triggering Query: {query}")
-                # if env == 'live':
-                    # post(f"[{self.database}][{logfile}]Unknown Exception", query)
-            progress_bar.update(1)
+        general_testing_procedure(conf)
         return True
 
 

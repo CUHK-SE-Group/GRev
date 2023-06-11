@@ -10,7 +10,6 @@ config.read('configs/config.ini')
 global_env = config.get('GLOBAL', 'env')
 log_level = config.getint('LOG', 'level')
 log_file = config.get('LOG', 'file')
-lark_token = config.get('lark', 'token')
 
 concurrency = config.getint('neo4j', 'concurrency')
 timeout = config.getfloat('neo4j', 'timeout')

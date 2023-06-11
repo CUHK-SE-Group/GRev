@@ -16,6 +16,7 @@ class TestConfig:
 
         self.mode = kwargs.get('mode', 'live')
         self.report = kwargs.get('report', post)
+        self.report_token = kwargs.get('report_token')
         self.transform_times = kwargs.get('transform_times', 5)
 
         self.client: GdbFactory = kwargs.get('client')
@@ -56,7 +57,7 @@ def general_testing_procedure(conf: TestConfig):
             conf.logger.info(
                 f"[{conf.database_name}][{conf.source_file}]Unexpected exception: {e}. \n Triggering Query: {query}")
             if conf.mode == 'live':
-                conf.report(f"[{conf.database_name}][{conf.source_file}]{e}, \nquery:", query)
+                conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]{e}, \nquery:", query)
         progress_bar.update(1)
 
 
