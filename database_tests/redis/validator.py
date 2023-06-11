@@ -38,7 +38,7 @@ def read_logic_error_file():
 
 
 def validate(database, log_file, query_pairs):
-    if "130" not in log_file:
+    if "927" not in log_file:
         return
     client = Redis("10.20.10.27", database + "_validation")
     with open(log_file, 'r') as f:
@@ -54,8 +54,8 @@ def validate(database, log_file, query_pairs):
             reduce(client, query1, query2)
         except Exception as e:
             print(e)
-        print(query1)
-        print(query2)
+        # print(query1)
+        # print(query2)
         continue
     return dfs
 
@@ -154,11 +154,14 @@ def reduce(client, query1: str, query2: str):
     eq, compare_result1, compare_result2 = compare(query1_res, query2_res)
     if eq:
         return
+
     sum1 = sum([v for _,v in compare_result1.items()])
     sum2 = sum([v for _,v in compare_result2.items()])
     if sum1 == sum2:
         if sum1>2000:
             return
+        print(compare_result1)
+        print(compare_result2)
         keys1 = set([i for i, _ in compare_result1.items()])
         keys2 = set([i for i, _ in compare_result2.items()])
         if keys1 == keys2:
@@ -166,41 +169,14 @@ def reduce(client, query1: str, query2: str):
         else:
             print("数量总和一致, 且key不一致")
         return
+    print(compare_result1)
+    print(compare_result2)
     keys1 = set([i for i, _ in compare_result1.items()])
     keys2 = set([i for i, _ in compare_result2.items()])
     if keys1 == keys2:
         print("数量总和不一致, 且key一致")
     else:
         print("数量总和不一致, 且key不一致")
-    print(compare_result1)
-    print(compare_result2)
-    # # 消除无效语句
-    # e_query1 = eliminate_useless_clauses(query1)
-    # e_query1_res = client.run(e_query1)
-    # # 消除后的语句应当与之前的语句的查询结果保持一致
-    # if not compare(e_query1_res, query1_res):
-    #     return
-    # e_query2 = eliminate_useless_clauses(query2)
-    # e_query2_res = client.run(e_query2)
-    # # 消除后的语句应当与之前的语句的查询结果保持一致
-    # if not compare(e_query2_res, query2_res):
-    #     return
-
-    # kw_pos1 = find_keywords(e_query1, keywords)
-    # kw_pos2 = find_keywords(e_query2, keywords)
-
-    # print([query1[i[0]:i[1] + 1] for i in kw_pos1])
-    # print([query2[i[0]:i[1] + 1] for i in kw_pos2])
-
-    # splited_q1 = get_inverse_intervals(query1, kw_pos1)
-    # splited_q2 = get_inverse_intervals(query2, kw_pos2)
-
-    # splited_str1 = [query1[i[0]:i[1] + 1] for i in splited_q1]
-    # splited_str2 = [query2[i[0]:i[1] + 1] for i in splited_q2]
-
-    # for i in splited_str1:
-    #     if i in splited_str2:
-    #         print(simplify_expression(i))
 
 
 if __name__ == "__main__":

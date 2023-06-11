@@ -15,7 +15,6 @@ class Redis(GdbFactory):
     def run(self, query):
         query = query.replace(';', '')
         result = self.graph.query(query)
-        print(result.header)
         return result.result_set, result.run_time_ms
 
     def batch_run(self, queries):
