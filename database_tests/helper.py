@@ -10,32 +10,35 @@ from webhook.lark import post
 from abc import ABC, abstractmethod
 from typing import Callable
 
+
 class TestConfig:
     def __init__(self, **kwargs):
+
         self.mode = kwargs.get('mode', 'live')
-        self.performance_inconsistency_rate = kwargs.get('performance_inconsistency_rate', 20)
         self.report = kwargs.get('report', post)
         self.transform_times = kwargs.get('transform_times', 5)
 
         self.client: GdbFactory = kwargs.get('client')
         self.logger: Logger = kwargs.get('logger')
-        self.compare_function = kwargs.get('compare_function')
         self.source_file = kwargs.get('source_file')
         self.logic_inconsistency_trace_file = kwargs.get('logic_inconsistency_trace_file')
         self.database_name = kwargs.get('database_name')
-        self.query_len = kwargs.get('query_len')
-        self.env = kwargs.get('env')
-        
+
         self.mutator_func: Callable[[str], str] = kwargs.get('mutator_func', QueryTransformer().mutant_query_generator)
         self.query_producer_func = kwargs.get('query_producer_func', lambda: ([], []))
-        self.oracle_func: Callable([TestConfig, str, str], None) = kwargs.get("oracle_func")
+        self.oracle_func: Callable[[TestConfig, any, any], None] = kwargs.get("oracle_func")
+
+        # temp val for consistency checker
+        self.q1 = None
+        self.q2 = None
 
 
 class TesterAbs(ABC):
     @abstractmethod
     def single_file_testing(self, path):
         pass
-    
+
+
 def general_testing_procedure(conf: TestConfig):
     conf.logger.info("Initializing configuration...")
     create_statements, match_statements = conf.query_producer_func()
@@ -50,11 +53,12 @@ def general_testing_procedure(conf: TestConfig):
                 result2 = conf.client.run(new_query)
                 conf.oracle_func(conf, result1, result2)
         except Exception as e:
-            conf.logger.info(f"[{conf.database_name}][{conf.source_file}]Unexpected exception: {e}. \n Triggering Query: {query}")
-            if conf.env == 'live':
-                post(f"[{conf.database_name}][{conf.source_file}]Unknown Exception", query)
+            conf.logger.info(
+                f"[{conf.database_name}][{conf.source_file}]Unexpected exception: {e}. \n Triggering Query: {query}")
+            if conf.mode == 'live':
+                conf.report(f"[{conf.database_name}][{conf.source_file}]{e}, \nquery:", query)
         progress_bar.update(1)
-        
+
 
 # def prepare(conf: TestConfig):
 #     conf.logger.info("Parsing input statements...")
