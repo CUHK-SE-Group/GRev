@@ -10,18 +10,6 @@ import time
 
 import re
 
-keywords = ["MATCH ", "RETURN ", "OPTIONAL MATCH ", "WHERE ", "CONTAINS ", "WITHIN ",
-            "WITH ", "UNION ", "ALL ", "UNWIND ", "AS ", "MERGE ", "ON ",
-            "CREATE ", "SET ", "DETACH ", "DELETE ", "REMOVE ", "CALL ",
-            "YIELD ", "DISTINCT ", "ORDER ", "BY ", "L_SKIP ", "LIMIT ",
-            "ASCENDING ", "ASC ", "DESCENDING ", "DESC ", "OR ", "XOR ",
-            "STARTS ", "ENDS ", "CONTAINS ", "IN ", "IS ",
-            "NULL ", "COUNT ", "CASE ", "ELSE ", "END ", "WHEN ", "THEN ",
-            "ANY"]
-
-
-#  "AND ", "NOT ",
-
 def read_logic_error_file():
     with open('logs/redis_logic_error.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')

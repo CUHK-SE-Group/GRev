@@ -26,8 +26,7 @@ class TinkerGraphClient:
         response = requests.post(url=url, data=json.dumps(request_body), headers=self._headers)
         # print('after')
         if response.status_code != 200:
-            logging.error(json.loads(response.content))
-            raise ValueError
+            raise ValueError(response.content)
         return json.loads(response.content)
 
     def delete_all_graphs(self):

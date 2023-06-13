@@ -9,3 +9,7 @@ class GdbFactory(ABC):
     @abstractmethod
     def batch_run(self, query: List[str]) -> None:
         pass
+
+    @abstractmethod
+    def clear(self) -> None:
+        pass

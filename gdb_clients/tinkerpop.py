@@ -10,7 +10,7 @@ class Tinkerpop(GdbFactory):
         self.client = TinkerGraphClient("10.26.1.146")
 
     def run(self, query):
-        query = cypher2gremlin(query)
+        # query = cypher2gremlin(query)
         ret = self.client.send_gremlin(query)
         return [i['@value'] for i in ret['result']['data']['@value'] if i], 0
         

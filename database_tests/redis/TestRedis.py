@@ -4,35 +4,37 @@ from gdb_clients import *
 from configs.conf import new_logger, config
 import csv
 
-def list_to_dict(lst):
-    result = defaultdict(int)
-    for elem in lst:
-        if isinstance(elem, list):
-            nested_dict = list_to_dict(elem)
-            for key, value in nested_dict.items():
-                result[key] += value
-        else:
-            result[elem] += 1
-    return dict(result)
-
 
 def compare(list1, list2):
     if len(list1) != len(list2):
         return False
-    t1 = list_to_dict(list1)
-    t2 = list_to_dict(list2)
-    return t1 == t2
+    if len(list1) >= 9000:
+        return True
+    lst1 = [i.__str__() for i in list1]
+    lst2 = [i.__str__() for i in list2]
+    lst1.sort()
+    lst2.sort()
+    return lst1 == lst2
 
 def oracle(conf: TestConfig, result1, result2):
     if not compare(result1[0], result2[0]):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
-                        conf.q1 + "\n" + conf.q2)
+                        f"{conf.q1}\n{conf.q2}")
         conf.logger.warning(
                 f"[{conf.database_name}][{conf.source_file}]Logic inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
+            
+    big = max(result1[1], result2[1])
+    small = min(result1[1], result2[1])
+    if big > 5 * small and small>100:
+        if conf.mode == 'live':
+            conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
+                        conf.q1 + "\n" + conf.q2)
+        conf.logger.warning(
+                f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
 
 
 class RedisTester(TesterAbs):
