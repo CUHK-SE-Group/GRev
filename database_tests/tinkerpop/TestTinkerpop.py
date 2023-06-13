@@ -1,9 +1,9 @@
 from collections import defaultdict
-from tqdm import tqdm
 from database_tests.helper import *
 from gdb_clients import *
 from configs.conf import new_logger, config
-from webhook.lark import post
+import json
+
 
 def list_to_dict(lst):
     # 定义一个defaultdict，用于创建一个默认值为0的字典
@@ -23,9 +23,11 @@ def list_to_dict(lst):
 def compare(list1, list2):
     if len(list1) != len(list2):
         return False
-    t1 = list_to_dict(list1)
-    t2 = list_to_dict(list2)
-    return t1 == t2
+    lst1 = [i.__str__() for i in list1]
+    lst2 = [i.__str__() for i in list2]
+    lst1.sort()
+    lst2.sort()
+    return lst1 == lst2
 
 def oracle(conf: TestConfig, result1, result2):
     if not compare(result1[0], result2[0]):
@@ -45,11 +47,17 @@ class TinkerTester(TesterAbs):
 
     def single_file_testing(self, logfile):
         def query_producer():
-            with open(logfile, 'r') as f:
-                content = f.read()
-            contents = content.strip().split('\n')
-            match_statements = contents[-5000:]
-            create_statements = contents[4:-5000]
+            # with open(logfile, 'r') as f:
+            #     content = f.read()
+            # contents = content.strip().split('\n')
+            # match_statements = contents[-5000:]
+            # create_statements = contents[4:-5000]
+            # return create_statements, match_statements
+            
+            with open("./mutator/gremlin/schemas/create-01.log", "r", encoding = "utf-8") as f:
+                create_statements = f.read().strip().split('\n')
+            with open("./mutator/gremlin/schemas/query-01.json", "r", encoding = "utf-8") as f:
+                match_statements = json.load(f)
             return create_statements, match_statements
         
         logger = new_logger("logs/tinkerpop.log")

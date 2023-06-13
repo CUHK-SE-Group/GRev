@@ -1,14 +1,10 @@
 import csv
 import random
 import threading
-from concurrent.futures import CancelledError
 from copy import deepcopy
-from neo4j.exceptions import Neo4jError
-from tqdm import tqdm
 from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
 from gdb_clients import *
-from configs.conf import logger, config
-from webhook.lark import post
+from configs.conf import *
 import hashlib
 import json
 
@@ -53,11 +49,13 @@ def hash_dictionary(d):
 
 
 def compare(result1, result2):
-    data1 = deepcopy(result1)
-    data2 = deepcopy(result2)
-    if len(data1) != len(data2):
+    if len(result1) != len(result2):
         return False
-    return (sorted([hash_dictionary(x) for x in data1]) == sorted([hash_dictionary(x) for x in data2]))
+    lst1 = [i.__str__() for i in result1]
+    lst2 = [i.__str__() for i in result2]
+    lst1.sort()
+    lst2.sort()
+    return lst1 == lst2
 
 
 # result: is returned by client.run()
@@ -72,6 +70,15 @@ def oracle(conf: TestConfig, result1, result2):
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
+    big = max(result1[1], result2[1])
+    small = min(result1[1], result2[1])
+    if big > 5 * small and small>20:
+        if conf.mode == 'live':
+            conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
+                        conf.q1 + "\n" + conf.q2)
+        conf.logger.warning(
+                f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+
 
 
 class Neo4jTester(TesterAbs):
@@ -107,7 +114,7 @@ class Neo4jTester(TesterAbs):
             match_statements = contents[-5000:]
             create_statements = contents[4:-5000]
             return create_statements, match_statements
-
+        logger = new_logger("logs/neo4j.log")
         logger.info("Initializing configuration...")
         conf = TestConfig(
             client=Neo4j(config.get("neo4j", 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
@@ -122,18 +129,17 @@ class Neo4jTester(TesterAbs):
         )
         try:
             general_testing_procedure(conf)
-        except:
-            conf.logger.error("initialize fail")
+        except Exception as e:
+            conf.logger.error(f"initialize fail {e}")
 
 
 def schedule():
-    idx = random.randint(0, 1000000000000)
-    scheduler(config.get('neo4j', 'input_path'), Neo4jTester(f"pattern{idx}"), 'neo4j')
+    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("pattern114582879015"), 'neo4j')
 
 
 if __name__ == "__main__":
     if config.get("GLOBAL", 'env') == "debug":
         Tester = Neo4jTester('test4')
-        Tester.single_file_testing("query_file/database0-cur.log")
+        Tester.single_file_testing("query_producer/logs/composite/database131-cur.log")
     else:
         schedule()
