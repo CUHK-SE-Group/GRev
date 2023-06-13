@@ -26,7 +26,7 @@ def read_logic_error_file():
 
 
 def validate(database, log_file, query_pairs):
-    if "927" not in log_file:
+    if "197" not in log_file:
         return
     client = Redis("10.20.10.27", database + "_validation")
     with open(log_file, 'r') as f:

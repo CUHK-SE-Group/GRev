@@ -67,6 +67,10 @@ def general_testing_procedure(conf: TestConfig):
         except redis.exceptions.ResponseError as e:
             conf.logger.info(
                 f"[{conf.database_name}][{conf.source_file}]Timeout exception: {e}. \n Triggering Query: {query}")
+        except ValueError as e:
+            tb_str = traceback.format_tb(e.__traceback__)
+            conf.logger.info(
+                f"[{conf.database_name}][{conf.source_file}]Unexpected exception: {e}, traceback: {tb_str}. \n Triggering Query: {query}")
         except Exception as e:
             tb_str = traceback.format_tb(e.__traceback__)
             conf.logger.info(

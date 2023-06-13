@@ -29,6 +29,8 @@ query_file: 用于测试的原始query请求的集合
 
 [Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Fixed
 
+[Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Intended
+
 [Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Intended
 
 [Memgraph-954](https://github.com/memgraph/memgraph/issues/954) Status: Intended
@@ -38,6 +40,10 @@ query_file: 用于测试的原始query请求的集合
 [RedisGraph-3091](https://github.com/RedisGraph/RedisGraph/issues/3091) Status: Intended
 
 [RedisGraph-3093](https://github.com/RedisGraph/RedisGraph/issues/3093) Status: Intended
+
+[RedisGraph-3100](https://github.com/RedisGraph/RedisGraph/issues/3100) Status: Intended
+
+
 
 
 
