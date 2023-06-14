@@ -43,6 +43,8 @@ query_file: 用于测试的原始query请求的集合
 
 [RedisGraph-3100](https://github.com/RedisGraph/RedisGraph/issues/3100) Status: Intended
 
+[Gremlin: Unsolvable Pattern](https://discord.com/channels/838910279550238720/1117146194666332250) Status: Confirmed
+
 
 
 
