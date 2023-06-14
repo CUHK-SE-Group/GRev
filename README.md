@@ -29,7 +29,7 @@ query_file: 用于测试的原始query请求的集合
 
 [Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Fixed
 
-[Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Intended
+[Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Duplicated
 
 [Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Intended
 
