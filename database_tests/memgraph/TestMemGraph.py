@@ -18,8 +18,17 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
-        conf.logger.warning(
-                f"[{conf.database_name}][{conf.source_file}]Logic inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+        conf.logger.warning({
+            "database_name": conf.database_name,
+            "source_file": conf.source_file,
+            "tag": "logic_inconsistency",
+            "query1": conf.q1,
+            "query2": conf.q2,
+            "query_res1": result1[0].__str__(),
+            "query_res2": result2[0].__str__(),
+            "query_time1": result1[1],
+            "query_time2": result2[1],
+            })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
@@ -29,8 +38,17 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)
-        conf.logger.warning(
-                f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+        conf.logger.warning({
+            "database_name": conf.database_name,
+            "source_file": conf.source_file,
+            "tag": "performance_inconsistency",
+            "query1": conf.q1,
+            "query2": conf.q2,
+            "query_res1": result1[0].__str__(),
+            "query_res2": result2[0].__str__(),
+            "query_time1": result1[1],
+            "query_time2": result2[1],
+        })
 
 
 class MemgraphTester(TesterAbs):
@@ -46,8 +64,7 @@ class MemgraphTester(TesterAbs):
                 create_statements = contents[4:-5000]
                 return create_statements, match_statements
         
-        logger = new_logger("logs/memgraph.log")
-        logger.info("Initializing configuration...")
+        logger = new_logger("logs/memgraph.log", True)
         conf = TestConfig(
             client=MemGraph(),
             logger=logger,

@@ -25,4 +25,5 @@ def GenTestcase(createfile, queryfile, query_num, GDB_header = "g."):
         json.dump(res, f)
 
 if __name__ == "__main__":
-    GenTestcase("./mutator/gremlin/schemas/create-01.log", "./mutator/gremlin/schemas/query-01.json", 1000)
+    for i in range(1000):
+        GenTestcase(f"./query_producer/gremlin_generator/create-{i}.log", f"./query_producer/gremlin_generator/query-{i}.log", 2000)
