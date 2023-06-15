@@ -30,7 +30,7 @@ def oracle(conf: TestConfig, result1, result2):
             "query_res1": result1[0].__str__(),
             "query_res2": result2[0].__str__(),
             "query_time1": result1[1],
-            "query_time1": result2[1],
+            "query_time2": result2[1],
             })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
@@ -51,7 +51,7 @@ def oracle(conf: TestConfig, result1, result2):
             "query_res1": result1[0].__str__(),
             "query_res2": result2[0].__str__(),
             "query_time1": result1[1],
-            "query_time1": result2[1],
+            "query_time2": result2[1],
             })
 
 

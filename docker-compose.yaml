@@ -16,7 +16,12 @@ services:
       - discovery.type=single-node
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
-
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
   kibana:
     image: docker.elastic.co/kibana/kibana:8.8.1
     container_name: kibana
@@ -31,51 +36,177 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
-
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.1
     container_name: logstash
     networks:
       - elastic
+      - gdb_testing
     ports:
       - 5044:5044
       - 5045:5045
     volumes:
       - ./elk/logstash/config:/usr/share/logstash/config/
       - ./elk/logstash/pipeline:/usr/share/logstash/pipeline/
-
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
   # databases
   neo4j:
     image: neo4j:5.8.0-enterprise
     restart: on-failure
-    ports:
-      - 7474:7474
-      - 7687:7687
+    depends_on:
+      - kibana
+      - logstash
+      - elasticsearch
+    networks:
+      - gdb_testing
     environment:
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_AUTH=neo4j/testtest
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
 
   redis-stack:
     image: redis/redis-stack:6.2.6-v7
     restart: on-failure
-    ports:
-      - 6379:6379
-      - 8001:8001
+    depends_on:
+      - kibana
+      - logstash
+      - elasticsearch
+    networks:
+      - gdb_testing
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
 
   memgraph:
     image: memgraph/memgraph-platform:latest
     restart: on-failure
+    depends_on:
+      - kibana
+      - logstash
+      - elasticsearch
+    networks:
+      - gdb_testing
     tty: true
     ports:
-      - 7690:7687
-      - 7444:7444
-      - 3002:3000
+      - 3000:3000
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
+
+  redis_client:
+    image: patterntransfromer
+    working_dir: /appdata
+    tty: true
+    depends_on:
+      - redis-stack
+    networks:
+      - gdb_testing
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
+    volumes:
+      - ./:/appdata
+    entrypoint: [ "bash", "./scripts/run_redis.sh" ]
+
+  memgraph_client:
+    image: patterntransfromer
+    working_dir: /appdata
+    tty: true
+    depends_on:
+      - memgraph
+    networks:
+      - gdb_testing
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
+    volumes:
+      - ./:/appdata
+    entrypoint: [ "bash", "./scripts/run_memgraph.sh" ]
+
+  neo4j_client:
+    image: patterntransfromer
+    working_dir: /appdata
+    tty: true
+    depends_on:
+      - neo4j
+    networks:
+      - gdb_testing
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
+    volumes:
+      - ./:/appdata
+    entrypoint: [ "bash", "./scripts/run_neo4j.sh" ]
+
+  tinkerpop_client:
+    image: patterntransfromer
+    working_dir: /appdata
+    tty: true
+    networks:
+      - gdb_testing
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - http_proxy=
+      - https_proxy=
+      - all_proxy=
+    volumes:
+      - ./:/appdata
+    entrypoint: [ "bash", "./scripts/run_tinkerpop.sh" ]
+
 networks:
   elastic:
+  gdb_testing:
 
 
 volumes:
   kibanadata:
     driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/nn/storage/gdb_testing_data/kibana
   elasticsearch_data:
     driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/nn/storage/gdb_testing_data/elasticsearch

@@ -35,7 +35,8 @@ def new_logger(file, enable_elk=False):
     logger.setLevel(log_level)
     jsonformatter = jsonlogger.JsonFormatter('%(asctime)s %(filename)s %(lineno)d %(message)s')
 
-    logHandler = JsonSocketHandler('localhost', 5044)
+    logHandler = JsonSocketHandler('logstash', 5044)
+    logHandler.closeOnError = False
     logHandler.setFormatter(jsonformatter)
     
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(message)s')
@@ -51,7 +52,8 @@ def new_logger(file, enable_elk=False):
     logger.addHandler(file_handler)
     if enable_elk:
         logger.addHandler(logHandler)
+        logger.info({"message": "initializeing logstash handler"})
     return logger
 
 
-logger = new_logger("logs/log_file.log")
+logger = new_logger("logs/log_file.log", True)

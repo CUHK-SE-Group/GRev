@@ -1,10 +1,11 @@
 from gqlalchemy import Memgraph
 from gdb_clients import GdbFactory
+from configs.conf import  config
 
 
 class MemGraph(GdbFactory):
     def __init__(self):
-        self.connection = Memgraph(host='localhost', port=7690)
+        self.connection = Memgraph(host="memgraph", port=7687)
 
     def run(self, query):
         res = self.connection.execute_and_fetch(query)
