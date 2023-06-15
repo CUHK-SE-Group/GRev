@@ -42,11 +42,9 @@ class TesterAbs(ABC):
 
 
 def general_testing_procedure(conf: TestConfig):
-    conf.logger.info("Initializing configuration...")
     create_statements, match_statements = conf.query_producer_func()
     conf.client.clear()
     conf.client.batch_run(create_statements)
-    conf.logger.info("Formal test begin...")
     progress_bar = tqdm(total=len(match_statements))
     for query in match_statements:
         try:
@@ -65,16 +63,38 @@ def general_testing_procedure(conf: TestConfig):
                     conf.q2 = new_query
                     conf.oracle_func(conf, result1, result2)
         except redis.exceptions.ResponseError as e:
-            conf.logger.info(
-                f"[{conf.database_name}][{conf.source_file}]Timeout exception: {e}. \n Triggering Query: {query}")
+            tb_str = traceback.format_tb(e.__traceback__)
+            conf.logger.info({
+                "database_name": conf.database_name,
+                "source_file": conf.source_file,
+                "tag": "exception",
+                "exception_content": e.__str__(),
+                "query1": conf.q1,
+                "query2": conf.q2,
+                "traceback": tb_str
+                })
         except ValueError as e:
             tb_str = traceback.format_tb(e.__traceback__)
-            conf.logger.info(
-                f"[{conf.database_name}][{conf.source_file}]Unexpected exception: {e}, traceback: {tb_str}. \n Triggering Query: {query}")
+            conf.logger.info({
+                "database_name": conf.database_name,
+                "source_file": conf.source_file,
+                "tag": "exception",
+                "exception_content": e.__str__(),
+                "query1": conf.q1,
+                "query2": conf.q2,
+                "traceback": tb_str
+                })
         except Exception as e:
             tb_str = traceback.format_tb(e.__traceback__)
-            conf.logger.info(
-                f"[{conf.database_name}][{conf.source_file}]Unexpected exception: {e}, traceback: {tb_str}. \n Triggering Query: {query}")
+            conf.logger.info({
+                "database_name": conf.database_name,
+                "source_file": conf.source_file,
+                "tag": "exception",
+                "exception_content": e.__str__(),
+                "query1": conf.q1,
+                "query2": conf.q2,
+                "traceback": tb_str
+                })
             if conf.mode == 'live':
                 conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]", f"exception: \n{e} \nquery:\n{query}")
         progress_bar.update(1)
@@ -91,6 +111,23 @@ def scheduler(folder_path, tester: TesterAbs, database):
     sorted_file_paths = sorted(file_paths)
 
     for file_path in sorted_file_paths:
+        db = TinyDB('db.json')
+        table = db.table(database)
+        session = Query()
+        res = table.search(session.FileName == file_path)
+        if not res:
+            table.insert({'FileName': file_path, 'status': 'doing'})
+            success = tester.single_file_testing(file_path)
+            if success:
+                table.update({'status': 'done'}, session.FileName == file_path)
+            else:
+                table.remove(session.FileName == file_path)
+
+
+
+def gremlin_scheduler(folder_path, tester: TesterAbs, database):
+    for i in range(100):
+        file_path = os.path.join(folder_path, f'create-{i}.log')
         db = TinyDB('db.json')
         table = db.table(database)
         session = Query()

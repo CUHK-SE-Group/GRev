@@ -33,7 +33,7 @@ class AgeTester(TesterAbs):
         self.database = database
 
     def single_file_testing(self, logfile):
-        logger = new_logger("logs/age.log")
+        logger = new_logger("logs/age.log", True)
         logger.info("Initializing configuration...")
         conf = TestConfig(
             client=AgeDB(),

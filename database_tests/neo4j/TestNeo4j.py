@@ -65,8 +65,17 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
-            conf.logger.warning(
-                f"[{config.database_name}][{config.source_file}]Logic inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+            conf.logger.warning({
+                "database_name": conf.database_name,
+                "source_file": conf.source_file,
+                "tag": "logic_inconsistency",
+                "query1": conf.q1,
+                "query2": conf.q2,
+                "query_res1": result1[0].__str__(),
+                "query_res2": result2[0].__str__(),
+                "query_time1": result1[1],
+                "query_time1": result2[1],
+            })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
@@ -76,8 +85,17 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)
-        conf.logger.warning(
-                f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+        conf.logger.warning({
+                "database_name": conf.database_name,
+                "source_file": conf.source_file,
+                "tag": "performance_inconsistency",
+                "query1": conf.q1,
+                "query2": conf.q2,
+                "query_res1": result1[0].__str__(),
+                "query_res2": result2[0].__str__(),
+                "query_time1": result1[1],
+                "query_time1": result2[1],
+            })
 
 
 
@@ -114,8 +132,7 @@ class Neo4jTester(TesterAbs):
             match_statements = contents[-5000:]
             create_statements = contents[4:-5000]
             return create_statements, match_statements
-        logger = new_logger("logs/neo4j.log")
-        logger.info("Initializing configuration...")
+        logger = new_logger("logs/neo4j.log", True)
         conf = TestConfig(
             client=Neo4j(config.get("neo4j", 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
                          self.database),
@@ -127,10 +144,7 @@ class Neo4jTester(TesterAbs):
             oracle_func=oracle,
             report_token=config.get('lark','neo4j')
         )
-        try:
-            general_testing_procedure(conf)
-        except Exception as e:
-            conf.logger.error(f"initialize fail {e}")
+        general_testing_procedure(conf)
 
 
 def schedule():
@@ -140,6 +154,6 @@ def schedule():
 if __name__ == "__main__":
     if config.get("GLOBAL", 'env') == "debug":
         Tester = Neo4jTester('test4')
-        Tester.single_file_testing("query_producer/logs/composite/database131-cur.log")
+        Tester.single_file_testing("query_producer/logs/composite/database137-cur.log")
     else:
         schedule()

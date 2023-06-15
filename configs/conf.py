@@ -1,6 +1,9 @@
 import logging
+import logging.handlers
 import configparser
 import os
+from pythonjsonlogger import jsonlogger
+import json
 
 print(os.getcwd())
 config = configparser.ConfigParser()
@@ -20,18 +23,34 @@ query_len = config.getint('neo4j', 'query_len')
 input_path = config.get('neo4j', 'input_path')
 
 
-def new_logger(file):
+class JsonSocketHandler(logging.handlers.SocketHandler):
+    def __init__(self, host, port):
+        super().__init__(host, port)
+
+    def makePickle(self, record):
+        return json.dumps(record.__dict__).encode('utf-8') + b'\n'
+    
+def new_logger(file, enable_elk=False):
     logger = logging.getLogger()
     logger.setLevel(log_level)
-    console_handler = logging.StreamHandler()
-    file_handler = logging.FileHandler(file)
+    jsonformatter = jsonlogger.JsonFormatter('%(asctime)s %(filename)s %(lineno)d %(message)s')
+
+    logHandler = JsonSocketHandler('localhost', 5044)
+    logHandler.setFormatter(jsonformatter)
+    
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(message)s')
+    console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     console_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
+    
+    file_handler = logging.FileHandler(file)
+    file_handler.setFormatter(jsonformatter)
     file_handler.setLevel(logging.INFO)
+    
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
+    if enable_elk:
+        logger.addHandler(logHandler)
     return logger
 
 

@@ -4,7 +4,7 @@ from gdb_clients import GdbFactory
 
 class MemGraph(GdbFactory):
     def __init__(self):
-        self.connection = Memgraph(host='10.20.10.27', port=7688)
+        self.connection = Memgraph(host='localhost', port=7690)
 
     def run(self, query):
         res = self.connection.execute_and_fetch(query)

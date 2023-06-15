@@ -1,0 +1,81 @@
+version: '3'
+services:
+  # log analyzer
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    container_name: elasticsearch
+    networks:
+      - elastic
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - ./elk/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.1
+    container_name: kibana
+    networks:
+      - elastic
+    volumes:
+      - kibanadata:/usr/share/kibana/data
+    ports:
+      - 5601:5601
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.1
+    container_name: logstash
+    networks:
+      - elastic
+    ports:
+      - 5044:5044
+      - 5045:5045
+    volumes:
+      - ./elk/logstash/config:/usr/share/logstash/config/
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline/
+
+  # databases
+  neo4j:
+    image: neo4j:5.8.0-enterprise
+    restart: on-failure
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_AUTH=neo4j/testtest
+
+  redis-stack:
+    image: redis/redis-stack:6.2.6-v7
+    restart: on-failure
+    ports:
+      - 6379:6379
+      - 8001:8001
+
+  memgraph:
+    image: memgraph/memgraph-platform:latest
+    restart: on-failure
+    tty: true
+    ports:
+      - 7690:7687
+      - 7444:7444
+      - 3002:3000
+networks:
+  elastic:
+
+
+volumes:
+  kibanadata:
+    driver: local
+  elasticsearch_data:
+    driver: local

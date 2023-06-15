@@ -34,8 +34,17 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
-        conf.logger.warning(
-                f"[{conf.database_name}][{conf.source_file}]Logic inconsistency. \n Query1: {conf.q1} \n Query2: {conf.q2}")
+        conf.logger.warning({
+            "database_name": conf.database_name,
+            "source_file": conf.source_file,
+            "tag": "logic_inconsistency",
+            "query1": conf.q1,
+            "query2": conf.q2,
+            "query_res1": result1[0].__str__(),
+            "query_res2": result2[0].__str__(),
+            "query_time1": result1[1],
+            "query_time1": result2[1],
+            })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
@@ -45,23 +54,15 @@ class TinkerTester(TesterAbs):
     def __init__(self, database):
         self.database = database
 
-    def single_file_testing(self, logfile):
+    def single_file_testing(self, logfile:str):
         def query_producer():
-            # with open(logfile, 'r') as f:
-            #     content = f.read()
-            # contents = content.strip().split('\n')
-            # match_statements = contents[-5000:]
-            # create_statements = contents[4:-5000]
-            # return create_statements, match_statements
-            
-            with open("./mutator/gremlin/schemas/create-01.log", "r", encoding = "utf-8") as f:
+            with open(logfile, "r", encoding = "utf-8") as f:
                 create_statements = f.read().strip().split('\n')
-            with open("./mutator/gremlin/schemas/query-01.json", "r", encoding = "utf-8") as f:
+            with open(logfile.replace("create", "query"), "r", encoding = "utf-8") as f:
                 match_statements = json.load(f)
             return create_statements, match_statements
         
-        logger = new_logger("logs/tinkerpop.log")
-        logger.info("Initializing configuration...")
+        logger = new_logger("logs/tinkerpop.log", True)
         conf = TestConfig(
             client=Tinkerpop(),
             logger=logger,
@@ -78,7 +79,7 @@ class TinkerTester(TesterAbs):
 
 
 def schedule():
-    scheduler(config.get('tinkerpop', 'input_path'), TinkerTester(f"tinkerpop"), "tinkerpop")
+    gremlin_scheduler(config.get('tinkerpop', 'input_path'), TinkerTester(f"tinkerpop"), "tinkerpop")
 
 
 if __name__ == "__main__":
