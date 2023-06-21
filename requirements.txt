@@ -13,3 +13,5 @@ apache-age-python==0.0.5
 requests==2.28.2
 gqlalchemy==1.4.1
 pandas==2.0.0
+memory-profiler==0.61.0
+objgraph==3.5.0

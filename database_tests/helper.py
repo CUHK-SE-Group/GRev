@@ -40,7 +40,6 @@ class TesterAbs(ABC):
     def single_file_testing(self, path):
         pass
 
-
 def general_testing_procedure(conf: TestConfig):
     create_statements, match_statements = conf.query_producer_func()
     conf.client.clear()
@@ -98,7 +97,6 @@ def general_testing_procedure(conf: TestConfig):
             if conf.mode == 'live':
                 conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]", f"exception: \n{e} \nquery:\n{query}")
         progress_bar.update(1)
-
 
 def scheduler(folder_path, tester: TesterAbs, database):
     file_paths = []

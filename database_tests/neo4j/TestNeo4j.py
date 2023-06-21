@@ -128,6 +128,7 @@ class Neo4jTester(TesterAbs):
         def query_producer():
             with open(logfile, 'r') as f:
                 content = f.read()
+                f.close()
             contents = content.strip().split('\n')
             match_statements = contents[-5000:]
             create_statements = contents[4:-5000]

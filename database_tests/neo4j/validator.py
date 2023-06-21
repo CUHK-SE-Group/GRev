@@ -21,8 +21,8 @@ def read_logic_error_file():
 
 def validate(database, log_file, query_pairs):
 
-    client = Neo4j(config.get("neo4j", 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
-                         'test4')
+    client = Neo4j("bolt://localhost:7687", config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
+                         'testtest')
     with open(log_file, 'r') as f:
         content = f.read()
         contents = content.strip().split('\n')
@@ -35,4 +35,4 @@ def validate(database, log_file, query_pairs):
 
 
 if __name__ == "__main__":
-    validate("", "query_producer/logs/composite/database131-cur.log", "")
+    validate("", "query_producer/logs/composite/database122-cur.log", "")
