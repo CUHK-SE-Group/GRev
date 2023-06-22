@@ -34,7 +34,7 @@ def oracle(conf: TestConfig, result1, result2):
             writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
-    if big > 5 * small and small>100:
+    if big > 5 * small and small>20:
         if conf.mode == 'live':
             conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)

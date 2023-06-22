@@ -4,6 +4,7 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1
     container_name: elasticsearch
+    restart: on-failure
     networks:
       - elastic
     ports:
@@ -25,6 +26,7 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.8.1
     container_name: kibana
+    restart: on-failure
     networks:
       - elastic
     volumes:
@@ -45,6 +47,7 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.1
     container_name: logstash
+    restart: on-failure
     networks:
       - elastic
       - gdb_testing
@@ -69,6 +72,9 @@ services:
       - kibana
       - logstash
       - elasticsearch
+    ports:
+      - 7474:7474
+      - 7687:7687
     networks:
       - gdb_testing
     environment:
@@ -121,6 +127,7 @@ services:
   redis_client:
     image: patterntransfromer
     working_dir: /appdata
+    restart: on-failure
     tty: true
     depends_on:
       - redis-stack
@@ -141,6 +148,7 @@ services:
     image: patterntransfromer
     working_dir: /appdata
     tty: true
+    restart: on-failure
     depends_on:
       - memgraph
     networks:
@@ -154,12 +162,17 @@ services:
       - all_proxy=
     volumes:
       - ./:/appdata
+    deploy:
+      resources:
+        limits:
+          memory: 10G
     entrypoint: [ "bash", "./scripts/run_memgraph.sh" ]
 
   neo4j_client:
     image: patterntransfromer
     working_dir: /appdata
     tty: true
+    restart: on-failure
     depends_on:
       - neo4j
     networks:
@@ -173,12 +186,17 @@ services:
       - all_proxy=
     volumes:
       - ./:/appdata
+    deploy:
+      resources:
+        limits:
+          memory: 10G
     entrypoint: [ "bash", "./scripts/run_neo4j.sh" ]
 
   tinkerpop_client:
     image: patterntransfromer
     working_dir: /appdata
     tty: true
+    restart: on-failure
     networks:
       - gdb_testing
     environment:

@@ -56,11 +56,19 @@ class TinkerTester(TesterAbs):
 
     def single_file_testing(self, logfile:str):
         def query_producer():
-            with open(logfile, "r", encoding = "utf-8") as f:
-                create_statements = f.read().strip().split('\n')
-            with open(logfile.replace("create", "query"), "r", encoding = "utf-8") as f:
-                match_statements = json.load(f)
-            return create_statements, match_statements
+            if config.get('tinkerpop', 'input_mode') == "cypher":
+                with open(logfile, 'r') as f:
+                    content = f.read()
+                contents = content.strip().split('\n')
+                match_statements = contents[-5000:]
+                create_statements = contents[4:-5000]
+                return create_statements, match_statements
+            elif config.get('tinkerpop', 'input_mode') == "gremlin":
+                with open(logfile, "r", encoding = "utf-8") as f:
+                    create_statements = f.read().strip().split('\n')
+                with open(logfile.replace("create", "query"), "r", encoding = "utf-8") as f:
+                    match_statements = json.load(f)
+                return create_statements, match_statements
         
         logger = new_logger("logs/tinkerpop.log", True)
         conf = TestConfig(
@@ -79,7 +87,8 @@ class TinkerTester(TesterAbs):
 
 
 def schedule():
-    gremlin_scheduler(config.get('tinkerpop', 'input_path'), TinkerTester(f"tinkerpop"), "tinkerpop")
+    # gremlin_scheduler(config.get('tinkerpop', 'input_path'), TinkerTester(f"tinkerpop"), "tinkerpop")
+    scheduler(config.get('tinkerpop', 'input_path'), TinkerTester(f"tinkerpop"), "tinkerpop")
 
 
 if __name__ == "__main__":

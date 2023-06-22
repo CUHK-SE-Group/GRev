@@ -9,7 +9,7 @@ from typing import List, Dict
 
 class TinkerGraphClient:
     def __init__(self,
-                 janusgraph_serever_ip: str = '0.0.0.0',
+                 janusgraph_serever_ip: str = '10.26.1.146',
                  janusgraph_serever_port: str = '11109'):
         self._headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0',
