@@ -17,12 +17,6 @@ services:
       - discovery.type=single-node
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=false
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
   kibana:
     image: docker.elastic.co/kibana/kibana:8.8.1
     container_name: kibana
@@ -38,12 +32,6 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.1
     container_name: logstash
@@ -57,13 +45,6 @@ services:
     volumes:
       - ./elk/logstash/config:/usr/share/logstash/config/
       - ./elk/logstash/pipeline:/usr/share/logstash/pipeline/
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
   # databases
   neo4j:
     image: neo4j:5.8.0-enterprise
@@ -80,12 +61,6 @@ services:
     environment:
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_AUTH=neo4j/testtest
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
 
   redis-stack:
     image: redis/redis-stack:6.2.6-v7
@@ -96,13 +71,6 @@ services:
       - elasticsearch
     networks:
       - gdb_testing
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
 
   memgraph:
     image: memgraph/memgraph-platform:latest
@@ -116,16 +84,9 @@ services:
     tty: true
     ports:
       - 3000:3000
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
 
   redis_client:
-    image: patterntransfromer
+    image: lincyaw/patterntransfromer:latest
     working_dir: /appdata
     restart: on-failure
     tty: true
@@ -133,19 +94,12 @@ services:
       - redis-stack
     networks:
       - gdb_testing
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
     volumes:
       - ./:/appdata
     entrypoint: [ "bash", "./scripts/run_redis.sh" ]
 
   memgraph_client:
-    image: patterntransfromer
+    image: lincyaw/patterntransfromer:latest
     working_dir: /appdata
     tty: true
     restart: on-failure
@@ -153,13 +107,6 @@ services:
       - memgraph
     networks:
       - gdb_testing
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
     volumes:
       - ./:/appdata
     deploy:
@@ -169,7 +116,7 @@ services:
     entrypoint: [ "bash", "./scripts/run_memgraph.sh" ]
 
   neo4j_client:
-    image: patterntransfromer
+    image: lincyaw/patterntransfromer:latest
     working_dir: /appdata
     tty: true
     restart: on-failure
@@ -177,13 +124,6 @@ services:
       - neo4j
     networks:
       - gdb_testing
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
     volumes:
       - ./:/appdata
     deploy:
@@ -193,22 +133,20 @@ services:
     entrypoint: [ "bash", "./scripts/run_neo4j.sh" ]
 
   tinkerpop_client:
-    image: patterntransfromer
+    image: lincyaw/patterntransfromer:latest
     working_dir: /appdata
     tty: true
     restart: on-failure
     networks:
       - gdb_testing
-    environment:
-      - HTTP_PROXY=
-      - HTTPS_PROXY=
-      - ALL_PROXY=
-      - http_proxy=
-      - https_proxy=
-      - all_proxy=
     volumes:
       - ./:/appdata
     entrypoint: [ "bash", "./scripts/run_tinkerpop.sh" ]
+
+  cypher2gremlin:
+    image: lincyaw/cypher2gremlin:v0.1
+    ports:
+      - 8085:8080
 
 networks:
   elastic:
