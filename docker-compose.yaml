@@ -74,6 +74,7 @@ services:
       - elasticsearch
     ports:
       - 7474:7474
+      - 7687:7687
     networks:
       - gdb_testing
     environment:
@@ -115,7 +116,6 @@ services:
     tty: true
     ports:
       - 3000:3000
-      - 7687:7687
     environment:
       - HTTP_PROXY=
       - HTTPS_PROXY=
