@@ -25,11 +25,24 @@ class PatternGenerator:
         self.W.vars.append("r" + str(self.m))
         return "r" + str(self.m)
     
-    def __gen_node(self): 
+    def __gen_node(self, c_property = True): 
         res = "(" + self.__get_node_name()
-        num = random.randint(0, 3)
-        labels = random.sample(list(range(0, self.G.label_num)), num)
-        for label in labels: res = res + ":L" + str(label)
+        #Add labels
+        res = res + self.LG.gen(mytype = "node")
+        if c_property and random.randint(1, 10) == 1:
+            num = 1
+            if random.randint(1, 5) == 1: num += 1
+            res = res + " {"
+            props = random.sample(self.G.prop.keys(), num)
+            for i in range(0, num):
+                p = props[i]
+                res = res + p + ": "
+                if len(self.G.rval[p]) == 0:
+                    res = res + self.G.CG.gen(self.G.prop[p])
+                else:
+                    res = res + random.choice(self.G.rval[p])
+                if i == 0 and num > 1: res = res + ", "
+            res = res + "}"
         return res + ")"
 
     def __gen_vari(self):
