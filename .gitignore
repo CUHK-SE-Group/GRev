@@ -13,3 +13,5 @@ data
 .vscode
 db.json
 query_file/
+
+.python-version
