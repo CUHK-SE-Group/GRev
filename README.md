@@ -52,6 +52,8 @@ query_file: 用于测试的原始query请求的集合
 
 [RedisGraph-3100](https://github.com/RedisGraph/RedisGraph/issues/3100) Status: Intended
 
+[RedisGraph-3100](https://github.com/RedisGraph/RedisGraph/issues/3114) Status: Intended
+
 [TinkerPop-2961](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961) Status: Confirmed
 
 
