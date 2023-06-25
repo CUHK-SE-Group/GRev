@@ -13,7 +13,7 @@ def command(query):
     print(cypher2gremlin(query))
 
 def cypher2gremlin(query):
-    url = f'http://{config.get("cypher2gremlin", "host")}:8085/transform'
+    url = f'http://{config.get("cypher2gremlin", "host")}:8080/transform'
     headers = {'Content-Type': 'application/json'}
     data = {
         "query": query
