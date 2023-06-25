@@ -168,7 +168,7 @@ def reduce(client, query1: str, query2: str):
 if __name__ == "__main__":
     # read_logic_error_file()
     validate("validation", "query_producer/logs/composite/database489-cur.log", [(
-        "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4, max('E') AS a0 WHERE (a0 CONTAINS a0) MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n8 :L0)-[r6 :T5]->(n9)<-[r7 :T5]-(n10 :L3), (n11 :L3)-[r8 :T1]->(n3), (n2 :L0)<-[r10 :T2]-(n12 :L1) RETURN (n10.k20) AS a5",
+        "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4 MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n8 :L0)-[r6 :T5]->(n9), (n2 :L0)<-[r10 :T2]-(n12 :L1), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9) RETURN n10.k20", 
         
-        "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3)  WITH DISTINCT n4, max('E') AS a0 WHERE (a0 CONTAINS a0) MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n2 :L0)<-[r10 :T2]-(n12 :L1), (n3), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9), (n9), (n8 :L0)-[r6 :T5]->(n9) RETURN (n10.k20) AS a5"
+        "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4 MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n2 :L0)<-[r10 :T2]-(n12 :L1), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9), (n8 :L0)-[r6 :T5]->(n9) RETURN n10.k20"
     )])
