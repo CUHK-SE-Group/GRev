@@ -35,21 +35,20 @@ def validate(database, log_file, query_pairs):
     client.batch_run(create_statements)
           
     for query in query_pairs:
-        pattern = r':L\d+'
-        q1 = re.sub(pattern, '', query[0])
-        q2 = re.sub(pattern, '', query[1])
-        result1 = client.run(q1)
-        result2 = client.run(q2)
+        result1 = client.run(query[0])
+        result2 = client.run(query[1])
         if not TestTinkerpop.compare(result1, result2):
             print("inconsistency")
         print(result1)
         print(result2)
     return None
+	
+
 
 
 if __name__ == "__main__":
-    validate("", "query_producer/logs/composite/database10-cur.log", [
+    validate("", "query_producer/logs/composite/database130-cur.log", [
         [
-        "MATCH (n2 ), (n3)<-[r2]-(n0) WHERE ((r2.id) > -1) OPTIONAL MATCH (n0)-[]->(n1)<-[]-(n2), (n2)<-[r3]-(n4) WHERE ((r3.k73) <= (n2.k4)) OPTIONAL MATCH (n3)<-[]-(n0)-[]->(n1) RETURN (r3.k69) AS a0, (n3.k12) AS a1;", 
-        "MATCH (n0)-[r2]->(n3), (n2) WHERE ((r2.id) > -1) OPTIONAL MATCH (n2)<-[r3]-(n4), (n0)-[]->(n1)<-[]-(n2) WHERE ((r3.k73) <= (n2.k4)) OPTIONAL MATCH (n1)<-[]-(n0), (n3)<-[]-(n0) RETURN (r3.k69) AS a0, (n3.k12) AS a1;"]
+        "MATCH (n0 :L0 :L4)-[r0 :T3]->(n1 :L1)<-[r1 :T0]-(n2), (n4 :L0 :L3)<-[r3 :T1]-(n5 :L2)   RETURN COUNT(*)", 
+        "MATCH (n1 :L1)<-[r0 :T3]-(n0 :L4 :L0), (n2)-[r1 :T0]->(n1 :L1), (n4 :L3 :L0), (n4 :L3 :L0)<-[r3 :T1]-(n5 :L2) RETURN COUNT(*)"]
         ])

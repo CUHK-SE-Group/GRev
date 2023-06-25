@@ -1,5 +1,6 @@
 import requests
 import click
+from configs import config
 
 @click.group()
 def cli():
@@ -12,7 +13,7 @@ def command(query):
     print(cypher2gremlin(query))
 
 def cypher2gremlin(query):
-    url = 'http://127.0.0.1:8085/greeting'
+    url = f'http://{config.get("cypher2gremlin", "host")}:8085/transform'
     headers = {'Content-Type': 'application/json'}
     data = {
         "query": query
