@@ -2,14 +2,13 @@ from abc import ABC, abstractmethod
 
 
 class Node:
-    def __init__(self, idx, name, labels, properties):
-        """Watch out for nodes with empty names"""
+    def __init__(self, idx, var, labels, properties):
         self.idx = idx
-        self.name = name
-        """The sets of label expressions and property key-value expressions"""
+        self.var = var
+        # The sets of label expressions and property key-value expressions
         self.labels = labels
         self.properties = properties
-        """The list of incident edges"""
+        # The list of incident edges
         self.edges = []
 
     def add_edge(self, target_node_idx, content, edge_idx):
@@ -46,9 +45,9 @@ class ASG:
 
 class AbstractASGOperator(ABC):
     @abstractmethod
-    def asg2pattern(self, asg: ASG):
+    def asg_to_pattern(self, asg: ASG):
         pass
 
     @abstractmethod
-    def pattern2asg(self, pattern: str):
+    def pattern_to_asg(self, pattern: str):
         pass
