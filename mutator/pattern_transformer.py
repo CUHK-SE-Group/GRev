@@ -35,17 +35,17 @@ class PatternTransformer(AbstractASGOperator):
             pattern = pattern.strip("\n")
             v1, r, v2 = "", "", ""
             edge_counter = 0
-            for i in range(0, len(pattern)):
+            for char in pattern:
                 if not (v1.endswith(")")):
-                    v1 = v1 + pattern[i]
-                elif pattern[i] == "(" or v2 != "":
-                    v2 = v2 + pattern[i]
-                    if pattern[i] == ")":
+                    v1 += char
+                elif char == "(" or v2 != "":
+                    v2 += char
+                    if char == ")":
                         result.append((v1, r, v2))
                         v1, r, v2 = v2, "", ""
                         edge_counter += 1
                 else:
-                    r = r + pattern[i]
+                    r += char
             if edge_counter == 0 and len(v1) > 0:
                 isolated_nodes.append(v1)
         # logger.debug(result)
