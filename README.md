@@ -20,7 +20,7 @@ query_file: 用于测试的原始query请求的集合
 1. 在`mutator/test_cases.ini`里添加pattern作为测试用例。
 2. 在当前目录运行pytest，单元测试会读取文件里的测试用例进行测试
 
-Sample input for new pattern mutator:
+### Sample input for new pattern mutator:
 ```cypher
 (n2:(L7&L2&!L3))-[r32:((T1&T7)|(%)) WHERE (r32.p19 <> r24.p2) OR (NOT (r32.p2 = r6.p6))]->(n11:(!L1&(L0)))<-[r33:(!%&!!!(T3)|!!T5)]-(n20:(L4)), (n6:(!!L6&%&(L1)))<-[r34:(!T0|T0|!!T1|!%) {p19: "1EGGYIgd7PMxHW"}]-(n5:((L5)|!(L2)) {p15: false})-[r35:((T1)|!!T0|!(T6))]-(n4:(!!%&!!!!!(%&(L2))))-[:(!T6) *]-(n6:(!!L7&%|!!L2&!!(%)))<-[:(!!!T3&T6) *]-(n9:((L5)|L6|!!L5|!!(L1))), (n21:((!L2|!L3&(L0|L5)))), (n10)-[r36:(T3&%)]-(n3:(L5&L1&L5) {p10: "T"})
 ```
