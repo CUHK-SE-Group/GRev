@@ -60,4 +60,4 @@ class QueryTransformer():
 if __name__ == "__main__":
     Q = QueryTransformer()
     print(Q.mutant_query_generator(
-        "MATCH (n0 :L0 :L2 :L6)-[r0 :T1]->(n1 :L5), (n3 :L6) WHERE ((r0.id) > -1) OPTIONAL MATCH (n0 :L0)-[]->(n1 :L5)<-[]-(n2), (n3 :L6) WHERE ((n1.k33) OR (n0.k4)) OPTIONAL MATCH (n0)-[]->(n1 :L5)<-[]-(n2 :L5), (n3 :L6), (n3) WITH DISTINCT max('S') AS a0, r0, (r0.k51) AS a1 WHERE (-1577216923 = -1577216923) RETURN a1, (r0.k51) AS a2"))
+        "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3)"))
