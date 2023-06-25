@@ -65,6 +65,8 @@ services:
   redis-stack:
     image: redis/redis-stack:6.2.6-v7
     restart: on-failure
+    ports:
+      - 6379:6379
     depends_on:
       - kibana
       - logstash
@@ -84,6 +86,7 @@ services:
     tty: true
     ports:
       - 3000:3000
+      - 7688:7687
 
   redis_client:
     image: lincyaw/patterntransfromer:latest
@@ -144,7 +147,9 @@ services:
     entrypoint: [ "bash", "./scripts/run_tinkerpop.sh" ]
 
   cypher2gremlin:
-    image: lincyaw/cypher2gremlin:v0.1
+    image: lincyaw/cypher2gremlin:latest
+    networks:
+      - gdb_testing
     ports:
       - 8085:8080
 
