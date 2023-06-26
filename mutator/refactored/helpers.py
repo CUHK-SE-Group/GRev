@@ -144,7 +144,7 @@ def path_to_pattern(path):
     :param path: the alternating list of [node, relationship, node, ..., relationship, node],
     where nodes are of the form (variable name, set of label expressions, set of
     property key-value expressions).
-    :return: the pattern string
+    :return: the pattern string.
     """
     result = ''
     for k in range(path):
@@ -155,6 +155,29 @@ def path_to_pattern(path):
             # A relationship
             result += path[k]
     return result
+
+
+def reverse_path(path_pattern: str):
+    """
+    (NOT TESTED)
+    Given a path pattern, returns the pattern written backward.
+    :param path_pattern: the path pattern given
+    :return: the pattern written backward
+    """
+    nodes, relationships = parse_path_pattern(path_pattern)
+    nodes.reverse()
+    relationships.reverse()
+    if len(nodes) == 1:
+        return nodes[0]
+    elif len(nodes) > 1:
+        result = ''
+        for k in range(len(nodes)-1):
+            result += nodes[k]
+            result += flip_edge(relationships[k])
+        result += nodes[-1]
+        return result
+    else:
+        assert False
 
 
 def get_nonempty_sample(a):
