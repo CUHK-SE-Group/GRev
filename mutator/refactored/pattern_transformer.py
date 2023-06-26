@@ -20,14 +20,14 @@ class PatternTransformer(AbstractASGOperator):
         all_properties = []
 
         # Sorts out all the variables
-        def check_node(n):
+        def check_node(node):
             nonlocal num_vars
             nonlocal all_vars
             nonlocal all_labels
             nonlocal all_properties
-            var, labels, properties = n
+            var, labels, properties = node
             if var not in var2id.keys():
-                idx = num_vars
+                node_idx = num_vars
                 var2id[var] = num_vars
                 num_vars += 1
                 assert(len(var2id) == num_vars)
@@ -35,10 +35,10 @@ class PatternTransformer(AbstractASGOperator):
                 all_labels.append(set())
                 all_properties.append(set())
             else:
-                idx = var2id[var]
+                node_idx = var2id[var]
 
-            all_labels[idx].update(labels)
-            all_properties[idx].update(properties)
+            all_labels[node_idx].update(labels)
+            all_properties[node_idx].update(properties)
 
         for (st, rel, en) in edges:
             check_node(st)
@@ -62,7 +62,6 @@ class PatternTransformer(AbstractASGOperator):
         :param asg: the ASG given
         :return: a pattern in string (not deterministic due to the randomness of path elimination)
         """
-        num_rounds = 0
         decomposition = []
         while True:
             if asg.is_empty():
@@ -75,29 +74,29 @@ class PatternTransformer(AbstractASGOperator):
 
         num_paths = len(decomposition)
         num_nodes = asg.get_num_nodes()
-        locs = [[] for i in range(num_nodes)]
+        locations = [[] for _ in range(num_nodes)]
         for path_idx in range(num_paths):
             path = decomposition[path_idx]
             assert(len(path) % 2 == 1)
             for k in range(0, len(path), 2):
                 assert(isinstance(path[k], int))
                 node_idx = path[k]
-                locs[node_idx].append([path_idx, k])
+                locations[node_idx].append([path_idx, k])
                 # (Variable index, set of label expressions, set of property key-value expressions)
                 path[k] = (asg.get_node_name(node_idx), set(), set())
 
         for node_idx in range(num_nodes):
-            assert(len(locs[node_idx]) > 0)
+            assert(len(locations[node_idx]) > 0)
 
             labels = asg.get_node_labels(node_idx)
             for label in labels:
-                subset = get_nonempty_sample(locs[node_idx])
+                subset = get_nonempty_sample(locations[node_idx])
                 for (path_idx, k) in subset:
                     decomposition[path_idx][k][1].add(label)
 
             properties = asg.get_node_properties(node_idx)
             for prop in properties:
-                subset = get_nonempty_sample(locs[node_idx])
+                subset = get_nonempty_sample(locations[node_idx])
                 for (path_idx, k) in subset:
                     decomposition[path_idx][k][2].add(prop)
 
@@ -106,9 +105,3 @@ class PatternTransformer(AbstractASGOperator):
             path_patterns.append(path_to_pattern(path))
         assert len(path_patterns) > 0
         return ", ".join(path_patterns)
-
-    def parse_node_pattern(self, node_pattern: str):
-        return parse_node_pattern(node_pattern)
-
-    def parse_path_pattern(self, path_pattern: str):
-        return parse_path_pattern(path_pattern)
