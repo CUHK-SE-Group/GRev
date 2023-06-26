@@ -1,9 +1,11 @@
+"""Data models used"""
 from abc import ABC, abstractmethod
+from mutator.refactored.helpers import *
 
 
 class Node:
+    """Stores node attributes in ASGs"""
     def __init__(self, idx, var, labels, properties):
-        self.idx = idx
         self.var = var
         # The sets of label expressions and property key-value expressions
         self.labels = labels
@@ -11,15 +13,14 @@ class Node:
         # The list of incident edges
         self.edges = []
 
-    def add_edge(self, target_node_idx, content, edge_idx):
-        edge = {"v": target_node_idx,
-                "content": content,
-                "id": edge_idx
-                }
+    def add_edge(self, dest_idx, content, edge_idx):
+        """Spans an edge going from the current node"""
+        edge = {"v": dest_idx, "content": content, "id": edge_idx}
         self.edges.append(edge)
 
 
 class ASG:
+    """Abstract Syntax Graph"""
     def __init__(self):
         self.num_nodes = 0
         self.num_edges = 0
@@ -28,26 +29,40 @@ class ASG:
         self.deleted_edges = set()
 
     def add_node(self, node):
+        """Appends an node"""
         self.nodes.append(node)
         self.num_nodes += 1
 
-    def add_edge(self, v1_idx, v2_idx, edge_content):
+    def get_node(self, idx):
+        assert 0 <= idx < self.num_nodes
+        return self.nodes[idx]
+
+    def add_edge(self, st_idx, en_idx, edge_content: str):
+        """
+        Spans an edge between st and en
+        :param st_idx: index of node st
+        :param en_idx: index of node en
+        :param edge_content: a string representing the edge
+        :return:
+        """
         edge_content = edge_content.strip(" ")
         edge_idx = self.num_edges
-        self.nodes[v1_idx].add_edge(v2_idx, edge_content, edge_idx)
-        if edge_content.startswith("<"):
-            edge_content = edge_content[1:] + ">"
-        elif edge_content.endswith(">"):
-            edge_content = "<" + edge_content[:-1]
-        self.nodes[v2_idx].add_edge(v1_idx, edge_content, edge_idx)
+
+        # Edge going from st to en
+        self.nodes[st_idx].add_edge(en_idx, edge_content, edge_idx)
+
+        # Edge going from en to st
+        self.nodes[en_idx].add_edge(st_idx, flip_edge(edge_content), edge_idx)
+
         self.num_edges += 1
 
 
 class AbstractASGOperator(ABC):
+    """Operator for ASGs"""
     @abstractmethod
     def asg_to_pattern(self, asg: ASG):
-        pass
+        """Transforms the given ASG into a pattern (a string)"""
 
     @abstractmethod
     def pattern_to_asg(self, pattern: str):
-        pass
+        """Transforms the given pattern (a string) into an ASG"""
