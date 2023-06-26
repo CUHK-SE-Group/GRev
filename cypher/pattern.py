@@ -120,7 +120,7 @@ class PatternGenerator:
 
     def gen_path(self):
         res = ""
-        num = random.randint(1, 6)
+        num = random.randint(1, 4)
         for i in range(0, num):
             res = res + self.__gen_node()
             if i + 1 < num:
@@ -143,4 +143,5 @@ if __name__ == "__main__":
     G = GraphSchema()
     G.gen()
     P = PatternGenerator(G)
-    print("OK")
+    for _ in range(5):
+        print(P.gen_pattern())

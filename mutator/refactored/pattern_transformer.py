@@ -53,7 +53,6 @@ class PatternTransformer(AbstractASGOperator):
             st_idx = var2id[st[0]]
             en_idx = var2id[en[0]]
             asg.add_edge(st_idx, en_idx, rel)
-            print(f'({st_idx}, {rel}, {en_idx})')
 
         return asg
 
