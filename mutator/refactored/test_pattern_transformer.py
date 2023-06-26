@@ -26,6 +26,7 @@ def test_transformer():
             asg = pt.pattern_to_asg(pattern)
             pattern2 = pt.asg_to_pattern(asg)
             asg2 = pt.pattern_to_asg(pattern2)
-            assert comparable_map(asg) == comparable_map(asg2)
-            print(f'Pattern = {pattern}')
-            print(f'Pattern2 = {pattern2}')
+            asg_c = asg.get_comparable()
+            asg2_c = asg2.get_comparable()
+            print(asg_c)
+            assert asg_c == asg2_c

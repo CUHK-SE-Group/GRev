@@ -10,15 +10,15 @@ class Node:
         self.idx = idx
         self.var = var
         # The sets of label expressions and property key-value expressions
-        self.labels = labels
-        self.properties = properties
         assert isinstance(labels, set)
         assert isinstance(properties, set)
+        self.labels = tuple(sorted(list(labels)))
+        self.properties = tuple(sorted(list(properties)))
         # The list of incident edges
         self.edges = []
 
     def get_comparable(self):
-        return self.var, sorted(list(self.labels)), sorted(list(self.properties))
+        return self.var, self.labels, self.properties
 
     def add_edge(self, dest_idx, content, edge_idx):
         """Spans an edge going from the current node"""
@@ -56,6 +56,23 @@ class ASG:
         """Returns the node corresponding to the given index"""
         assert 0 <= idx < self.num_nodes
         return self.nodes[idx]
+
+    def get_comparable_nodes(self):
+        """Returns the set of (variable name, set of labels, set of properties)"""
+        return set(node.get_comparable() for node in self.nodes)
+
+    def get_comparable_edges(self):
+        """Returns the set of (starting variable, destination variable, edge content)"""
+        result = set()
+        for start_idx in range(self.num_nodes):
+            edges = self.nodes[start_idx].get_edges()
+            for (dest_idx, edge_content, edge_idx) in edges:
+                result.add((self.nodes[start_idx].get_name(), self.nodes[dest_idx].get_name(), edge_content))
+        return result
+
+    def get_comparable(self):
+        """Returns the pair (set of nodes, set of edges)"""
+        return self.get_comparable_nodes(), self.get_comparable_edges()
 
     def get_available_nodes(self):
         """Returns a list of all available nodes"""
@@ -95,12 +112,15 @@ class ASG:
         self.num_edges += 1
 
     def is_empty(self):
+        """If all nodes and edges are removed"""
         return len(self.deleted_edges) == self.num_edges and len(self.deleted_nodes) == self.num_nodes
 
     def get_num_nodes(self):
+        """Returns total number of nodes"""
         return self.num_nodes
 
     def get_num_edges(self):
+        """Returns total number of edges"""
         return self.num_edges
 
     def traverse(self, cur_idx, depth=0):
