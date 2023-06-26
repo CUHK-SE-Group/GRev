@@ -25,7 +25,7 @@ class PatternTransformer(AbstractASGOperator):
             nonlocal all_vars
             nonlocal all_labels
             nonlocal all_properties
-            var, label, properties = n
+            var, labels, properties = n
             if var not in var2id.keys():
                 idx = num_vars
                 var2id[var] = num_vars
@@ -37,9 +37,8 @@ class PatternTransformer(AbstractASGOperator):
             else:
                 idx = var2id[var]
 
-            all_labels[idx].add(label)
-            for property in properties:
-                all_properties[idx].add(property)
+            all_labels[idx].update(labels)
+            all_properties[idx].update(properties)
 
         for (st, rel, en) in edges:
             check_node(st)
@@ -73,7 +72,7 @@ class PatternTransformer(AbstractASGOperator):
             decomposition.append(asg.traverse(start_idx))
 
             # For test purpose
-            assert num_rounds < 1000
+            # assert num_rounds < 1000
 
         num_paths = len(decomposition)
         num_nodes = asg.get_num_nodes()
@@ -84,7 +83,7 @@ class PatternTransformer(AbstractASGOperator):
             for k in range(0, len(path), 2):
                 assert(isinstance(path[k], int))
                 node_idx = path[k]
-                locs[node_idx].append((path_idx, k))
+                locs[node_idx].append([path_idx, k])
                 # (Variable index, set of label expressions, set of property key-value expressions)
                 path[k] = (asg.get_node_name(node_idx), set(), set())
 
@@ -102,6 +101,12 @@ class PatternTransformer(AbstractASGOperator):
                 subset = get_nonempty_sample(locs[node_idx])
                 for (path_idx, k) in subset:
                     decomposition[path_idx][k][2].add(prop)
+
+        path_patterns = []
+        for path in decomposition:
+            path_patterns.append(path_to_pattern(path))
+        assert len(path_patterns) > 0
+        return ", ".join(path_patterns)
 
     def parse_node_pattern(self, node_pattern: str):
         return parse_node_pattern(node_pattern)

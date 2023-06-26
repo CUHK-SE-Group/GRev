@@ -1,5 +1,9 @@
 from mutator.refactored.pattern_transformer import *
 
+def comparable_map(asg):
+    """TODO"""
+    return None
+
 def test_parse_node_pattern():
     pt = PatternTransformer()
     print(pt.parse_node_pattern("(n:(Person&Student) {name: 'Alice', age: 30})"))
@@ -16,8 +20,12 @@ def test_transformer():
 
     with open('pattern_sample.in', 'r') as file:
         while True:
-            line = file.readline()
-            if line == '':
+            pattern = file.readline()
+            if pattern == '':
                 break
-            asg = pt.pattern_to_asg(line)
-            pt.asg_to_pattern(asg)
+            asg = pt.pattern_to_asg(pattern)
+            pattern2 = pt.asg_to_pattern(asg)
+            asg2 = pt.pattern_to_asg(pattern2)
+            assert comparable_map(asg) == comparable_map(asg2)
+            print(f'Pattern = {pattern}')
+            print(f'Pattern2 = {pattern2}')

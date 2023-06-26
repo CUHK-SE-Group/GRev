@@ -12,8 +12,13 @@ class Node:
         # The sets of label expressions and property key-value expressions
         self.labels = labels
         self.properties = properties
+        assert isinstance(labels, set)
+        assert isinstance(properties, set)
         # The list of incident edges
         self.edges = []
+
+    def get_comparable(self):
+        return self.var, sorted(list(self.labels)), sorted(list(self.properties))
 
     def add_edge(self, dest_idx, content, edge_idx):
         """Spans an edge going from the current node"""

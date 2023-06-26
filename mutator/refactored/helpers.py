@@ -11,11 +11,11 @@ def flip_edge(edge: str):
     else:
         return edge
     
-
+    
 def parse_node_pattern(node_pattern: str):
     """
     :param node_pattern: the node pattern represented by a string
-    :return: (variable name (a string), label expression (a string), property key-value expressions)
+    :return: (variable name (a string), list of label expressions (a list of strings), property key-value expressions)
     """
 
     node_pattern = node_pattern.strip()
@@ -30,9 +30,9 @@ def parse_node_pattern(node_pattern: str):
     match = node_pattern_regex.match(node_pattern)
     if match:
         var = match.group('var')
-        label_expr = match.group('label_expr').strip()
+        labels = [label.strip() for label in match.group('label_expr').strip().split(":") if label.strip()]
         properties = [prop.strip() for prop in match.group('properties').split(',') if prop.strip()]
-        return var, label_expr, properties
+        return var, labels, properties
     else:
         assert False
 
@@ -129,13 +129,27 @@ def parse_pattern(pattern: str):
 
 def node_to_pattern(node):
     """
-    (TODO)
     Given a node, returns its corresponding node pattern
     :param node: (variable name, set of label expressions, set
     of property key-value expressions).
     :return:
     """
-    return None
+    var, labels, properties = node
+    assert(isinstance(var, str))
+    assert(isinstance(labels, set))
+    assert(isinstance(properties, set))
+
+    labels = list(labels)
+    properties = list(properties)
+
+    if len(labels) == 0 and len(properties) == 0:
+        return "(" + var + ")"
+    elif len(properties) == 0:
+        return "(" + var + ":" + ":".join(labels) + ")"
+    elif len(labels) == 0:
+        return "(" + var + " " + "{" + ", ".join(properties) + "}" + ")"
+    else:
+        return "(" + var + ":" + ":".join(labels) + " " + "{" + ", ".join(properties) + "}" + ")"
 
 
 def path_to_pattern(path):
@@ -147,7 +161,7 @@ def path_to_pattern(path):
     :return: the pattern string.
     """
     result = ''
-    for k in range(path):
+    for k in range(len(path)):
         if k % 2 == 0:
             # A node
             result += node_to_pattern(path[k])
