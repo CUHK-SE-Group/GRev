@@ -12,32 +12,112 @@ def flip_edge(edge: str):
         return edge
     
     
-def parse_node_pattern(node_pattern: str):
+# def parse_node_pattern(node_pattern: str):
+#     """
+#     :param node_pattern: the node pattern represented by a string
+#     :return: (variable name (a string), set of label expressions (a set of strings),
+#     set of property key-value expressions)
+#     """
+#
+#     node_pattern = node_pattern.strip()
+#     assert node_pattern.startswith("(")
+#     assert node_pattern.endswith(")")
+#
+#     # Regex patterns for a single node pattern (TODO)
+#     node_pattern_regex = re.compile(
+#         r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*):?(?P<label_expr>[^{}]*){?(?P<properties>[^}]*)}?\)'
+#     )
+#
+#     match = node_pattern_regex.match(node_pattern)
+#     if match:
+#         var = match.group('var')
+#         labels = set(label.strip() for label in match.group('label_expr').strip().split(":") if label.strip())
+#         properties = set(prop.strip() for prop in match.group('properties').split(',') if prop.strip())
+#         return var, labels, properties
+#     else:
+#         assert False
+
+
+def parse_label_expressions(label_exprs: str):
+    """Parses label expressions; expressions are separated
+    by '&''s."""
+
+    label_exprs = label_exprs.strip()
+    assert label_exprs.startswith("(")
+    assert label_exprs.endswith(")")
+
+    print(f'Label_exprs = {label_exprs}')
+
+    num_paren_balance = 0
+    suffix = ''
+    result = []
+    for char in label_exprs:
+        suffix += char
+        if char == '(':
+            num_paren_balance += 1
+        elif char == ')':
+            num_paren_balance -= 1
+
+        if num_paren_balance == 0:
+            if char == ')':
+                expr = suffix.strip()
+                assert expr.startswith("(")
+                assert expr.endswith(")")
+                result.append(expr)
+            suffix = ''
+    return result
+
+
+def parse_node_pattern(node_pattern: str, raw_node=False):
     """
     :param node_pattern: the node pattern represented by a string
-    :return: (variable name (a string), set of label expressions (a set of strings), set of property key-value expressions)
+    :return: (variable name (a string), set of label expressions (a set of strings),
+    set of property key-value expressions)
     """
 
     node_pattern = node_pattern.strip()
     assert node_pattern.startswith("(")
     assert node_pattern.endswith(")")
 
-    # Regex patterns for a single node pattern (TODO)
+    if raw_node:
+        return node_pattern
+
+    # Forgive me
+    no_var_name = False
+    if node_pattern.startswith("(:"):
+        no_var_name = True
+        node_pattern = node_pattern[:2] + "z" + node_pattern[2:]
+
+    # Regex patterns for a single node pattern
     node_pattern_regex = re.compile(
-        r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*):?(?P<label_expr>[^{}]*){?(?P<properties>[^}]*)}?\)'
+        r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*)(?:\s*\:\s*(?P<label_exprs>\([^{}]*\)(\s*&\s*\([^{}]*\))*))?\s*{?(?P<properties>[^}]*)}?\)'
     )
 
     match = node_pattern_regex.match(node_pattern)
     if match:
         var = match.group('var')
-        labels = set(label.strip() for label in match.group('label_expr').strip().split(":") if label.strip())
-        properties = set(prop.strip() for prop in match.group('properties').split(',') if prop.strip())
+
+        labels = set()
+        if match.group('label_exprs'):
+            label_exprs = match.group('label_exprs')
+            labels = set(parse_label_expressions(label_exprs))
+
+        properties = set()
+        if match.group('properties'):
+            properties = set(prop.strip() for prop in match.group('properties').split(',') if prop.strip())
+
+        if no_var_name:
+            assert var == "z"
+            var = None
+
+        print(f'var = {var}, labels = {labels}, properties = {properties}')
+
         return var, labels, properties
     else:
         assert False
 
 
-def parse_path_pattern(path_pattern: str):
+def parse_path_pattern(path_pattern: str, raw_node=False):
     """
     :param path_pattern: the path pattern represented by a string
     :return: (list of nodes, list of relationships) in that order
@@ -68,7 +148,7 @@ def parse_path_pattern(path_pattern: str):
             suffix += char
             node = suffix.strip()
             suffix = ''
-            nodes.append(parse_node_pattern(node))
+            nodes.append(parse_node_pattern(node, raw_node))
         elif num_paren_balance == 1 and num_bracket_balance == 0 and \
                 char == '(' and (suffix.endswith("]-") or suffix.endswith("]->")):
             relationship = suffix.strip()
@@ -81,7 +161,7 @@ def parse_path_pattern(path_pattern: str):
     return nodes, relationships
 
 
-def parse_pattern(pattern: str):
+def parse_pattern(pattern: str, raw_node=False):
     """
     :param pattern: the pattern represented by a string
     :return: (
@@ -115,7 +195,7 @@ def parse_pattern(pattern: str):
             path_pattern = suffix.strip(',').strip()
             suffix = ''
 
-            nodes, relationships = parse_path_pattern(path_pattern)
+            nodes, relationships = parse_path_pattern(path_pattern, raw_node)
             if len(nodes) > 1:
                 for i in range(len(nodes) - 1):
                     edges.append((nodes[i], relationships[i], nodes[i + 1]))
@@ -145,14 +225,14 @@ def node_to_pattern(node):
     if len(labels) == 0 and len(properties) == 0:
         return "(" + var + ")"
     elif len(properties) == 0:
-        return "(" + var + ":" + ":".join(labels) + ")"
+        return "(" + var + ":" + "&".join(labels) + ")"
     elif len(labels) == 0:
         return "(" + var + " " + "{" + ", ".join(properties) + "}" + ")"
     else:
-        return "(" + var + ":" + ":".join(labels) + " " + "{" + ", ".join(properties) + "}" + ")"
+        return "(" + var + ":" + "&".join(labels) + " " + "{" + ", ".join(properties) + "}" + ")"
 
 
-def path_to_pattern(path):
+def path_to_pattern(path, raw_node=False):
     """
     Given a path, returns its corresponding pattern
     :param path: the alternating list of [node, relationship, node, ..., relationship, node],
@@ -161,13 +241,18 @@ def path_to_pattern(path):
     :return: the pattern string.
     """
     result = ''
-    for k in range(len(path)):
-        if k % 2 == 0:
-            # A node
-            result += node_to_pattern(path[k])
-        else:
-            # A relationship
-            result += path[k]
+    if not raw_node:
+        for k in range(len(path)):
+            if k % 2 == 0:
+                # A node
+                result += node_to_pattern(path[k])
+            else:
+                # A relationship
+                result += path[k]
+    else:
+        # Raw case
+        for p in path:
+            result += p
     return result
 
 
@@ -177,7 +262,7 @@ def reverse_path(path_pattern: str):
     :param path_pattern: the path pattern given
     :return: the pattern written backward
     """
-    nodes, relationships = parse_path_pattern(path_pattern)
+    nodes, relationships = parse_path_pattern(path_pattern, True)
     assert len(nodes) > 0
 
     nodes.reverse()
@@ -190,7 +275,7 @@ def reverse_path(path_pattern: str):
         path.append(nodes[k])
         path.append(relationships[k])
     path.append(nodes[-1])
-    return path_to_pattern(path)
+    return path_to_pattern(path, True)
 
 
 def get_nonempty_sample(a):
