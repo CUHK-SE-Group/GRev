@@ -46,8 +46,6 @@ def parse_label_expressions(label_exprs: str):
     assert label_exprs.startswith("(")
     assert label_exprs.endswith(")")
 
-    print(f'Label_exprs = {label_exprs}')
-
     num_paren_balance = 0
     suffix = ''
     result = []
@@ -58,7 +56,6 @@ def parse_label_expressions(label_exprs: str):
         elif char == ')':
             num_paren_balance -= 1
 
-        if num_paren_balance == 0:
             if char == ')':
                 expr = suffix.strip()
                 assert expr.startswith("(")
@@ -109,8 +106,6 @@ def parse_node_pattern(node_pattern: str, raw_node=False):
         if no_var_name:
             assert var == "z"
             var = None
-
-        print(f'var = {var}, labels = {labels}, properties = {properties}')
 
         return var, labels, properties
     else:

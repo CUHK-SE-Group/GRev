@@ -9,7 +9,6 @@ def test_transformer():
             pattern = file.readline()
             if pattern == '':
                 break
-            print(f'Pattern = {pattern}')
             asg = pt.pattern_to_asg(pattern)
             pattern2 = pt.asg_to_pattern(asg)
             asg2 = pt.pattern_to_asg(pattern2)
