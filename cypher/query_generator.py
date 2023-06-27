@@ -36,10 +36,8 @@ class QueryGenerator:
     
     def gen_where_exists_pattern(self):
         res = "WHERE EXISTS {"
-        pattern_generator_backup = copy.copy(self.pattern_generator)
-        pattern1 = self.pattern_generator.gen_pattern()
+        pattern1 = self.pattern_generator.gen_pattern(no_new_variables = True)
         pattern2 = self.pattern_mutator.gen_pattern(pattern1)
-        self.pattern_generator = pattern_generator_backup
         return res + pattern1 + " }", res + pattern2 + " }"
     
     def gen_return(self):

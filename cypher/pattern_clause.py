@@ -11,6 +11,7 @@ class PatternGenerator:
         self.G = G
         self.where_generator = BasicWhereGenerator(self.G)
         self.label_generator = LabelExpGenerator(self.G)
+        self.allow_empty_node_when_no_new_variables = True
 
     def __get_node_name(self, no_new_variables = False):
         if no_new_variables == False:
@@ -21,7 +22,7 @@ class PatternGenerator:
             else:
                 return "n" + str(random.randint(1, self.node_num))
         else:
-            if random.randint(1, 3) == 1: return " "
+            if random.randint(1, 3) == 1 and self.allow_empty_node_when_no_new_variables == True: return " "
             return "n" + str(random.randint(1, self.node_num))
     
     def __get_rel_name(self):
@@ -135,13 +136,17 @@ class PatternGenerator:
         return res
 
 
-    def gen_pattern(self):
+    def gen_pattern(self, no_new_variables = False):
+        if no_new_variables == True: 
+            self.allow_empty_node_when_no_new_variables = False
         num = random.randint(1, 4)
         res = ""
         for i in range(0, num):
-            res = res + self.gen_path()
+            res = res + self.gen_path(no_new_variables = no_new_variables)
             if i + 1 < num:
                 res = res + ", "
+        
+        self.allow_empty_node_when_no_new_variables = True
         return res
             
         
