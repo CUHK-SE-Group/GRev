@@ -56,6 +56,7 @@ def parse_label_expressions(label_exprs: str):
         elif char == ')':
             num_paren_balance -= 1
 
+        if num_paren_balance == 0:
             if char == ')':
                 expr = suffix.strip()
                 assert expr.startswith("(")
