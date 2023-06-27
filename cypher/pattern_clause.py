@@ -12,12 +12,16 @@ class PatternGenerator:
         self.where_generator = BasicWhereGenerator(self.G)
         self.label_generator = LabelExpGenerator(self.G)
 
-    def __get_node_name(self):
-        if random.randint(1, self.node_num + 1) > self.node_num - 2:
-            self.node_num += 1
-            self.where_generator.vars.append("n" + str(self.node_num))
-            return "n" + str(self.node_num)
+    def __get_node_name(self, no_new_variables = False):
+        if no_new_variables == False:
+            if random.randint(1, self.node_num + 1) > self.node_num - 2:
+                self.node_num += 1
+                self.where_generator.vars.append("n" + str(self.node_num))
+                return "n" + str(self.node_num)
+            else:
+                return "n" + str(random.randint(1, self.node_num))
         else:
+            if random.randint(1, 3) == 1: return " "
             return "n" + str(random.randint(1, self.node_num))
     
     def __get_rel_name(self):
@@ -25,13 +29,13 @@ class PatternGenerator:
         self.where_generator.vars.append("r" + str(self.edge_num))
         return "r" + str(self.edge_num)
     
-    def __gen_node(self, c_property = True): 
-        res = "(" + self.__get_node_name()
+    def __gen_node(self, c_property = True, no_new_variables = False): 
+        res = "(" + self.__get_node_name(no_new_variables = no_new_variables)
         #Add labels
         res = res + self.label_generator.gen(mytype = "node")
-        if c_property and random.randint(1, 10) == 1:
+        if c_property and random.randint(1, 20) == 1:
             num = 1
-            if random.randint(1, 5) == 1: num += 1
+            if random.randint(1, 10) == 1: num += 1
             res = res + " {"
             props = random.sample(list(self.G.prop.keys()), num)
             for i in range(0, num):
@@ -65,18 +69,20 @@ class PatternGenerator:
             #Case4: any length
             return "*"
 
-    def __gen_rel(self, c_property = True, c_where = True, c_variable = True):
+    def __gen_rel(self, c_property = True, c_where = True, c_variable = True, no_new_variables = False):
         res = "["
-        if random.randint(1, 3) == 3: 
+        if random.randint(1, 3) == 3 or no_new_variables == True: 
             #No varibale relation
             #Add labels
             res = res + self.label_generator.gen(mytype = "rel", 
                 without_percent_sign = True, without_negation = True, without_and = True)
+            #Add Variable relationship length
+            if c_variable and random.randint(1, 3) == 1: 
+                res = res + " " + self.__gen_vari()
             #Add Constrains on Property
-            if c_variable: res = res + " " + self.__gen_vari()
-            if c_property and random.randint(1, 10) == 1:
+            if c_property and random.randint(1, 20) == 1:
                 num = 1
-                if random.randint(1, 5) == 1: num += 1
+                if random.randint(1, 10) == 1: num += 1
                 res = res + " {"
                 props = random.sample(list(self.G.prop.keys()), num)
                 for i in range(0, num):
@@ -94,9 +100,9 @@ class PatternGenerator:
             #Add labels
             res = res + self.label_generator.gen(mytype ="rel")
             #Add Constrains on Property
-            if c_property and random.randint(1, 10) == 1:
+            if c_property and random.randint(1, 20) == 1:
                 num = 1
-                if random.randint(1, 5) == 1: num += 1
+                if random.randint(1, 10) == 1: num += 1
                 res = res + " {"
                 props = random.sample(list(self.G.prop.keys()), num)
                 for i in range(0, num):
@@ -119,13 +125,13 @@ class PatternGenerator:
         return dir[0] + res + dir[1]
 
 
-    def gen_path(self):
+    def gen_path(self, no_new_variables = False):
         res = ""
         num = random.randint(1, 4)
         for i in range(0, num):
-            res = res + self.__gen_node()
+            res = res + self.__gen_node(no_new_variables = no_new_variables)
             if i + 1 < num:
-                res = res + self.__gen_rel()        
+                res = res + self.__gen_rel(no_new_variables = no_new_variables)        
         return res
 
 

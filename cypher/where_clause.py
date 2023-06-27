@@ -40,6 +40,9 @@ class BasicWhereGenerator:
                 leftB -= 1
             if i + 1 < num:
                 res = res + " " + random.choice(["AND", "OR"]) + " "
+        while leftB > 0:
+            res = res + ")"
+            leftB -= 1
         return res
 
 
