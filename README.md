@@ -36,9 +36,11 @@ query_file: 用于测试的原始query请求的集合
 
 [Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Duplicated
 
-[Neo4j-13225](https://github.com/neo4j/neo4j/issues/13225) Status: Confirmed
+[Neo4j-13225](https://github.com/neo4j/neo4j/issues/13225) Status: Confirmed/Intended
 
-[Neo4j-13229](https://github.com/neo4j/neo4j/issues/13229) Status: Confirmed/Intended
+[Neo4j-13229](https://github.com/neo4j/neo4j/issues/13229) Status: Confirmed
+
+[Neo4j-13233](https://github.com/neo4j/neo4j/issues/13233) Status: Intended
 
 [Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Intended
 
