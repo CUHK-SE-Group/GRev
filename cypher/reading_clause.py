@@ -1,0 +1,2 @@
+class ReadingGenerator:
+    pass

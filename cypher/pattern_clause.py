@@ -1,6 +1,6 @@
 import random
 from cypher.schema import GraphSchema
-from cypher.basicwhere import BasicWhereGenerator
+from cypher.where_clause import BasicWhereGenerator
 from cypher.label import LabelExpGenerator
 
 

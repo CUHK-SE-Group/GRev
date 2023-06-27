@@ -1,0 +1,2 @@
+class LimitGenerator:
+    pass
