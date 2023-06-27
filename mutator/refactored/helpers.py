@@ -15,7 +15,7 @@ def flip_edge(edge: str):
 def parse_node_pattern(node_pattern: str):
     """
     :param node_pattern: the node pattern represented by a string
-    :return: (variable name (a string), list of label expressions (a list of strings), property key-value expressions)
+    :return: (variable name (a string), set of label expressions (a set of strings), set of property key-value expressions)
     """
 
     node_pattern = node_pattern.strip()
@@ -30,8 +30,8 @@ def parse_node_pattern(node_pattern: str):
     match = node_pattern_regex.match(node_pattern)
     if match:
         var = match.group('var')
-        labels = [label.strip() for label in match.group('label_expr').strip().split(":") if label.strip()]
-        properties = [prop.strip() for prop in match.group('properties').split(',') if prop.strip()]
+        labels = set(label.strip() for label in match.group('label_expr').strip().split(":") if label.strip())
+        properties = set(prop.strip() for prop in match.group('properties').split(',') if prop.strip())
         return var, labels, properties
     else:
         assert False
@@ -173,25 +173,24 @@ def path_to_pattern(path):
 
 def reverse_path(path_pattern: str):
     """
-    (NOT TESTED)
     Given a path pattern, returns the pattern written backward.
     :param path_pattern: the path pattern given
     :return: the pattern written backward
     """
     nodes, relationships = parse_path_pattern(path_pattern)
+    assert len(nodes) > 0
+
     nodes.reverse()
     relationships.reverse()
-    if len(nodes) == 1:
-        return nodes[0]
-    elif len(nodes) > 1:
-        result = ''
-        for k in range(len(nodes)-1):
-            result += nodes[k]
-            result += flip_edge(relationships[k])
-        result += nodes[-1]
-        return result
-    else:
-        assert False
+    for k in range(len(relationships)):
+        relationships[k] = flip_edge(relationships[k])
+
+    path = []
+    for k in range(len(relationships)):
+        path.append(nodes[k])
+        path.append(relationships[k])
+    path.append(nodes[-1])
+    return path_to_pattern(path)
 
 
 def get_nonempty_sample(a):
