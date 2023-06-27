@@ -1,0 +1,2 @@
+class ProjectionItemGenerator:
+    pass
