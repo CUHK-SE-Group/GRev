@@ -53,8 +53,8 @@ class GraphSchema:
             for i in range(0, edge_num):
                 id0, id1 = random.randint(0, node_num), random.randint(0, node_num)
                 statement = "MATCH (n0 {id : " + str(id0) + "}), (n1 {id : " + str(id1) + "}) "
-                statement = statement + "MERGE(n0)-[r"
-                num = random.randint(0, label_num)
+                statement = statement + "MERGE(n0)-["
+                num = 1
                 labels = random.sample(list(range(0, label_num)), num)
                 for label in labels:
                     statement = statement + ":T" + str(label)
