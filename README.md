@@ -46,6 +46,8 @@ query_file: 用于测试的原始query请求的集合
 
 [Neo4j-13235](https://github.com/neo4j/neo4j/issues/13235) Status: Intended
 
+[Neo4j-13236](https://github.com/neo4j/neo4j/issues/13236) Status: Intended
+
 [Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Intended
 
 [Memgraph-954](https://github.com/memgraph/memgraph/issues/954) Status: Intended
