@@ -21,16 +21,25 @@ class BasicWhereGenerator:
             p2 = random.choice(self.G.types2prop[self.G.prop[p1]])
             res = res + " " + v2 + "." + p2
 
-        if random.randint(0, 2) == 0:
+        if random.randint(1, 3) == 1:
             res = "NOT " + "(" + res + ")"
         return "(" + res + ")"
 
     def gen_exp(self, assigned_v1=None):
         num = random.randint(1, 5)
-        res = self.__gen_single_exp(assigned_v1)
-        for i in range(1, num):
-            res = res + " " + random.choice(["AND", "OR"])
-            res = res + " " + self.__gen_single_exp(assigned_v1)
+        res = ""
+        leftB = 0
+        for i in range(0, num):
+            while random.randint(1, 3) == 1: res = res + "NOT "
+            if random.randint(1, 3) == 1:
+                res = res + "("
+                leftB += 1
+            res = res + self.__gen_single_exp(assigned_v1)
+            while leftB > 0 and random.randint(1, 3) == 1:
+                res = res + ")"
+                leftB -= 1
+            if i + 1 < num:
+                res = res + " " + random.choice(["AND", "OR"]) + " "
         return res
 
 

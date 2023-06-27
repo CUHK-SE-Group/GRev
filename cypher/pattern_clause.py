@@ -28,12 +28,12 @@ class PatternGenerator:
     def __gen_node(self, c_property = True): 
         res = "(" + self.__get_node_name()
         #Add labels
-        res = res + self.label_generator.gen(mytype ="node")
+        res = res + self.label_generator.gen(mytype = "node")
         if c_property and random.randint(1, 10) == 1:
             num = 1
             if random.randint(1, 5) == 1: num += 1
             res = res + " {"
-            props = random.sample(self.G.prop.keys(), num)
+            props = random.sample(list(self.G.prop.keys()), num)
             for i in range(0, num):
                 p = props[i]
                 res = res + p + ": "
@@ -70,14 +70,15 @@ class PatternGenerator:
         if random.randint(1, 3) == 3: 
             #No varibale relation
             #Add labels
-            res = res + self.label_generator.gen(mytype ="rel")
+            res = res + self.label_generator.gen(mytype = "rel", 
+                without_percent_sign = True, without_negation = True, without_and = True)
             #Add Constrains on Property
             if c_variable: res = res + " " + self.__gen_vari()
             if c_property and random.randint(1, 10) == 1:
                 num = 1
                 if random.randint(1, 5) == 1: num += 1
                 res = res + " {"
-                props = random.sample(self.G.prop.keys(), num)
+                props = random.sample(list(self.G.prop.keys()), num)
                 for i in range(0, num):
                     p = props[i]
                     res = res + p + ": "
@@ -97,7 +98,7 @@ class PatternGenerator:
                 num = 1
                 if random.randint(1, 5) == 1: num += 1
                 res = res + " {"
-                props = random.sample(self.G.prop.keys(), num)
+                props = random.sample(list(self.G.prop.keys()), num)
                 for i in range(0, num):
                     p = props[i]
                     res = res + p + ": "

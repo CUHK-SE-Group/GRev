@@ -12,7 +12,7 @@ class LabelExpGenerator:
             self.Nlabel.append("L" + str(i))
             self.Rlabel.append("T" + str(i))
 
-    def gen(self, mytype, simple_version=False):
+    def gen(self, mytype, simple_version = False, without_percent_sign = False, without_negation = False, without_and = False):
         # For GDBs other than Neo4j, please use simple_version
 
         labelset = copy(self.Nlabel) if mytype == "node" else copy(self.Rlabel)
@@ -21,24 +21,27 @@ class LabelExpGenerator:
             labels = random.sample(labelset, num)
             for label in labels: res = res + ":" + str(label)
 
-        labelset.append("%")
+        if without_percent_sign == False: labelset.append("%")
         if random.randint(1, 10) == 1: return ""
         res = ":("
-        num = random.randint(1, 4)
+        num = random.randint(1, 3)
+        if num == 3 and random.randint(1, 3) == 1: num += 1
         leftB = 0
 
         for i in range(0, num):
-            while random.randint(1, 3) == 1: res = res + "!"
+            if without_negation == False:
+                while random.randint(1, 3) == 1: res = res + "!"
             if random.randint(1, 3) == 1:
                 res = res + "("
                 leftB += 1
-            while random.randint(1, 3) == 1: res = res + "!"
+            if without_negation == False:
+                while random.randint(1, 3) == 1: res = res + "!"
             res = res + random.choice(labelset)
             while leftB > 0 and random.randint(1, 3) == 1:
                 res = res + ")"
                 leftB -= 1
             if i + 1 < num:
-                if random.randint(1, 2) == 1:
+                if random.randint(1, 2) == 1 and without_and == False:
                     res = res + "&"
                 else:
                     res = res + "|"
