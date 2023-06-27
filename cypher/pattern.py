@@ -6,29 +6,29 @@ from cypher.label import LabelExpGenerator
 
 class PatternGenerator:
     def __init__(self, G : GraphSchema): 
-        self.n = 0
-        self.m = 0
+        self.node_num = 0
+        self.edge_num = 0
         self.G = G
-        self.W = BasicWhereGenerator(self.G)
-        self.LG = LabelExpGenerator(self.G)
+        self.where_generator = BasicWhereGenerator(self.G)
+        self.label_generator = LabelExpGenerator(self.G)
 
     def __get_node_name(self):
-        if random.randint(1, self.n + 1) > self.n - 2:
-            self.n += 1
-            self.W.vars.append("n" + str(self.n))
-            return "n" + str(self.n)
+        if random.randint(1, self.node_num + 1) > self.node_num - 2:
+            self.node_num += 1
+            self.where_generator.vars.append("n" + str(self.node_num))
+            return "n" + str(self.node_num)
         else:
-            return "n" + str(random.randint(1, self.n))
+            return "n" + str(random.randint(1, self.node_num))
     
     def __get_rel_name(self):
-        self.m += 1
-        self.W.vars.append("r" + str(self.m))
-        return "r" + str(self.m)
+        self.edge_num += 1
+        self.where_generator.vars.append("r" + str(self.edge_num))
+        return "r" + str(self.edge_num)
     
     def __gen_node(self, c_property = True): 
         res = "(" + self.__get_node_name()
         #Add labels
-        res = res + self.LG.gen(mytype = "node")
+        res = res + self.label_generator.gen(mytype ="node")
         if c_property and random.randint(1, 10) == 1:
             num = 1
             if random.randint(1, 5) == 1: num += 1
@@ -37,10 +37,10 @@ class PatternGenerator:
             for i in range(0, num):
                 p = props[i]
                 res = res + p + ": "
-                if len(self.G.rval[p]) == 0:
+                if len(self.G.edge_prop_val[p]) == 0:
                     res = res + self.G.CG.gen(self.G.prop[p])
                 else:
-                    res = res + random.choice(self.G.rval[p])
+                    res = res + random.choice(self.G.edge_prop_val[p])
                 if i == 0 and num > 1: res = res + ", "
             res = res + "}"
         return res + ")"
@@ -70,7 +70,7 @@ class PatternGenerator:
         if random.randint(1, 3) == 3: 
             #No varibale relation
             #Add labels
-            res = res + self.LG.gen(mytype = "rel")
+            res = res + self.label_generator.gen(mytype ="rel")
             #Add Constrains on Property
             if c_variable: res = res + " " + self.__gen_vari()
             if c_property and random.randint(1, 10) == 1:
@@ -81,17 +81,17 @@ class PatternGenerator:
                 for i in range(0, num):
                     p = props[i]
                     res = res + p + ": "
-                    if len(self.G.rval[p]) == 0:
+                    if len(self.G.edge_prop_val[p]) == 0:
                         res = res + self.G.CG.gen(self.G.prop[p])
                     else:
-                        res = res + random.choice(self.G.rval[p])
+                        res = res + random.choice(self.G.edge_prop_val[p])
                     if i == 0 and num > 1: res = res + ", "
                 res = res + "}"
         else:
             var = self.__get_rel_name()
             res = res + var
             #Add labels
-            res = res + self.LG.gen(mytype = "rel")
+            res = res + self.label_generator.gen(mytype ="rel")
             #Add Constrains on Property
             if c_property and random.randint(1, 10) == 1:
                 num = 1
@@ -101,16 +101,16 @@ class PatternGenerator:
                 for i in range(0, num):
                     p = props[i]
                     res = res + p + ": "
-                    if len(self.G.rval[p]) == 0:
+                    if len(self.G.edge_prop_val[p]) == 0:
                         res = res + self.G.CG.gen(self.G.prop[p])
                     else:
-                        res = res + random.choice(self.G.rval[p])
+                        res = res + random.choice(self.G.edge_prop_val[p])
                     if i == 0 and num > 1: res = res + ", "
                 res = res + "}"
             #Add Constrains on Where
             if c_where and random.randint(1, 5) == 5:
                 res = res + " WHERE "
-                res = res + self.W.gen_exp(var)
+                res = res + self.where_generator.gen_exp(var)
             
         res = res + "]"
         dirs = [("<-","-"), ("-", "->"), ("-", "-")]
