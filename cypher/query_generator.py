@@ -48,7 +48,7 @@ class QueryGenerator:
             pattern1 = self.pattern_generator.gen_pattern()
             pattern2 = self.pattern_mutator.gen_pattern(pattern1)
             res = "RETURN COUNT { "
-            return res + pattern1 + " }", res + pattern2 + " }" 
+            return res + pattern1 + " } AS a1", res + pattern2 + " } AS a1" 
     
     def gen_query(self):        
         self.pattern_generator = PatternGenerator(self.G)
