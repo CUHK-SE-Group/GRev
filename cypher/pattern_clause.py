@@ -155,5 +155,5 @@ if __name__ == "__main__":
     G = GraphSchema()
     G.gen()
     P = PatternGenerator(G)
-    for _ in range(5):
+    for _ in range(10000):
         print(P.gen_pattern())

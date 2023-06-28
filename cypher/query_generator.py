@@ -74,5 +74,6 @@ class QueryGenerator:
 
 if __name__ == "__main__":
     query_generator = QueryGenerator()
-    query_generator.gen_query()
+    for _ in range(1000):
+        print(query_generator.gen_query())
     print("OK")
