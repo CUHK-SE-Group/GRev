@@ -10,32 +10,6 @@ def flip_edge(edge: str):
         return "<" + edge[:-1]
     else:
         return edge
-    
-    
-# def parse_node_pattern(node_pattern: str):
-#     """
-#     :param node_pattern: the node pattern represented by a string
-#     :return: (variable name (a string), set of label expressions (a set of strings),
-#     set of property key-value expressions)
-#     """
-#
-#     node_pattern = node_pattern.strip()
-#     assert node_pattern.startswith("(")
-#     assert node_pattern.endswith(")")
-#
-#     # Regex patterns for a single node pattern (TODO)
-#     node_pattern_regex = re.compile(
-#         r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*):?(?P<label_expr>[^{}]*){?(?P<properties>[^}]*)}?\)'
-#     )
-#
-#     match = node_pattern_regex.match(node_pattern)
-#     if match:
-#         var = match.group('var')
-#         labels = set(label.strip() for label in match.group('label_expr').strip().split(":") if label.strip())
-#         properties = set(prop.strip() for prop in match.group('properties').split(',') if prop.strip())
-#         return var, labels, properties
-#     else:
-#         assert False
 
 
 def parse_label_expressions(label_exprs: str):
@@ -80,15 +54,20 @@ def parse_node_pattern(node_pattern: str, raw_node=False):
     if raw_node:
         return node_pattern
 
+    if node_pattern == "()":
+        return None, set(), set()
+
     # Forgive me
     no_var_name = False
     if node_pattern.startswith("(:"):
         no_var_name = True
-        node_pattern = node_pattern[:2] + "z" + node_pattern[2:]
+        node_pattern = node_pattern[:1] + "z" + node_pattern[1:]
+
+    print(f'Parsed = {node_pattern}')
 
     # Regex patterns for a single node pattern
     node_pattern_regex = re.compile(
-        r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*)(?:\s*\:\s*(?P<label_exprs>\([^{}]*\)(\s*&\s*\([^{}]*\))*))?\s*{?(?P<properties>[^}]*)}?\)'
+        r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*):?(?P<labels>[^{}]*){?(?P<properties>[^}]*)}?\)'
     )
 
     match = node_pattern_regex.match(node_pattern)
@@ -96,9 +75,8 @@ def parse_node_pattern(node_pattern: str, raw_node=False):
         var = match.group('var')
 
         labels = set()
-        if match.group('label_exprs'):
-            label_exprs = match.group('label_exprs')
-            labels = set(parse_label_expressions(label_exprs))
+        if match.group('labels'):
+            labels = set(label.strip() for label in match.group('labels').split(":") if label.strip())
 
         properties = set()
         if match.group('properties'):
@@ -108,6 +86,8 @@ def parse_node_pattern(node_pattern: str, raw_node=False):
             assert var == "z"
             var = None
 
+        print(var, labels, properties)
+        
         return var, labels, properties
     else:
         assert False
@@ -221,11 +201,11 @@ def node_to_pattern(node):
     if len(labels) == 0 and len(properties) == 0:
         return "(" + var + ")"
     elif len(properties) == 0:
-        return "(" + var + ":" + "&".join(labels) + ")"
+        return "(" + var + ":" + ":".join(labels) + ")"
     elif len(labels) == 0:
         return "(" + var + " " + "{" + ", ".join(properties) + "}" + ")"
     else:
-        return "(" + var + ":" + "&".join(labels) + " " + "{" + ", ".join(properties) + "}" + ")"
+        return "(" + var + ":" + ":".join(labels) + " " + "{" + ", ".join(properties) + "}" + ")"
 
 
 def path_to_pattern(path, raw_node=False):

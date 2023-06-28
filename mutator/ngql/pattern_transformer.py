@@ -1,4 +1,4 @@
-from mutator.refactored.schema import *
+from mutator.ngql.schema import *
 
 
 class PatternTransformer(AbstractASGOperator):

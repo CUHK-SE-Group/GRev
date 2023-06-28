@@ -1,5 +1,5 @@
-from mutator.refactored.pattern_transformer import *
-from mutator.refactored.helpers import *
+from mutator.ngql.pattern_transformer import *
+from mutator.ngql.helpers import *
 
 class PatternMutator:
     def gen_pattern(self, pattern : str):

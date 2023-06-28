@@ -19,7 +19,10 @@ class LabelExpGenerator:
         if simple_version:
             num = random.randint(0, 3)
             labels = random.sample(labelset, num)
-            for label in labels: res = res + ":" + str(label)
+            res = ''
+            for label in labels:
+                res += ":" + label
+            return res
 
         if without_percent_sign == False: labelset.append("%")
         if random.randint(1, 10) == 1: return ""

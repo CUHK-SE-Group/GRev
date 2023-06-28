@@ -1,6 +1,6 @@
 """Data models used"""
 from abc import ABC, abstractmethod
-from mutator.refactored.helpers import *
+from mutator.ngql.helpers import *
 import random
 
 
