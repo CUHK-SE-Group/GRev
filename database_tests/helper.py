@@ -53,6 +53,12 @@ def general_testing_procedure(conf: TestConfig):
                 conf.q1 = query['Query1']
                 conf.q2 = query['Query2']
                 conf.oracle_func(conf, result1, result2)
+            elif isinstance(query, tuple):
+                result1 = conf.client.run(query[0])
+                result2 = conf.client.run(query[1])
+                conf.q1 = query[0]
+                conf.q2 = query[1]
+                conf.oracle_func(conf, result1, result2) 
             else:
                 result1 = conf.client.run(query)
                 for _ in range(0, conf.transform_times):

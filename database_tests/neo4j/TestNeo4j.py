@@ -1,5 +1,5 @@
 import csv
-import random
+from cypher.query_generator import *
 import threading
 from copy import deepcopy
 from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
@@ -7,6 +7,7 @@ from gdb_clients import *
 from configs.conf import *
 import hashlib
 import json
+import time
 
 import numpy as np
 import pandas as pd
@@ -57,10 +58,15 @@ def compare(result1, result2):
     lst2.sort()
     return lst1 == lst2
 
-
+empty_cnt = 0
 # result: is returned by client.run()
 def oracle(conf: TestConfig, result1, result2):
-    # todo: 测试
+    global empty_cnt
+    if len(result1[0]) == 0 and len(result2[0]) == 0:
+        empty_cnt += 1
+    elif 'a1' in result1[0][0] and 'a1' in result2[0][0]:
+        if result1[0][0]['a1'] == 0 and result2[0][0]['a1']==0:
+            empty_cnt += 1
     if not compare(result1[0], result2[0]):
         if conf.mode == 'live':
             conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
@@ -125,14 +131,16 @@ class Neo4jTester(TesterAbs):
         return self.connections[thread_id]
 
     def single_file_testing(self, logfile):
+        t = time.time()
+        logfile = f"./query_producer/cypher/{t}.log"
         def query_producer():
-            with open(logfile, 'r') as f:
+            generator = QueryGenerator(f"./query_producer/cypher/{t}.log")
+            with open(f"./query_producer/cypher/{t}.log", 'r') as f:
                 content = f.read()
                 f.close()
+            match_statements = [generator.gen_query() for i in range(200)]
             contents = content.strip().split('\n')
-            match_statements = contents[-5000:]
-            create_statements = contents[4:-5000]
-            return create_statements, match_statements
+            return contents, match_statements
         logger = new_logger("logs/neo4j.log", True)
         conf = TestConfig(
             client=Neo4j(config.get("neo4j", 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
@@ -146,10 +154,12 @@ class Neo4jTester(TesterAbs):
             report_token=config.get('lark','neo4j')
         )
         general_testing_procedure(conf)
+        print(f"############### empty {empty_cnt}/1000 ########################")
+        empty_cnt = 0
 
 
 def schedule():
-    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("pattern114582879015"), 'neo4j')
+    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("neo4jtesting"), 'neo4j')
 
 
 if __name__ == "__main__":
