@@ -56,4 +56,4 @@ def new_logger(file, enable_elk=False):
     return logger
 
 
-logger = new_logger("logs/log_file.log", True)
+logger = new_logger("logs/log_file.log", False)

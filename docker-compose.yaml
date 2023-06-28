@@ -53,6 +53,7 @@ services:
       - kibana
       - logstash
       - elasticsearch
+
     ports:
       - 7474:7474
       - 7687:7687
@@ -61,7 +62,7 @@ services:
     environment:
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_AUTH=neo4j/testtest
-
+      - NEO4J_db_transaction_timeout=10000
   redis-stack:
     image: redis/redis-stack:6.2.6-v7
     restart: on-failure
