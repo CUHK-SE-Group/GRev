@@ -4,7 +4,7 @@ from mutator.ngql.pattern_transformer import *
 def test_transformer():
     pt = PatternTransformer()
 
-    with open('pattern_sample.in', 'r') as file:
+    with open('path_pattern_sample.in', 'r') as file:
         while True:
             pattern = file.readline()
             if pattern == '':
@@ -17,15 +17,18 @@ def test_transformer():
             assert asg.get_comparable() == asg2.get_comparable()
 
 
-# def test_path_reverser():
-#     pt = PatternTransformer()
-#
-#     with open('path_pattern_sample.in', 'r') as file:
-#         while True:
-#             pattern = file.readline()
-#             if pattern == '':
-#                 break
-#             rpattern = reverse_path(pattern)
-#             asg = pt.pattern_to_asg(pattern)
-#             rasg = pt.pattern_to_asg(rpattern)
-#             assert asg.get_comparable() == rasg.get_comparable()
+def test_path_reverser():
+    pass
+
+    pt = PatternTransformer()
+
+    with open('path_pattern_sample.in', 'r') as file:
+        while True:
+            pattern = file.readline()
+            if pattern == '':
+                break
+            rpattern = reverse_path(pattern)
+            asg = pt.pattern_to_asg(pattern)
+            rasg = pt.pattern_to_asg(rpattern)
+            assert asg.get_comparable() == rasg.get_comparable()
+

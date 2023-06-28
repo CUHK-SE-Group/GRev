@@ -1,6 +1,5 @@
 # The main file that produce the query statements
 import random
-import copy
 from cypher.ngql.pattern_clause import PatternGenerator
 from cypher.schema import GraphSchema
 from mutator.refactored.pattern_mutator import PatternMutator
@@ -73,7 +72,5 @@ class QueryGenerator:
         return query1 + clause1, query2 + clause2
 
 if __name__ == "__main__":
-    query_generator = QueryGenerator()
-    for _ in range(10):
-        print(query_generator.gen_query())
-    print("OK")
+    qg = QueryGenerator()
+    print(qg.gen_query())
