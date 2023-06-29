@@ -43,13 +43,19 @@ class Nebula(GdbFactory):
             return df, 0
     
     def batch_run(self, query):
-        for q in query:
-            self.connection.execute(q)
+        with self.connection_pool.session_context('root', 'nebula') as session:
+            session.execute(f'USE {self.database}')
+            for q in query:
+                session.execute(q)
+
     def clear(self):
-        self.connection.execute("MATCH (n) DETACH DELETE n")
+        with self.connection_pool.session_context('root', 'nebula') as session:
+            session.execute(f'USE {self.database}')
+            session.execute("MATCH (n) DETACH DELETE n")
 
 
 if __name__ == '__main__':
     client = Nebula("session_pool_test")
-    res = client.run('FETCH PROP ON person "Bob" YIELD vertex as node')
-    print(res)
+    client.clear()
+    print(client.run('INSERT VERTEX actor(name, age) VALUES "player100":("Tim Duncan", 42);'))
+    print(client.run('MATCH (v:player{name:"Tim Duncan"}) RETURN v;'))
