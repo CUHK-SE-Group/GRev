@@ -34,28 +34,34 @@ class Nebula(GdbFactory):
         ok = self.connection_pool.init([('127.0.0.1', 9669)], config)
         if not ok:
             exit(1)
-        
+
+        with self.get_session() as session:
+            result = result_to_df(session.execute(f'CREATE SPACE IF NOT EXISTS {self.database} (vid_type=FIXED_STRING(30))'))
+            assert result != None
+
+    def get_session(self):
+        return self.connection_pool.session_context('root', 'nebula')
+
     def run(self, query):
-        with self.connection_pool.session_context('root', 'nebula') as session:
+        with self.get_session() as session:
             session.execute(f'USE {self.database}')
             result = session.execute(query)
             df = result_to_df(result)
             return df, 0
     
     def batch_run(self, query):
-        with self.connection_pool.session_context('root', 'nebula') as session:
+        with self.get_session() as session:
             session.execute(f'USE {self.database}')
             for q in query:
                 session.execute(q)
 
     def clear(self):
-        with self.connection_pool.session_context('root', 'nebula') as session:
-            session.execute(f'USE {self.database}')
-            session.execute("MATCH (n) DETACH DELETE n")
+        with self.get_session() as session:
+            result = result_to_df(session.execute(f'DROP SPACE IF EXISTS {self.database}'))
+            assert result != None
 
 
 if __name__ == '__main__':
-    client = Nebula("session_pool_test")
-    client.clear()
-    print(client.run('INSERT VERTEX actor(name, age) VALUES "player100":("Tim Duncan", 42);'))
-    print(client.run('MATCH (v:player{name:"Tim Duncan"}) RETURN v;'))
+    nb = Nebula("nbtest")
+
+    nb.clear()
