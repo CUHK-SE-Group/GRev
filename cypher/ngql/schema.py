@@ -161,17 +161,25 @@ class GraphSchema:
             }
 
         with open(output_file, "w", encoding="utf-8") as f:
+            def wait():
+                nonlocal f
+                print("SLEEP", file=f)
+
+            wait()
+
             # 1. CREATE TAG IF NOT EXISTS [name] (list of parameters)
             for vtag in self.vertex_tags:
                 params_list = "(" + ", ".join([f'{self.props[i]["name"]} {self.props[i]["type"]}' for i in vtag["props"]]) + ")"
                 statement = "CREATE TAG IF NOT EXISTS " + vtag["name"] + " " + params_list
                 print(statement, file=f)
+            wait()
 
             # 2. CREATE EDGE IF NOT EXISTS [name] (list of parameters)
             for etag in self.edge_tags:
                 param_list = "(" + ", ".join([f'{self.props[i]["name"]} {self.props[i]["type"]}' for i in etag["props"]]) + ")"
                 statement = "CREATE EDGE IF NOT EXISTS " + etag["name"] + " " + param_list
                 print(statement, file=f)
+            wait()
 
             # 3. INSERT VERTEX [tag] (list of parameters) VALUES "[name]" (list of values)
             for v in self.vertices:
@@ -187,6 +195,7 @@ class GraphSchema:
                     statement += f'"{v["name"]}"' + " : "
                     statement += values_list
                     print(statement, file=f)
+            wait()
 
             # 4. INSERT EDGE [tag] (list of parameters) VALUES "[st_name]"->"[en_name]" (list of values)
             for e in self.edges:
@@ -204,6 +213,7 @@ class GraphSchema:
                     statement += f'"{st_name}"->"{en_name}"' + " : "
                     statement += values_list
                     print(statement, file=f)
+            wait()
 
             # 5. Create&rebuild vertex tags
             for vtag in self.vertex_tags:
@@ -211,11 +221,13 @@ class GraphSchema:
                 statement += f'{vtag["name"]}_index' + " ON "
                 statement += f'{vtag["name"]}()'
                 print(statement, file=f)
+            wait()
 
             for vtag in self.vertex_tags:
                 statement = "REBUILD TAG INDEX "
                 statement += f'{vtag["name"]}_index'
                 print(statement, file=f)
+            wait()
 
             # 6. Create&rebuild edge tags
             for etag in self.edge_tags:
@@ -223,11 +235,13 @@ class GraphSchema:
                 statement += f'{etag["name"]}_index' + " ON "
                 statement += f'{etag["name"]}()'
                 print(statement, file=f)
+            wait()
 
             for etag in self.edge_tags:
                 statement = "REBUILD EDGE INDEX "
                 statement += f'{etag["name"]}_index'
                 print(statement, file=f)
+            wait()
 
 
 if __name__ == "__main__":
