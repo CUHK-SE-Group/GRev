@@ -9,8 +9,29 @@ from mutator.query_transformer import QueryTransformer
 from webhook.lark import post
 from abc import ABC, abstractmethod
 from typing import Callable
+from configs import config
 import redis
 import traceback
+import heapq
+
+class MaxHeap:
+    def __init__(self, db_path, max_size):
+        self.db = TinyDB(db_path)
+        self.table_name = 'max_heap'
+        self.table = self.db.table(self.table_name)
+        self.max_size = max_size
+
+    def insert(self, value):
+        if len(self.table) >= self.max_size:
+            min_value = min(self.table, key=lambda x: x['value'])
+            if value > min_value['value']:
+                self.table.remove(doc_ids=[min_value.doc_id])
+                self.table.insert({'value': value})
+        else:
+            self.table.insert({'value': value})
+
+    def get_heap(self):
+        return [x['value'] for x in self.table.all()]
 
 class TestConfig:
     def __init__(self, **kwargs):
@@ -143,3 +164,6 @@ def gremlin_scheduler(folder_path, tester: TesterAbs, database):
                 table.update({'status': 'done'}, session.FileName == file_path)
             else:
                 table.remove(session.FileName == file_path)
+                
+                
+

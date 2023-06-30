@@ -2,7 +2,7 @@ import csv
 from cypher.query_generator import *
 import threading
 from copy import deepcopy
-from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
+from database_tests.helper import *
 from gdb_clients import *
 from configs.conf import *
 
@@ -46,7 +46,12 @@ def oracle(conf: TestConfig, result1, result2):
             writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
-    if big > 5 * small and small>20:
+    heap = MaxHeap("logs/neo4j_performance.json",10)
+    metric = big/(small+100)
+    if metric > 1:
+        heap.insert(metric)
+    threshold = heap.get_heap()
+    if metric in threshold:
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)
@@ -61,8 +66,6 @@ def oracle(conf: TestConfig, result1, result2):
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
-
-
 
 class Neo4jTester(TesterAbs):
     def __init__(self, database):
@@ -97,7 +100,7 @@ class Neo4jTester(TesterAbs):
             with open(f"./query_producer/cypher/{t}.log", 'r') as f:
                 content = f.read()
                 f.close()
-            match_statements = [generator.gen_query() for i in range(200)]
+            match_statements = [generator.gen_query() for i in range(2000)]
             contents = content.strip().split('\n')
             return contents, match_statements
         logger = new_logger("logs/neo4j.log", True)
