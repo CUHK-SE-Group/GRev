@@ -16,29 +16,31 @@ class PatternTransformer(AbstractASGOperator):
         var2id = dict()
         num_vars = 0
         all_vars = []
-        all_labels = []
         all_properties = []
 
         # Sorts out all the variables
         def check_node(node):
             nonlocal num_vars
             nonlocal all_vars
-            nonlocal all_labels
             nonlocal all_properties
-            var, labels, properties = node
+            var, properties = node
             if var not in var2id.keys():
                 node_idx = num_vars
                 var2id[var] = num_vars
                 num_vars += 1
                 assert(len(var2id) == num_vars)
                 all_vars.append(var)
-                all_labels.append(set())
-                all_properties.append(set())
+                all_properties.append(dict())
             else:
                 node_idx = var2id[var]
 
-            all_labels[node_idx].update(labels)
-            all_properties[node_idx].update(properties)
+            assert isinstance(properties, dict)
+
+            for tag_name, tag_props in properties.items():
+                assert isinstance(tag_props, set)
+                if not tag_name in all_properties[node_idx]:
+                    all_properties[node_idx][tag_name] = set()
+                all_properties[node_idx][tag_name].update(tag_props)
 
         for (st, rel, en) in edges:
             check_node(st)
@@ -47,7 +49,7 @@ class PatternTransformer(AbstractASGOperator):
             check_node(n)
 
         for idx in range(num_vars):
-            asg.add_node(Node(idx, all_vars[idx], all_labels[idx], all_properties[idx]))
+            asg.add_node(Node(idx, all_vars[idx], all_properties[idx]))
 
         for (st, rel, en) in edges:
             st_idx = var2id[st[0]]
@@ -64,13 +66,10 @@ class PatternTransformer(AbstractASGOperator):
         """
         decomposition = []
         while True:
-            if asg.is_empty():
-                break
+            print(asg.is_empty())
+            if asg.is_empty(): break
             start_idx = random.choice(asg.get_available_nodes())
             decomposition.append(asg.traverse(start_idx))
-
-            # For test purpose
-            # assert num_rounds < 1000
 
         num_paths = len(decomposition)
         num_nodes = asg.get_num_nodes()
@@ -82,23 +81,27 @@ class PatternTransformer(AbstractASGOperator):
                 assert(isinstance(path[k], int))
                 node_idx = path[k]
                 locations[node_idx].append([path_idx, k])
-                # (Variable index, set of label expressions, set of property key-value expressions)
-                path[k] = (asg.get_node_name(node_idx), set(), set())
+                # (variable index, dict of properties)
+                path[k] = (asg.get_node_name(node_idx), dict())
+
+        def update(properties, tag_name, prop=None):
+            if not tag_name in properties:
+                properties[tag_name] = set()
+            if prop != None:
+                properties[tag_name].add(prop)
 
         for node_idx in range(num_nodes):
             assert(len(locations[node_idx]) > 0)
 
-            labels = asg.get_node_labels(node_idx)
-            for label in labels:
-                subset = get_nonempty_sample(locations[node_idx])
-                for (path_idx, k) in subset:
-                    decomposition[path_idx][k][1].add(label)
-
             properties = asg.get_node_properties(node_idx)
-            for prop in properties:
-                subset = get_nonempty_sample(locations[node_idx])
-                for (path_idx, k) in subset:
-                    decomposition[path_idx][k][2].add(prop)
+            for tag_name, tag_props in properties.items():
+                print(f'tag_name = {tag_name}')
+                print(f'tag_props = {tag_props}')
+                for path_idx, k in get_nonempty_sample(locations[node_idx]):
+                    update(decomposition[path_idx][k][1], tag_name)
+                for prop in tag_props:
+                    for path_idx, k in get_nonempty_sample(locations[node_idx]):
+                        update(decomposition[path_idx][k][1], tag_name, prop)
 
         path_patterns = []
         for path in decomposition:

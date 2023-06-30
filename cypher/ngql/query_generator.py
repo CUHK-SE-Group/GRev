@@ -1,13 +1,15 @@
 # The main file that produce the query statements
 import random
 from cypher.ngql.pattern_clause import PatternGenerator
-from cypher.schema import GraphSchema
+from cypher.ngql.schema import GraphSchema
 from mutator.refactored.pattern_mutator import PatternMutator
 
 class QueryGenerator:
-    def __init__(self, output_file="./cypher/schema/create.log"):
+    def __init__(self, output_file="./cypher/ngql/schema/create.log", num_vertices=30, num_edges=150, num_props=30,
+                 num_vertex_tags=8, num_edge_tags=8):
         self.G = GraphSchema()
-        self.G.gen(output_file = output_file)
+        self.G.gen(output_file = output_file, num_vertices=num_vertices, num_edges=num_edges,
+                   num_props=num_props, num_vertex_tags=num_vertex_tags, num_edge_tags=num_edge_tags)
         self.pattern_mutator = PatternMutator()
 
     def gen_match(self):
@@ -72,5 +74,5 @@ class QueryGenerator:
         return query1 + clause1, query2 + clause2
 
 if __name__ == "__main__":
-    qg = QueryGenerator()
+    qg = QueryGenerator(num_vertices=3, num_edges=3, num_props=8, num_vertex_tags=2, num_edge_tags=2)
     print(qg.gen_query())

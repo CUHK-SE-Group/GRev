@@ -1,7 +1,7 @@
 import random
-from cypher.schema import GraphSchema
-from cypher.where_clause import BasicWhereGenerator
-from cypher.label import LabelExpGenerator
+from cypher.ngql.schema import GraphSchema
+from cypher.ngql.where_clause import BasicWhereGenerator
+from cypher.ngql.label import LabelExpGenerator
 
 
 class PatternGenerator:
@@ -32,23 +32,11 @@ class PatternGenerator:
     
     def __gen_node(self, c_property = True, no_new_variables = False): 
         res = "(" + self.__get_node_name(no_new_variables = no_new_variables)
-        #Add labels
-        res = res + self.label_generator.gen(mytype = "node", simple_version = True)
+        # Add tags
         if c_property and random.randint(1, 20) == 1:
-            num = 1
-            if random.randint(1, 10) == 1: num += 1
-            res = res + " {"
-            props = random.sample(list(self.G.prop.keys()), num)
-            for i in range(0, num):
-                p = props[i]
-                res = res + p + ": "
-                if len(self.G.edge_prop_val[p]) == 0:
-                    res = res + self.G.CG.gen(self.G.prop[p])
-                else:
-                    res = res + random.choice(self.G.edge_prop_val[p])
-                if i == 0 and num > 1: res = res + ", "
-            res = res + "}"
-        return res + ")"
+            res += self.label_generator.gen(mytype="vertex")
+        res += ")"
+        return res
 
     def __gen_vari(self):
         op = random.randint(1, 4)
@@ -72,58 +60,22 @@ class PatternGenerator:
 
     def __gen_rel(self, c_property = True, c_where = True, c_variable = True, no_new_variables = False):
         res = "["
-        if random.randint(1, 3) == 3 or no_new_variables == True: 
-            #No varibale relation
-            #Add labels
-            res = res + self.label_generator.gen(mytype = "rel", 
-                without_percent_sign = True, without_negation = True, without_and = True)
-            #Add Variable relationship length
-            if c_variable and random.randint(1, 3) == 1: 
-                res = res + " " + self.__gen_vari()
-            #Add Constrains on Property
-            if c_property and random.randint(1, 20) == 1:
-                num = 1
-                if random.randint(1, 10) == 1: num += 1
-                res = res + " {"
-                props = random.sample(list(self.G.prop.keys()), num)
-                for i in range(0, num):
-                    p = props[i]
-                    res = res + p + ": "
-                    if len(self.G.edge_prop_val[p]) == 0:
-                        res = res + self.G.CG.gen(self.G.prop[p])
-                    else:
-                        res = res + random.choice(self.G.edge_prop_val[p])
-                    if i == 0 and num > 1: res = res + ", "
-                res = res + "}"
+
+        if random.randint(1, 3) == 1 or no_new_variables:
+            if random.randint(1, 20) == 1 and c_property:
+                res += self.label_generator.gen(mytype="edge")
+            elif c_variable and random.randint(1, 2) == 1:
+                res += self.__gen_vari()
         else:
-            var = self.__get_rel_name()
-            res = res + var
-            #Add labels
-            res = res + self.label_generator.gen(mytype ="rel")
-            #Add Constrains on Property
-            if c_property and random.randint(1, 20) == 1:
-                num = 1
-                if random.randint(1, 10) == 1: num += 1
-                res = res + " {"
-                props = random.sample(list(self.G.prop.keys()), num)
-                for i in range(0, num):
-                    p = props[i]
-                    res = res + p + ": "
-                    if len(self.G.edge_prop_val[p]) == 0:
-                        res = res + self.G.CG.gen(self.G.prop[p])
-                    else:
-                        res = res + random.choice(self.G.edge_prop_val[p])
-                    if i == 0 and num > 1: res = res + ", "
-                res = res + "}"
-            #Add Constrains on Where
-            if c_where and random.randint(1, 5) == 5:
-                res = res + " WHERE "
-                res = res + self.where_generator.gen_exp(var)
+            res += self.__get_rel_name()
+            if random.randint(1, 20) == 1 and c_property:
+                res += self.label_generator.gen(mytype="edge")
             
         res = res + "]"
         dirs = [("<-","-"), ("-", "->"), ("-", "-")]
         dir = random.choice(dirs)
-        return dir[0] + res + dir[1]
+        res = dir[0] + res + dir[1]
+        return res
 
 
     def gen_path(self, no_new_variables = False):
@@ -155,5 +107,8 @@ if __name__ == "__main__":
     G = GraphSchema()
     G.gen()
     P = PatternGenerator(G)
-    for _ in range(10000):
-        print(P.gen_pattern())
+    with open ("./mutator/ngql/pattern_sample.in", "w") as f:
+        for _ in range(5):
+            print(P.gen_pattern(), file=f)
+
+

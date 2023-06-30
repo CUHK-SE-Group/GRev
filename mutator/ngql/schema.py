@@ -6,19 +6,22 @@ import random
 
 class Node:
     """Stores node attributes in ASGs"""
-    def __init__(self, idx, var, labels, properties):
+    def __init__(self, idx, var, properties):
         self.idx = idx
         self.var = var
         # The sets of label expressions and property key-value expressions
-        assert isinstance(labels, set)
-        assert isinstance(properties, set)
-        self.labels = tuple(sorted(list(labels)))
-        self.properties = tuple(sorted(list(properties)))
+        assert isinstance(properties, dict)
+        self.properties = properties
         # The list of incident edges
         self.edges = []
 
     def get_comparable(self):
-        return self.var, self.labels, self.properties
+        comparable = []
+        for tag_name, tag_props in self.properties.items():
+            sorted_props = sorted(list(tag_props))
+            cur = tuple([tag_name] + sorted_props)
+            comparable.append(cur)
+        return self.var, tuple(sorted(comparable))
 
     def add_edge(self, dest_idx, content, edge_idx):
         """Spans an edge going from the current node"""
@@ -30,9 +33,6 @@ class Node:
 
     def get_name(self):
         return self.var
-
-    def get_labels(self):
-        return self.labels
 
     def get_properties(self):
         return self.properties
@@ -85,9 +85,6 @@ class ASG:
 
     def get_node_name(self, idx):
         return self.nodes[idx].get_name()
-
-    def get_node_labels(self, idx):
-        return self.nodes[idx].get_labels()
 
     def get_node_properties(self, idx):
         return self.nodes[idx].get_properties()
