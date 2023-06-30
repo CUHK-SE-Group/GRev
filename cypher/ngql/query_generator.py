@@ -67,8 +67,7 @@ class QueryGenerator:
                 last_funcs = self.gen_match
             else:
                 if not self.last_one_is_optional:
-                    funcs = [self.gen_match, self.gen_where_predicate,
-                            self.gen_where_exists_pattern, self.gen_where_pattern]
+                    funcs = [self.gen_match, self.gen_where_predicate, self.gen_where_pattern]
                     random_funcs = random.choice(funcs)
                 else:
                     random_funcs = self.gen_match
@@ -83,5 +82,5 @@ class QueryGenerator:
 if __name__ == "__main__":
     qg = QueryGenerator(num_vertices=3, num_edges=3, num_props=8, num_vertex_tags=2, num_edge_tags=2)
     with open('./cypher/ngql/query_sample.in', 'w+') as f:
-        for _ in range(10):
+        for _ in range(100):
             print(qg.gen_query(), file=f)
