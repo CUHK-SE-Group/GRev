@@ -26,8 +26,6 @@ def parse_single_tag(props: str):
 
 
 def parse_props(props: str):
-    print(f'Props = {props}')
-
     num_curly_balance = 0
     locs = []
     for i in range(len(props)):
@@ -57,8 +55,6 @@ def parse_props(props: str):
             update(parse_single_tag(props[x+1:y]))
         update(parse_single_tag(props[locs[-1]+1:]))
 
-    print(f'Result = {result}')
-
     return result
 
 
@@ -71,8 +67,6 @@ def parse_node_pattern(node_pattern: str, raw_node=False):
     node_pattern = node_pattern.strip()
     assert node_pattern.startswith("(")
     assert node_pattern.endswith(")")
-
-    print(f'Node pattern = {node_pattern}')
 
     if raw_node:
         return node_pattern
@@ -98,8 +92,6 @@ def parse_path_pattern(path_pattern: str, raw_node=False):
     :param path_pattern: the path pattern represented by a string
     :return: (list of nodes, list of relationships) in that order
     """
-
-    print(f'Path pattern = {path_pattern}')
 
     path_pattern = path_pattern.strip()
     assert path_pattern.startswith("(")
@@ -203,8 +195,6 @@ def node_to_pattern(node):
     result = "(" + var
     for tag_name, tag_props in properties.items():
         result += ":" + tag_name
-        print(f'Name = {tag_name}')
-        print(f'Set = {tag_props}')
         if len(tag_props) > 0:
             result += "{" + ", ".join(list(tag_props)) + "}"
     result += ")"

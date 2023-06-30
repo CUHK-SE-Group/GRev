@@ -95,8 +95,6 @@ class PatternTransformer(AbstractASGOperator):
 
             properties = asg.get_node_properties(node_idx)
             for tag_name, tag_props in properties.items():
-                print(f'tag_name = {tag_name}')
-                print(f'tag_props = {tag_props}')
                 for path_idx, k in get_nonempty_sample(locations[node_idx]):
                     update(decomposition[path_idx][k][1], tag_name)
                 for prop in tag_props:
