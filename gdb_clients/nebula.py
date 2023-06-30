@@ -36,6 +36,7 @@ class Nebula(GdbFactory):
             exit(1)
 
         with self.get_session() as session:
+            session.execute(f'DROP SPACE IF EXISTS {self.database}')
             result = result_to_df(session.execute(f'CREATE SPACE IF NOT EXISTS {self.database} (vid_type=FIXED_STRING(30))'))
             assert result != None
 
@@ -43,7 +44,7 @@ class Nebula(GdbFactory):
         return self.connection_pool.session_context('root', 'nebula')
 
     def run(self, query):
-        time.sleep(2.5)
+        print(f'query statement = {query}')
         with self.get_session() as session:
             session.execute(f'USE {self.database}')
             result = session.execute(query)
@@ -67,6 +68,24 @@ if __name__ == '__main__':
 
     with open('./cypher/ngql/schema/create.log', 'r') as f:
         while True:
-            statement = f
+            statement = f.readline()
+            if statement == '':
+                break
+            assert(nb.run(statement)[0] != None)
+            time.sleep(6)
 
-    nb.clear()
+
+    num_nonempty = 0
+    with open('./cypher/ngql/query_sample.in', 'r') as f:
+        while True:
+            statement = f.readline()
+            if statement == '':
+                break
+            result = nb.run(statement)[0]
+            assert result != None
+            print(len(result))
+            if len(result) > 0:
+                num_nonempty += 1
+    print(f'num_nonempty = {num_nonempty}')
+
+    # nb.clear()
