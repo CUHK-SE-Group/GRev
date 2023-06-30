@@ -43,6 +43,7 @@ class Nebula(GdbFactory):
         return self.connection_pool.session_context('root', 'nebula')
 
     def run(self, query):
+        time.sleep(2.5)
         with self.get_session() as session:
             session.execute(f'USE {self.database}')
             result = session.execute(query)
@@ -63,5 +64,9 @@ class Nebula(GdbFactory):
 
 if __name__ == '__main__':
     nb = Nebula("nbtest")
+
+    with open('./cypher/ngql/schema/create.log', 'r') as f:
+        while True:
+            statement = f
 
     nb.clear()

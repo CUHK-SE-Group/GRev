@@ -108,7 +108,7 @@ if __name__ == "__main__":
     G.gen()
     P = PatternGenerator(G)
     with open ("./mutator/ngql/pattern_sample.in", "w") as f:
-        for _ in range(5):
+        for _ in range(10000):
             print(P.gen_pattern(), file=f)
 
 
