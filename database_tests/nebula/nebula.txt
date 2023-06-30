@@ -1,0 +1,1 @@
+docker exec -it nebula-docker-compose-console-1 nebula-console -u root -p 123 --address=graphd --port=9669
