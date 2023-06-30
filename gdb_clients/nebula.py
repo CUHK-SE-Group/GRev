@@ -34,22 +34,39 @@ class Nebula(GdbFactory):
         ok = self.connection_pool.init([('127.0.0.1', 9669)], config)
         if not ok:
             exit(1)
-        
+
+        with self.get_session() as session:
+            result = result_to_df(session.execute(f'CREATE SPACE IF NOT EXISTS {self.database} (vid_type=FIXED_STRING(30))'))
+            assert result != None
+
+    def get_session(self):
+        return self.connection_pool.session_context('root', 'nebula')
+
     def run(self, query):
-        with self.connection_pool.session_context('root', 'nebula') as session:
+        time.sleep(2.5)
+        with self.get_session() as session:
             session.execute(f'USE {self.database}')
             result = session.execute(query)
             df = result_to_df(result)
             return df, 0
     
     def batch_run(self, query):
-        for q in query:
-            self.connection.execute(q)
+        with self.get_session() as session:
+            session.execute(f'USE {self.database}')
+            for q in query:
+                session.execute(q)
+
     def clear(self):
-        self.connection.execute("MATCH (n) DETACH DELETE n")
+        with self.get_session() as session:
+            result = result_to_df(session.execute(f'DROP SPACE IF EXISTS {self.database}'))
+            assert result != None
 
 
 if __name__ == '__main__':
-    client = Nebula("session_pool_test")
-    res = client.run('FETCH PROP ON person "Bob" YIELD vertex as node')
-    print(res)
+    nb = Nebula("nbtest")
+
+    with open('./cypher/ngql/schema/create.log', 'r') as f:
+        while True:
+            statement = f
+
+    nb.clear()

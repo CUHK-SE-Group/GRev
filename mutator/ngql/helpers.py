@@ -12,85 +12,85 @@ def flip_edge(edge: str):
         return edge
 
 
-def parse_label_expressions(label_exprs: str):
-    """Parses label expressions; expressions are separated
-    by '&''s."""
+def parse_single_tag(props: str):
+    """(tag name, set of properties)"""
+    props = props.strip()
+    if props.endswith("}"):
+        tokens = props.split("{")
+        assert len(tokens) == 2
+        name = tokens[0].strip()
+        props_part = tokens[1].strip("}").split(",")
+        return name, set([p.strip() for p in props_part])
+    else:
+        return props, set()
 
-    label_exprs = label_exprs.strip()
-    assert label_exprs.startswith("(")
-    assert label_exprs.endswith(")")
 
-    num_paren_balance = 0
-    suffix = ''
-    result = []
-    for char in label_exprs:
-        suffix += char
-        if char == '(':
-            num_paren_balance += 1
-        elif char == ')':
-            num_paren_balance -= 1
+def parse_props(props: str):
+    print(f'Props = {props}')
 
-        if num_paren_balance == 0:
-            if char == ')':
-                expr = suffix.strip()
-                assert expr.startswith("(")
-                assert expr.endswith(")")
-                result.append(expr)
-            suffix = ''
+    num_curly_balance = 0
+    locs = []
+    for i in range(len(props)):
+        char = props[i]
+        if char == '{':
+            num_curly_balance += 1
+        elif char == '}':
+            num_curly_balance -= 1
+
+        if char == ':' and num_curly_balance == 0:
+            locs.append(i)
+
+    result = dict()
+    def update(stuff):
+        name, prop_set = stuff
+        assert not name.startswith(":")
+        assert not name.endswith(":")
+        nonlocal result
+        result[name] = prop_set
+
+    if len(locs) == 0:
+        update(parse_single_tag(props))
+    else:
+        update(parse_single_tag(props[:locs[0]]))
+        for j in range(len(locs)-1):
+            x, y = locs[j], locs[j+1]
+            update(parse_single_tag(props[x+1:y]))
+        update(parse_single_tag(props[locs[-1]+1:]))
+
+    print(f'Result = {result}')
+
     return result
 
 
 def parse_node_pattern(node_pattern: str, raw_node=False):
     """
     :param node_pattern: the node pattern represented by a string
-    :return: (variable name (a string), set of label expressions (a set of strings),
-    set of property key-value expressions)
+    :return: (variable name (a string), dict of properties)
     """
 
     node_pattern = node_pattern.strip()
     assert node_pattern.startswith("(")
     assert node_pattern.endswith(")")
 
+    print(f'Node pattern = {node_pattern}')
+
     if raw_node:
         return node_pattern
 
-    if node_pattern == "()":
-        return None, set(), set()
+    node_pattern = node_pattern.strip("(").strip(")")
+    assert node_pattern != ''
 
-    # Forgive me
-    no_var_name = False
-    if node_pattern.startswith("(:"):
-        no_var_name = True
-        node_pattern = node_pattern[:1] + "z" + node_pattern[1:]
+    first = node_pattern.find(":")
+    if first == -1:
+        var = node_pattern.strip()
+        return var, dict()
 
-    print(f'Parsed = {node_pattern}')
+    var = node_pattern[:first]
 
-    # Regex patterns for a single node pattern
-    node_pattern_regex = re.compile(
-        r'\((?P<var>[a-zA-Z_][a-zA-Z_0-9]*):?(?P<labels>[^{}]*){?(?P<properties>[^}]*)}?\)'
-    )
+    tag_part = node_pattern[first+1:]
 
-    match = node_pattern_regex.match(node_pattern)
-    if match:
-        var = match.group('var')
+    return var, parse_props(tag_part)
 
-        labels = set()
-        if match.group('labels'):
-            labels = set(label.strip() for label in match.group('labels').split(":") if label.strip())
-
-        properties = set()
-        if match.group('properties'):
-            properties = set(prop.strip() for prop in match.group('properties').split(',') if prop.strip())
-
-        if no_var_name:
-            assert var == "z"
-            var = None
-
-        print(var, labels, properties)
-        
-        return var, labels, properties
-    else:
-        assert False
 
 
 def parse_path_pattern(path_pattern: str, raw_node=False):
@@ -98,6 +98,8 @@ def parse_path_pattern(path_pattern: str, raw_node=False):
     :param path_pattern: the path pattern represented by a string
     :return: (list of nodes, list of relationships) in that order
     """
+
+    print(f'Path pattern = {path_pattern}')
 
     path_pattern = path_pattern.strip()
     assert path_pattern.startswith("(")
@@ -186,27 +188,27 @@ def parse_pattern(pattern: str, raw_node=False):
 def node_to_pattern(node):
     """
     Given a node, returns its corresponding node pattern
-    :param node: (variable name, set of label expressions, set
-    of property key-value expressions).
+    :param node: (variable name, dict of properties)
     :return:
     """
-    var, labels, properties = node
+    var, properties = node
     assert(isinstance(var, str))
-    assert(isinstance(labels, set))
-    assert(isinstance(properties, set))
+    assert(isinstance(properties, dict))
 
-    labels = list(labels)
-    properties = list(properties)
-
-    if len(labels) == 0 and len(properties) == 0:
+    if len(properties) == 0:
         return "(" + var + ")"
-    elif len(properties) == 0:
-        return "(" + var + ":" + ":".join(labels) + ")"
-    elif len(labels) == 0:
-        return "(" + var + " " + "{" + ", ".join(properties) + "}" + ")"
-    else:
-        return "(" + var + ":" + ":".join(labels) + " " + "{" + ", ".join(properties) + "}" + ")"
 
+    print(f'Properties = {properties}')
+
+    result = "(" + var
+    for tag_name, tag_props in properties.items():
+        result += ":" + tag_name
+        print(f'Name = {tag_name}')
+        print(f'Set = {tag_props}')
+        if len(tag_props) > 0:
+            result += "{" + ", ".join(list(tag_props)) + "}"
+    result += ")"
+    return result
 
 def path_to_pattern(path, raw_node=False):
     """

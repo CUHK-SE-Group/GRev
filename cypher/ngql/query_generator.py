@@ -1,28 +1,32 @@
 # The main file that produce the query statements
 import random
-import copy
 from cypher.ngql.pattern_clause import PatternGenerator
-from cypher.schema import GraphSchema
-from mutator.refactored.pattern_mutator import PatternMutator
+from cypher.ngql.schema import GraphSchema
+from mutator.ngql.pattern_mutator import PatternMutator
 
 class QueryGenerator:
-    def __init__(self, output_file="./cypher/schema/create.log"):
+    def __init__(self, output_file="./cypher/ngql/schema/create.log", num_vertices=30, num_edges=150, num_props=30,
+                 num_vertex_tags=8, num_edge_tags=8):
         self.G = GraphSchema()
-        self.G.gen(output_file = output_file)
+        self.G.gen(output_file = output_file, num_vertices=num_vertices, num_edges=num_edges,
+                   num_props=num_props, num_vertex_tags=num_vertex_tags, num_edge_tags=num_edge_tags)
         self.pattern_mutator = PatternMutator()
+        self.last_one_is_optional = None
 
     def gen_match(self):
         if self.generated_match == True and random.randint(1, 3) > 1:
             res = "OPTIONAL MATCH "
+            self.last_one_is_optional = True
         else:
             res = "MATCH "
             self.generated_match = True
+            self.last_one_is_optional = False
         
         pattern1 = self.pattern_generator.gen_pattern()
         pattern2 = self.pattern_mutator.gen_pattern(pattern1)
 
         return res + pattern1, res + pattern2
-    
+
     def gen_where_predicate(self):
         res = "WHERE "
         predicate = self.pattern_generator.where_generator.gen_exp()
@@ -41,7 +45,8 @@ class QueryGenerator:
         return res + pattern1 + " }", res + pattern2 + " }"
     
     def gen_return(self):
-        if random.randint(1, 2) == 1: return "RETURN *", "RETURN *"
+        # Nebula Graph does not seem to support COUNT stuff :)
+        if random.randint(1, 1) == 1: return "RETURN *", "RETURN *"
         else:
             pattern1 = self.pattern_generator.gen_pattern()
             pattern2 = self.pattern_mutator.gen_pattern(pattern1)
@@ -61,9 +66,11 @@ class QueryGenerator:
                 query2 += clause2 + " "
                 last_funcs = self.gen_match
             else:
-                funcs = [self.gen_match, self.gen_where_predicate, 
-                        self.gen_where_exists_pattern, self.gen_where_pattern]
-                random_funcs = random.choice(funcs)
+                if not self.last_one_is_optional:
+                    funcs = [self.gen_match, self.gen_where_predicate, self.gen_where_pattern]
+                    random_funcs = random.choice(funcs)
+                else:
+                    random_funcs = self.gen_match
                 clause1, clause2 = random_funcs()
                 query1 += clause1 + " "
                 query2 += clause2 + " "
@@ -73,7 +80,7 @@ class QueryGenerator:
         return query1 + clause1, query2 + clause2
 
 if __name__ == "__main__":
-    query_generator = QueryGenerator()
-    for _ in range(10):
-        print(query_generator.gen_query())
-    print("OK")
+    qg = QueryGenerator(num_vertices=3, num_edges=3, num_props=8, num_vertex_tags=2, num_edge_tags=2)
+    with open('./cypher/ngql/query_sample.in', 'w+') as f:
+        for _ in range(100):
+            print(qg.gen_query(), file=f)
