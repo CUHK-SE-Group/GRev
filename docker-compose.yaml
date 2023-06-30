@@ -47,7 +47,7 @@ services:
       - ./elk/logstash/pipeline:/usr/share/logstash/pipeline/
   # databases
   neo4j:
-    image: neo4j:5.8.0-enterprise
+    image: neo4j:5.9.0-enterprise
     restart: on-failure
     depends_on:
       - kibana

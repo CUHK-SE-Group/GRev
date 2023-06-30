@@ -77,8 +77,8 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "logic_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": result1[0].__str__(),
-                "query_res2": result2[0].__str__(),
+                # "query_res1": result1[0].__str__(),
+                # "query_res2": result2[0].__str__(),
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
@@ -97,8 +97,8 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "performance_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": result1[0].__str__(),
-                "query_res2": result2[0].__str__(),
+                # "query_res1": result1[0].__str__(),
+                # "query_res2": result2[0].__str__(),
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
