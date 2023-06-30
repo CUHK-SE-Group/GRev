@@ -5,49 +5,8 @@ from copy import deepcopy
 from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
 from gdb_clients import *
 from configs.conf import *
-import hashlib
-import json
+
 import time
-
-import numpy as np
-import pandas as pd
-
-
-# Collapse the dictionary to a single representation
-def immutify_dictionary(d):
-    d_new = {}
-    for k, v in d.items():
-        # convert to python native immutables
-        if isinstance(v, (np.ndarray, pd.Series)):
-            d_new[k] = tuple(v.tolist())
-
-        # immutify any lists
-        elif isinstance(v, list):
-            d_new[k] = tuple(v)
-
-        # recursion if nested
-        elif isinstance(v, dict):
-            d_new[k] = immutify_dictionary(v)
-
-        # ensure numpy "primitives" are casted to json-friendly python natives
-        else:
-            # convert numpy types to native
-            if hasattr(v, "dtype"):
-                d_new[k] = v.item()
-            else:
-                d_new[k] = v
-
-    return dict(sorted(d_new.items(), key=lambda item: item[0]))
-
-
-# Make a json string from the sorted dictionary
-# then hash that string
-def hash_dictionary(d):
-    d_hashable = immutify_dictionary(d)
-    s_hashable = json.dumps(d_hashable).encode("utf-8")
-    m = hashlib.sha256(s_hashable).hexdigest()
-    return m
-
 
 def compare(result1, result2):
     if len(result1) != len(result2):
@@ -77,8 +36,8 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "logic_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                # "query_res1": result1[0].__str__(),
-                # "query_res2": result2[0].__str__(),
+                "query_res1": result1[0].__str__(),
+                "query_res2": result2[0].__str__(),
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
@@ -97,8 +56,8 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "performance_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                # "query_res1": result1[0].__str__(),
-                # "query_res2": result2[0].__str__(),
+                "query_res1": result1[0].__str__(),
+                "query_res2": result2[0].__str__(),
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
@@ -155,7 +114,7 @@ class Neo4jTester(TesterAbs):
         )
         general_testing_procedure(conf)
         global empty_cnt
-        print(f"############### empty {empty_cnt}/1000 ########################")
+        print(f"############### empty {empty_cnt}/3000 ########################")
         empty_cnt = 0
 
 

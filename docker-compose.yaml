@@ -156,6 +156,8 @@ services:
       - gdb_testing
     volumes:
       - ./:/appdata
+    depends_on:
+      - cypher2gremlin
     deploy:
       resources:
         limits:
