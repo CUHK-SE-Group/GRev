@@ -53,7 +53,10 @@ services:
       - kibana
       - logstash
       - elasticsearch
-
+    deploy:
+      resources:
+        limits:
+          memory: 10G
     ports:
       - 7474:7474
       - 7687:7687
@@ -72,6 +75,10 @@ services:
       - kibana
       - logstash
       - elasticsearch
+    deploy:
+      resources:
+        limits:
+          memory: 10G
     networks:
       - gdb_testing
 
@@ -82,6 +89,10 @@ services:
       - kibana
       - logstash
       - elasticsearch
+    deploy:
+      resources:
+        limits:
+          memory: 10G
     networks:
       - gdb_testing
     tty: true
@@ -145,6 +156,10 @@ services:
       - gdb_testing
     volumes:
       - ./:/appdata
+    deploy:
+      resources:
+        limits:
+          memory: 10G
     entrypoint: [ "bash", "./scripts/run_tinkerpop.sh" ]
 
   cypher2gremlin:

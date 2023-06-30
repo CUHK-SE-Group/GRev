@@ -154,6 +154,7 @@ class Neo4jTester(TesterAbs):
             report_token=config.get('lark','neo4j')
         )
         general_testing_procedure(conf)
+        global empty_cnt
         print(f"############### empty {empty_cnt}/1000 ########################")
         empty_cnt = 0
 
