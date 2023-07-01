@@ -1,7 +1,7 @@
 # The main file that produce the query statements
 import random
-from cypher.ngql.pattern_clause import PatternGenerator
-from cypher.ngql.schema import GraphSchema
+from ngql.pattern_clause import PatternGenerator
+from ngql.schema import GraphSchema
 from mutator.ngql.pattern_mutator import PatternMutator
 
 class QueryGenerator:

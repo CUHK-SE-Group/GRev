@@ -1,5 +1,5 @@
 import random
-from cypher.ngql.schema import GraphSchema
+from ngql.schema import GraphSchema
 
 
 class BasicWhereGenerator:

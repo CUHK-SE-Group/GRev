@@ -12,7 +12,7 @@ from typing import Callable
 from configs import config
 import redis
 import traceback
-import heapq
+import time
 
 class MaxHeap:
     def __init__(self, db_path, max_size):
@@ -61,10 +61,21 @@ class TesterAbs(ABC):
     def single_file_testing(self, path):
         pass
 
+def batch_run_with_macro(conf: TestConfig, statements):
+    pre_idx = 0
+    for i, v in enumerate(statements):
+        if v == 'SLEEP':
+            conf.client.batch_run(statements[pre_idx:i])
+            pre_idx = i+1
+            time.sleep(7)
+        else:
+            continue
+    
+
 def general_testing_procedure(conf: TestConfig):
     create_statements, match_statements = conf.query_producer_func()
     conf.client.clear()
-    conf.client.batch_run(create_statements)
+    batch_run_with_macro(conf, create_statements)
     progress_bar = tqdm(total=len(match_statements))
     for query in match_statements:
         try:

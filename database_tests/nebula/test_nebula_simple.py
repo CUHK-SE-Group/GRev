@@ -1,5 +1,5 @@
 import time
-from cypher.ngql.query_generator import *
+from ngql.query_generator import *
 from gdb_clients.nebula import Nebula
 
 

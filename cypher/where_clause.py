@@ -51,4 +51,5 @@ if __name__ == "__main__":
     G.gen()
     W = BasicWhereGenerator(G)
     W.vars.append("n")
+    W.gen_exp()
     print("OK")

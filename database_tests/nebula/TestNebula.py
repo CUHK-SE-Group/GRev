@@ -1,5 +1,5 @@
 import csv
-from cypher.query_generator import *
+from ngql.query_generator import *
 from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
 from gdb_clients import *
 from configs.conf import *
