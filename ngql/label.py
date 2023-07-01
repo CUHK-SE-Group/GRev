@@ -7,7 +7,7 @@ class LabelExpGenerator:
     def __init__(self, G: GraphSchema):
         self.G = G
 
-    def gen(self, mytype, simple_version = False, without_percent_sign = False, without_negation = False, without_and = False):
+    def gen(self, mytype, allow_properties=True, simple_version = False, without_percent_sign = False, without_negation = False, without_and = False):
         chosen = None
         if mytype == "vertex":
             v_idx = random.randint(0, self.G.num_vertices-1)
@@ -20,7 +20,7 @@ class LabelExpGenerator:
         result = ''
         for tag, props in chosen.items():
             result += ":" + tag
-            if len(props) > 0:
+            if allow_properties and len(props) > 0:
                 result += "{"
                 result += ", ".join([f'{prop_name}: {val}' for prop_name, val in props.items()])
                 result += "}"

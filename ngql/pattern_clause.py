@@ -32,9 +32,11 @@ class PatternGenerator:
     
     def __gen_node(self, c_property = True, no_new_variables = False): 
         res = "(" + self.__get_node_name(no_new_variables = no_new_variables)
-        # Add tags
+        # Add tags without labels
         if c_property and random.randint(1, 20) == 1:
             res += self.label_generator.gen(mytype="vertex")
+        else:
+            res += self.label_generator.gen(mytype="vertex", allow_properties=False)
         res += ")"
         return res
 
@@ -62,14 +64,18 @@ class PatternGenerator:
         res = "["
 
         if random.randint(1, 3) == 1 or no_new_variables:
-            if random.randint(1, 20) == 1 and c_property:
-                res += self.label_generator.gen(mytype="edge")
-            elif c_variable and random.randint(1, 2) == 1:
+            if c_variable and random.randint(1, 2) == 1:
                 res += self.__gen_vari()
+            elif random.randint(1, 20) == 1 and c_property:
+                res += self.label_generator.gen(mytype="edge")
+            else:
+                res += self.label_generator.gen(mytype="edge", allow_properties=False)
         else:
             res += self.__get_rel_name()
-            if random.randint(1, 20) == 1 and c_property:
+            if c_property and random.randint(1, 20) == 1:
                 res += self.label_generator.gen(mytype="edge")
+            else:
+                res += self.label_generator.gen(mytype="edge", allow_properties=False)
             
         res = res + "]"
         dirs = [("<-","-"), ("-", "->"), ("-", "-")]

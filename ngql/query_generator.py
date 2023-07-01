@@ -5,7 +5,7 @@ from ngql.schema import GraphSchema
 from mutator.ngql.pattern_mutator import PatternMutator
 
 class QueryGenerator:
-    def __init__(self, output_file="./cypher/ngql/schema/create.log", num_vertices=30, num_edges=150, num_props=30,
+    def __init__(self, output_file="./ngql/schema/create.log", num_vertices=30, num_edges=150, num_props=30,
                  num_vertex_tags=8, num_edge_tags=8):
         self.G = GraphSchema()
         self.G.gen(output_file = output_file, num_vertices=num_vertices, num_edges=num_edges,
@@ -81,6 +81,6 @@ class QueryGenerator:
 
 if __name__ == "__main__":
     qg = QueryGenerator(num_vertices=3, num_edges=3, num_props=8, num_vertex_tags=2, num_edge_tags=2)
-    with open('./cypher/ngql/query_sample.in', 'w+') as f:
+    with open('./ngql/query_sample.in', 'w+') as f:
         for _ in range(100):
             print(qg.gen_query(), file=f)
