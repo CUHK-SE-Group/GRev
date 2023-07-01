@@ -31,7 +31,7 @@ class QueryGenerator:
     
     def gen_where_pattern(self):
         res = "WHERE "
-        pattern1 = self.pattern_generator.gen_path(no_new_variables = True)
+        pattern1 = self.pattern_generator.gen_path(no_new_variables = True, only_path = True)
         pattern2 = self.pattern_mutator.rev_pattern(pattern1)
         return res + pattern1, res + pattern2
     
@@ -75,6 +75,6 @@ class QueryGenerator:
 
 if __name__ == "__main__":
     query_generator = QueryGenerator()
-    for _ in range(1000):
+    for _ in range(10):
         print(query_generator.gen_query())
     print("OK")
