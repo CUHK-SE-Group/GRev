@@ -9,6 +9,7 @@ class QueryGenerator:
     def __init__(self, output_file="./cypher/schema/create.log"):
         self.G = GraphSchema()
         self.G.gen(output_file = output_file)
+        self.pattern_generator = None
         self.pattern_mutator = PatternMutator()
 
     def gen_match(self):

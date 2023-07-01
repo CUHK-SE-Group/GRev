@@ -34,7 +34,6 @@ class Nebula(GdbFactory):
         ok = self.connection_pool.init([('127.0.0.1', 9669)], config)
         if not ok:
             exit(1)
-
         with self.get_session() as session:
             session.execute(f'DROP SPACE IF EXISTS {self.database}')
             result = result_to_df(session.execute(f'CREATE SPACE IF NOT EXISTS {self.database} (vid_type=FIXED_STRING(30))'))
