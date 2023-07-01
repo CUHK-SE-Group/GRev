@@ -22,7 +22,10 @@ class PatternGenerator:
             else:
                 return "n" + str(random.randint(1, self.node_num))
         else:
-            if random.randint(1, 3) == 1 and self.allow_empty_node_when_no_new_variables == True: return " "
+            if self.is_only_path == True and self.allow_empty_node_when_no_new_variables == True and random.randint(1, 3) == 1:
+                return ""
+            if self.is_only_path == True:
+                self.allow_empty_node_when_no_new_variables = True
             return "n" + str(random.randint(1, self.node_num))
     
     def __get_rel_name(self):
@@ -126,7 +129,13 @@ class PatternGenerator:
         return dir[0] + res + dir[1]
 
 
-    def gen_path(self, no_new_variables = False):
+    def gen_path(self, no_new_variables = False, only_path = False):
+        if only_path == True:
+            self.is_only_path = True
+            self.allow_empty_node_when_no_new_variables = False
+        else:
+            self.is_only_path = False
+
         res = ""
         num = random.randint(1, 4)
         for i in range(0, num):
@@ -137,16 +146,12 @@ class PatternGenerator:
 
 
     def gen_pattern(self, no_new_variables = False):
-        if no_new_variables == True: 
-            self.allow_empty_node_when_no_new_variables = False
         num = random.randint(1, 4)
         res = ""
         for i in range(0, num):
             res = res + self.gen_path(no_new_variables = no_new_variables)
             if i + 1 < num:
                 res = res + ", "
-        
-        self.allow_empty_node_when_no_new_variables = True
         return res
             
         
