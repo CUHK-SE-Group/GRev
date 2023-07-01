@@ -62,7 +62,11 @@ query_file: 用于测试的原始query请求的集合
 
 [RedisGraph-3114](https://github.com/RedisGraph/RedisGraph/issues/3114) Status: Intended
 
-[TinkerPop-2961](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961) Status: Confirmed
+[TinkerPop-2961](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961) Status: Confirmed (Related to 2 bugs)
+
+[NebulaGraph-5616](https://github.com/vesoft-inc/nebula/issues/5616) Status: Intended
+
+[NebulaGraph-5617](https://github.com/vesoft-inc/nebula/issues/5617) Status: Intended
 
 
 
