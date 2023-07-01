@@ -5,8 +5,8 @@ from ngql.schema import GraphSchema
 from mutator.ngql.pattern_mutator import PatternMutator
 
 class QueryGenerator:
-    def __init__(self, output_file="./ngql/schema/create.log", num_vertices=30, num_edges=150, num_props=30,
-                 num_vertex_tags=8, num_edge_tags=8):
+    def __init__(self, output_file="./ngql/schema/create.log", num_vertices=15, num_edges=100, num_props=15,
+                 num_vertex_tags=6, num_edge_tags=6):
         self.G = GraphSchema()
         self.G.gen(output_file = output_file, num_vertices=num_vertices, num_edges=num_edges,
                    num_props=num_props, num_vertex_tags=num_vertex_tags, num_edge_tags=num_edge_tags)
@@ -34,7 +34,7 @@ class QueryGenerator:
     
     def gen_where_pattern(self):
         res = "WHERE "
-        pattern1 = self.pattern_generator.gen_path(no_new_variables = True)
+        pattern1 = self.pattern_generator.gen_path(no_new_variables = True, num_lo=2)
         pattern2 = self.pattern_mutator.rev_pattern(pattern1)
         return res + pattern1, res + pattern2
     
@@ -58,7 +58,7 @@ class QueryGenerator:
         self.generated_match = False
 
         query1, query2, last_funcs = "", "", None
-        num = random.randint(1, 5)
+        num = random.randint(1, 2)
         for _ in range(0, num):
             if last_funcs != self.gen_match:
                 clause1, clause2 = self.gen_match()
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     qg = QueryGenerator(num_vertices=3, num_edges=3, num_props=8, num_vertex_tags=2, num_edge_tags=2)
     with open('./ngql/query_sample.in', 'w+') as f:
         for _ in range(100):
-            print(qg.gen_query(), file=f)
+            print(qg.gen_query()[0], file=f)

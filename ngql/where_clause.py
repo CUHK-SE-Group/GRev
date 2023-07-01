@@ -56,4 +56,6 @@ if __name__ == "__main__":
     G.gen()
     W = BasicWhereGenerator(G)
     W.vars.append("n")
+    for _ in range(50):
+        print(W.gen_exp())
     print("OK")

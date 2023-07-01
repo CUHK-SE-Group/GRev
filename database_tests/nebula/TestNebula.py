@@ -7,6 +7,7 @@ import time
 
 
 def compare(result1, result2):
+    assert result1 and result2
     if len(result1) != len(result2):
         return False
     lst1 = [i.__str__() for i in result1]
@@ -68,6 +69,9 @@ class NebulaTester(TesterAbs):
                 content = f.read()
                 f.close()
             match_statements = [generator.gen_query() for i in range(200)]
+            with open(f"./query_producer/interesting.txt", 'w') as f:
+                for statement_pair in match_statements:
+                    print(statement_pair, file=f)
             contents = content.strip().split('\n')
             return contents, match_statements
         logger = new_logger("logs/nebula.log", True)

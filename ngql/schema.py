@@ -40,11 +40,13 @@ class GraphSchema:
         vtag_set = GraphSchema.mysample(list(v["props"].keys()))
         for vtag in vtag_set:
             vtag_name = self.vertex_tags[vtag]["name"]
-            prop_vals_subset = GraphSchema.mysample(list(v["props"][vtag].items()))
+            # prop_vals_subset = GraphSchema.mysample(list(v["props"][vtag].items()))
+            prop_vals_subset = list(v["props"][vtag].items())
             prop_vals = dict()
             for prop_idx, val in prop_vals_subset:
                 prop_name = self.props[prop_idx]["name"]
                 prop_vals[prop_name] = val
+
             result[vtag_name] = prop_vals
         return result
 

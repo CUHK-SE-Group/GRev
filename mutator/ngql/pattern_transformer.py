@@ -66,7 +66,6 @@ class PatternTransformer(AbstractASGOperator):
         """
         decomposition = []
         while True:
-            print(asg.is_empty())
             if asg.is_empty(): break
             start_idx = random.choice(asg.get_available_nodes())
             decomposition.append(asg.traverse(start_idx))

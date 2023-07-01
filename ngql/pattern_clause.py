@@ -45,7 +45,7 @@ class PatternGenerator:
         if op == 1:
             # Case1: l <= length <= r
             x = random.randint(0, 15)
-            y = random.randint(0, 15)
+            y = random.randint(1, 15)
             if x > y: x, y = y, x
             return "*" + str(x) + ".." + str(y)
         if op == 2:
@@ -54,7 +54,7 @@ class PatternGenerator:
             return "*" + str(x) + ".."
         if op == 3:
             #Case3: length <= r
-            x = random.randint(0, 15)
+            x = random.randint(1, 15)
             return "*" + ".." + str(x)
         if op == 4:
             #Case4: any length
@@ -64,18 +64,14 @@ class PatternGenerator:
         res = "["
 
         if random.randint(1, 3) == 1 or no_new_variables:
+            # Without variable names
             if c_variable and random.randint(1, 2) == 1:
                 res += self.__gen_vari()
-            elif random.randint(1, 20) == 1 and c_property:
-                res += self.label_generator.gen(mytype="edge")
             else:
                 res += self.label_generator.gen(mytype="edge", allow_properties=False)
         else:
             res += self.__get_rel_name()
-            if c_property and random.randint(1, 20) == 1:
-                res += self.label_generator.gen(mytype="edge")
-            else:
-                res += self.label_generator.gen(mytype="edge", allow_properties=False)
+            res += self.label_generator.gen(mytype="edge", allow_properties=False)
             
         res = res + "]"
         dirs = [("<-","-"), ("-", "->"), ("-", "-")]
@@ -84,23 +80,23 @@ class PatternGenerator:
         return res
 
 
-    def gen_path(self, no_new_variables = False):
+    def gen_path(self, no_new_variables = False, num_lo=1):
         res = ""
-        num = random.randint(1, 4)
+        num = random.randint(num_lo, 4)
         for i in range(0, num):
             res = res + self.__gen_node(no_new_variables = no_new_variables)
             if i + 1 < num:
-                res = res + self.__gen_rel(no_new_variables = no_new_variables)        
+                res = res + self.__gen_rel(no_new_variables = no_new_variables, c_variable=False)
         return res
 
 
     def gen_pattern(self, no_new_variables = False):
         if no_new_variables == True: 
             self.allow_empty_node_when_no_new_variables = False
-        num = random.randint(1, 4)
+        num = random.randint(2, 4)
         res = ""
         for i in range(0, num):
-            res = res + self.gen_path(no_new_variables = no_new_variables)
+            res = res + self.gen_path(no_new_variables = no_new_variables, num_lo=2)
             if i + 1 < num:
                 res = res + ", "
         

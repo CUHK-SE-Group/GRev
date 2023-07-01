@@ -15,18 +15,18 @@ from typing import Dict
 
 
 def result_to_df(result: ResultSet) -> Dict:
-    if not result.is_succeeded():
-        return None
+    # assert result.is_succeeded()
     columns = result.keys()
     d: Dict[str, list] = {}
     for col_num in range(result.col_size()):
         col_name = columns[col_num]
         col_list = result.column_values(col_name)
         d[col_name] = [x.cast() for x in col_list]
+    print(f'Result size = {len(d)}')
     return d
 
 class Nebula(GdbFactory):
-    def __init__(self,database="defaultdb"):
+    def __init__(self,database="defaultdb", reset=True):
         config = Config()
         config.max_connection_pool_size = 10
         self.connection_pool = ConnectionPool()
@@ -34,19 +34,23 @@ class Nebula(GdbFactory):
         ok = self.connection_pool.init([('127.0.0.1', 9669)], config)
         if not ok:
             exit(1)
-        with self.get_session() as session:
-            session.execute(f'DROP SPACE IF EXISTS {self.database}')
-            result = result_to_df(session.execute(f'CREATE SPACE IF NOT EXISTS {self.database} (vid_type=FIXED_STRING(30))'))
-            assert result != None
+        if reset:
+            with self.get_session() as session:
+                session.execute(f'DROP SPACE IF EXISTS {self.database}')
+                result = result_to_df(session.execute(f'CREATE SPACE IF NOT EXISTS {self.database} (vid_type=FIXED_STRING(30))'))
+                assert result != None
 
     def get_session(self):
         return self.connection_pool.session_context('root', 'nebula')
 
     def run(self, query):
-        print(f'query statement = {query}')
+        print(f'[QUERY] {query}')
+        with open("./query_producer/interesting.txt", 'w') as f:
+            print(f'[QUERY] {query}', file=f)
         with self.get_session() as session:
             session.execute(f'USE {self.database}')
             result = session.execute(query)
+            print(result._resp.error_msg)
             df = result_to_df(result)
             return df, 0
     
@@ -57,34 +61,25 @@ class Nebula(GdbFactory):
                 session.execute(q)
 
     def clear(self):
-        with self.get_session() as session:
-            result = result_to_df(session.execute(f'DROP SPACE IF EXISTS {self.database}'))
-            assert result != None
+        # Do nothing in this case
+        pass
+        # with self.get_session() as session:
+        #     result = result_to_df(session.execute(f'CLEAR SPACE {self.database}'))
+        #     assert result != None
 
 
 if __name__ == '__main__':
     nb = Nebula("nbtest")
 
-    with open('./cypher/ngql/schema/create.log', 'r') as f:
+    with open('./gdb_clients/graph.log', 'r') as f:
         while True:
             statement = f.readline()
             if statement == '':
                 break
-            assert(nb.run(statement)[0] != None)
-            time.sleep(6)
+            if statement.startswith("SLEEP"):
+                time.sleep(10)
+            else:
+                assert(nb.run(statement)[0] != None)
 
-
-    num_nonempty = 0
-    with open('./cypher/ngql/query_sample.in', 'r') as f:
-        while True:
-            statement = f.readline()
-            if statement == '':
-                break
-            result = nb.run(statement)[0]
-            assert result != None
-            print(len(result))
-            if len(result) > 0:
-                num_nonempty += 1
-    print(f'num_nonempty = {num_nonempty}')
 
     # nb.clear()

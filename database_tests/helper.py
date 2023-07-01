@@ -77,7 +77,9 @@ def general_testing_procedure(conf: TestConfig):
     conf.client.clear()
     batch_run_with_macro(conf, create_statements)
     progress_bar = tqdm(total=len(match_statements))
+
     for query in match_statements:
+        print(f'[QUERY] {query}')
         try:
             if isinstance(query, dict):
                 result1 = conf.client.run(query['Query1'])

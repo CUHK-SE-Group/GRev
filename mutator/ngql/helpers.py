@@ -190,8 +190,6 @@ def node_to_pattern(node):
     if len(properties) == 0:
         return "(" + var + ")"
 
-    print(f'Properties = {properties}')
-
     result = "(" + var
     for tag_name, tag_props in properties.items():
         result += ":" + tag_name
