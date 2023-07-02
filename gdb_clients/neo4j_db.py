@@ -1,5 +1,4 @@
 from gdb_clients import GdbFactory
-from configs import logger
 from neo4j import GraphDatabase, basic_auth
 from typing import List
 
@@ -27,7 +26,7 @@ class Neo4j(GdbFactory):
             try:
                 self.session.run(stmt)
             except Exception as e:
-                logger.error("create session error, ", e)
+                print("create session error, ", e)
 
 
 

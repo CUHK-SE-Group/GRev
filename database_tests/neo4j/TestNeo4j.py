@@ -28,7 +28,7 @@ def oracle(conf: TestConfig, result1, result2):
             empty_cnt += 1
     if not compare(result1[0], result2[0]):
         if conf.mode == 'live':
-            conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
+            conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
             conf.logger.warning({
                 "database_name": conf.database_name,
@@ -43,7 +43,7 @@ def oracle(conf: TestConfig, result1, result2):
             })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
-            writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
+            writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
     heap = MaxHeap("logs/neo4j_performance.json",10)
@@ -71,14 +71,14 @@ class Neo4jTester(TesterAbs):
     def __init__(self, database):
         temp_conn = Neo4j(config.get('neo4j', 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
                           '')
-        logger.info("Initializing dabtases...")
+        print("Initializing dabtases...")
         result, _ = temp_conn.run("SHOW DATABASES")
         database_names = [record['name'] for record in result]
         # 检查指定的数据库是否在数据库名称列表中
         if database in database_names:
-            logger.info("The database exists...")
+            print("The database exists...")
         else:
-            logger.info("Creating database...")
+            print("Creating database...")
             temp_conn.run(f"CREATE DATABASE {database}")
         temp_conn = None
         self.connections = {}

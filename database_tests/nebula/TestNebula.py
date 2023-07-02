@@ -7,39 +7,34 @@ import time
 
 
 def compare(result1, result2):
-    if len(result1) != len(result2):
-        return False
-    lst1 = [i.__str__() for i in result1]
-    lst2 = [i.__str__() for i in result2]
+    lst1 = [v.__str__() for _, v in result1.items()]
+    lst2 = [v.__str__() for _, v in result2.items()]
     lst1.sort()
     lst2.sort()
     return lst1 == lst2
 
 # result: is returned by client.run()
 def oracle(conf: TestConfig, result1, result2):
-    res1 = result1[0]
-    res2 = result2[0]
+    num1 = sum([len(v) for _, v in result1[0].items()])
+    num2 = sum([len(v) for _, v in result2[0].items()])
     if not compare(result1[0], result2[0]):
         if conf.mode == 'live':
-            conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
+            conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
-            if sum([len(i) for i in res1])>1000:
-                res1 = ''
-                res2 = ''
             conf.logger.warning({
                 "database_name": conf.database_name,
                 "source_file": conf.source_file,
                 "tag": "logic_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": res1,
-                "query_res2": res2,
+                "query_res1": result1[0].__str__() if num1<100 else "",
+                "query_res2": result2[0].__str__() if num2<100 else "",
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
-            writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
+            writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
     heap = MaxHeap("logs/nebula_performance.json",10)
@@ -51,17 +46,14 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)
-        if sum([len(i) for i in res1])>1000:
-            res1 = ''
-            res2 = ''    
         conf.logger.warning({
                 "database_name": conf.database_name,
                 "source_file": conf.source_file,
                 "tag": "performance_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": res1,
-                "query_res2": res2,
+                "query_res1": result1[0].__str__() if num1<100 else "",
+                "query_res2": result2[0].__str__() if num2<100 else "",
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
@@ -86,7 +78,7 @@ class NebulaTester(TesterAbs):
                     print(statement_pair, file=f)
             contents = content.strip().split('\n')
             return contents, match_statements
-        logger = new_logger("logs/nebula.log", True)
+        logger = new_logger("logs/nebula.log", False)
         conf = TestConfig(
             client=Nebula(self.database),
             logger=logger,

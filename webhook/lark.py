@@ -1,7 +1,6 @@
 import requests
 import json
 
-from configs import logger
 
 
 def post(token:str, title: str, content):
@@ -27,4 +26,4 @@ def post(token:str, title: str, content):
     try:
         requests.post(url, headers=headers, data=json.dumps(data))
     except Exception as e:
-        logger.info("lark post error: ", e)
+        print("lark post error: ", e)
