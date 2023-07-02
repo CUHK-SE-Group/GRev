@@ -65,7 +65,8 @@ services:
     environment:
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       - NEO4J_AUTH=neo4j/testtest
-      - NEO4J_db_transaction_timeout=10000
+      - NEO4J_db_transaction_timeout=5000
+
   redis-stack:
     image: redis/redis-stack:6.2.6-v7
     restart: on-failure
@@ -146,6 +147,19 @@ services:
         limits:
           memory: 10G
     entrypoint: [ "bash", "./scripts/run_neo4j.sh" ]
+  nebula_client:
+    image: lincyaw/patterntransfromer:latest
+    working_dir: /appdata
+    restart: on-failure
+    networks:
+      - gdb_testing
+    volumes:
+      - ./:/appdata
+    deploy:
+      resources:
+        limits:
+          memory: 10G
+    entrypoint: [ "bash", "./scripts/run_nebula.sh" ]
 
   tinkerpop_client:
     image: lincyaw/patterntransfromer:latest
@@ -174,7 +188,7 @@ services:
 networks:
   elastic:
   gdb_testing:
-
+    external: true
 
 volumes:
   kibanadata:

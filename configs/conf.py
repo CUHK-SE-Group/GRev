@@ -23,21 +23,21 @@ query_len = config.getint('neo4j', 'query_len')
 input_path = config.get('neo4j', 'input_path')
 
 
-class JsonSocketHandler(logging.handlers.SocketHandler):
-    def __init__(self, host, port):
-        super().__init__(host, port)
+# class JsonSocketHandler(logging.handlers.SocketHandler):
+#     def __init__(self, host, port):
+#         super().__init__(host, port)
 
-    def makePickle(self, record):
-        return json.dumps(record.__dict__).encode('utf-8') + b'\n'
+#     def makePickle(self, record):
+#         return json.dumps(record.__dict__).encode('utf-8') + b'\n'
     
 def new_logger(file, enable_elk=False):
     logger = logging.getLogger()
     logger.setLevel(log_level)
     jsonformatter = jsonlogger.JsonFormatter('%(asctime)s %(filename)s %(lineno)d %(message)s')
 
-    logHandler = JsonSocketHandler('logstash', 5044)
-    logHandler.closeOnError = False
-    logHandler.setFormatter(jsonformatter)
+    # logHandler = JsonSocketHandler('logstash', 5044)
+    # logHandler.closeOnError = False
+    # logHandler.setFormatter(jsonformatter)
     
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(pathname)s:%(lineno)d %(message)s')
     console_handler = logging.StreamHandler()
@@ -50,10 +50,8 @@ def new_logger(file, enable_elk=False):
     
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
-    if enable_elk:
-        logger.addHandler(logHandler)
-        logger.info({"message": "initializeing logstash handler"})
+    # if enable_elk:
+        # logger.addHandler(logHandler)
+        # logger.info({"message": "initializeing logstash handler"})
     return logger
 
-
-logger = new_logger("logs/log_file.log", False)

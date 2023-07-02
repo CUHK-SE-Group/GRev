@@ -1,26 +1,25 @@
 import csv
 from ngql.query_generator import *
-from database_tests.helper import TestConfig, general_testing_procedure, scheduler, TesterAbs
+from database_tests.helper import *
 from gdb_clients import *
 from configs.conf import *
 import time
 
 
 def compare(result1, result2):
-    assert result1 and result2
-    if len(result1) != len(result2):
-        return False
-    lst1 = [i.__str__() for i in result1]
-    lst2 = [i.__str__() for i in result2]
+    lst1 = [v.__str__() for _, v in result1.items()]
+    lst2 = [v.__str__() for _, v in result2.items()]
     lst1.sort()
     lst2.sort()
     return lst1 == lst2
 
 # result: is returned by client.run()
 def oracle(conf: TestConfig, result1, result2):
+    num1 = sum([len(v) for _, v in result1[0].items()])
+    num2 = sum([len(v) for _, v in result2[0].items()])
     if not compare(result1[0], result2[0]):
         if conf.mode == 'live':
-            conf.report(f"[{config.database_name}][{config.source_file}]Logic inconsistency",
+            conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
             conf.logger.warning({
                 "database_name": conf.database_name,
@@ -28,17 +27,22 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "logic_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": result1[0].__str__(),
-                "query_res2": result2[0].__str__(),
+                "query_res1": result1[0].__str__() if num1<100 else "",
+                "query_res2": result2[0].__str__() if num2<100 else "",
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
-            writer.writerow([config.database_name, config.source_file, conf.q1, conf.q2])
+            writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
-    if big > 5 * small and small>20:
+    heap = MaxHeap("logs/nebula_performance.json",10)
+    metric = big/(small+100)
+    if metric > 2:
+        heap.insert(metric)
+    threshold = heap.get_heap()
+    if metric in threshold:
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)
@@ -48,8 +52,8 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "performance_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": result1[0].__str__(),
-                "query_res2": result2[0].__str__(),
+                "query_res1": result1[0].__str__() if num1<100 else "",
+                "query_res2": result2[0].__str__() if num2<100 else "",
                 "query_time1": result1[1],
                 "query_time2": result2[1],
             })
@@ -74,7 +78,7 @@ class NebulaTester(TesterAbs):
                     print(statement_pair, file=f)
             contents = content.strip().split('\n')
             return contents, match_statements
-        logger = new_logger("logs/nebula.log", True)
+        logger = new_logger("logs/nebula.log", False)
         conf = TestConfig(
             client=Nebula(self.database),
             logger=logger,
