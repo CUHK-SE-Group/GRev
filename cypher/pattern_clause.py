@@ -138,6 +138,7 @@ class PatternGenerator:
 
         res = ""
         num = random.randint(1, 4)
+        if only_path == True: num += 1
         for i in range(0, num):
             res = res + self.__gen_node(no_new_variables = no_new_variables)
             if i + 1 < num:
