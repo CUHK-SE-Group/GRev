@@ -1,5 +1,5 @@
 import random
-from mutator.pattern_transformer import PatternTransformer
+from mutator.refactored.pattern_transformer import PatternTransformer
 
 
 class QueryTransformer():
