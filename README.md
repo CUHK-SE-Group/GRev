@@ -68,6 +68,8 @@ query_file: 用于测试的原始query请求的集合
 
 [NebulaGraph-5617](https://github.com/vesoft-inc/nebula/issues/5617) Status: Intended
 
+[NebulaGraph-py-277](https://github.com/vesoft-inc/nebula-python/issues/277) Status: Intended
+
 
 
 
