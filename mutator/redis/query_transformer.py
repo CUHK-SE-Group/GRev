@@ -1,5 +1,5 @@
 import random
-from mutator.refactored.pattern_transformer import PatternTransformer
+from mutator.redis.pattern_transformer import PatternTransformer
 
 
 class QueryTransformer():
@@ -33,8 +33,7 @@ class QueryTransformer():
     def mutant_query_generator(self, query):
         # 获取查询字符串中的 "MATCH " 子句
         patterns = self.__parse_patterns(query)
-        # 随机选择一部分子句进行变异
-        patterns = random.sample(patterns, random.randint(1, len(patterns)))
+        # 全部变异
         new_query = ""
         index = 0
         # 对选择的子句进行变异
@@ -47,6 +46,8 @@ class QueryTransformer():
             P = PatternTransformer()
             asg = P.pattern_to_asg(pattern)
             new_pattern = P.asg_to_pattern(asg)
+            new_asg = P.pattern_to_asg(new_pattern)
+            assert asg.get_comparable() == new_asg.get_comparable()
             new_query = new_query + new_pattern + " "
             index = pos[1]
         # 添加剩余部分到新查询字符串

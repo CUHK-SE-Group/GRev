@@ -1,4 +1,4 @@
-from mutator.refactored.schema import *
+from mutator.redis.schema import *
 
 
 class PatternTransformer(AbstractASGOperator):
