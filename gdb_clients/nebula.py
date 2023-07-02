@@ -31,7 +31,7 @@ class Nebula(GdbFactory):
         config.max_connection_pool_size = 10
         self.connection_pool = ConnectionPool()
         self.database = database
-        ok = self.connection_pool.init([('127.0.0.1', 9669)], config)
+        ok = self.connection_pool.init([("graphd", 9669)], config)
         if not ok:
             exit(1)
         if reset:
@@ -50,9 +50,10 @@ class Nebula(GdbFactory):
         with self.get_session() as session:
             session.execute(f'USE {self.database}')
             result = session.execute(query)
-            print(result._resp.error_msg)
+            if not result.is_succeeded():
+                raise Exception(result._resp)
             df = result_to_df(result)
-            return df, 0
+            return df, result.latency()
     
     def batch_run(self, query):
         with self.get_session() as session:
