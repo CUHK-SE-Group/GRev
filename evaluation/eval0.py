@@ -8,13 +8,13 @@ def count_number_of_plans_single(data_file, num_mutations=100, num_queries_gener
         stuff = f.read()
     stuff = stuff.strip().split('\n')
     create_statements = stuff[4:-num_queries_generated]
-    match_statements = stuff[-num_queries_generated:]
+    query_statements = stuff[-num_queries_generated:]
 
     database_name = "eval0_graph"
     r = Redis("10.20.10.27", database_name)
     r.batch_run(create_statements)
 
-    base_query = max(match_statements, key=len)
+    base_query = max(query_statements, key=len)
     # base_query = random.choice(match_statements)
     cur_query = base_query
     qt = QueryTransformer()

@@ -87,6 +87,25 @@ class RedisTester(TesterAbs):
         general_testing_procedure(conf)
         return True
 
+    def single_file_testing_alt(self, logfile, create_statements, match_statements):
+        def query_producer():
+            return create_statements, match_statements
+
+        logger = new_logger("logs/redis.log", True)
+        conf = TestConfig(
+            # client=Redis(config.get("redis", 'uri'), self.database),
+            client=Redis("10.20.10.27", self.database),
+            logger=logger,
+            source_file=logfile,
+            logic_inconsistency_trace_file='logs/redis_logic_error.tsv',
+            database_name='redis',
+            query_producer_func=query_producer,
+            oracle_func=oracle,
+            report_token=config.get('lark', 'redis')
+        )
+        general_testing_procedure(conf)
+        return True
+
 
 def schedule():
     scheduler(config.get('redis', 'input_path'), RedisTester(f"redis_misc"), "redis")
