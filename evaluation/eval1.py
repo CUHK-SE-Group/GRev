@@ -1,6 +1,7 @@
 from database_tests.helper import *
 from database_tests.redis.TestRedis import RedisTester
 from mutator.redis.query_transformer import QueryTransformer
+import subprocess
 
 
 def detect_number_of_bug_triggering_single(data_file, num_mutations=5000, num_queries_generated=20):
@@ -33,4 +34,25 @@ def detect_number_of_bug_triggering(num_cases=10, num_mutations=5000, num_querie
 
 
 if __name__ == '__main__':
-    detect_number_of_bug_triggering(num_cases=10, num_mutations=100, num_queries_generated=100)
+    num_cases = 200
+    num_queries_generated = 200
+
+    # Define the command and its arguments in a list
+    stuff = [
+        "java",
+        "-jar",
+        "GDsmith.jar",
+        "--num-tries",
+        f'{num_cases}',
+        "--num-queries",
+        f'{num_queries_generated}',
+        "--algorithm",
+        "compared3",
+        "--num-threads",
+        "2",
+        "composite"
+    ]
+    subprocess.run(stuff, cwd="./query_producer")
+
+    detect_number_of_bug_triggering(num_cases=num_cases, num_mutations=100,
+                                    num_queries_generated=num_queries_generated)
