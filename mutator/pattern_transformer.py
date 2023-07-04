@@ -1,107 +1,121 @@
-from mutator.refactored.schema import *
+import random
+from mutator.schema import *
 
 
 class PatternTransformer(AbstractASGOperator):
-    def pattern_to_asg(self, pattern: str):
-        """
-        Transforms the given pattern to an ASG.
-        Would not handle node patterns without variable names for now.
-        :param pattern: the pattern represented by a string
-        :return: the corresponding ASG (which is uniquely determined)
-        """
-        edges, isolated_nodes = parse_pattern(pattern)
+    def __traversal(self, G, u_id, depth):
+        res = G.Nodes[u_id].content
+        Availiable_edges = list()
+        for edge in G.Nodes[u_id].edges:
+            if edge["id"] not in G.DeletedEdge:
+                Availiable_edges.append(edge)
+        length = len(Availiable_edges)
+        # logger.debug(len(G.Nodes[u_id].edges))
+        if length == 0:
+            G.DeletedNode.add(u_id)
+            return res
 
-        asg = ASG()
+        if depth > 0 and random.randint(0, length) == 0:
+            return res
+        if depth == 0 and random.randint(0, length * 3) == 0:
+            return res
 
-        var2id = dict()
-        num_vars = 0
-        all_vars = []
-        all_labels = []
-        all_properties = []
+        go = random.choice(Availiable_edges)
+        res = res + go["content"]
+        G.DeletedEdge.add(go["id"])
+        res = res + self.__traversal(G, go["v"], depth + 1)
+        if length == 1:
+            G.DeletedNode.add(u_id)
+        return res
 
-        # Sorts out all the variables
-        def check_node(node):
-            nonlocal num_vars
-            nonlocal all_vars
-            nonlocal all_labels
-            nonlocal all_properties
-            var, labels, properties = node
-            if var not in var2id.keys():
-                node_idx = num_vars
-                var2id[var] = num_vars
-                num_vars += 1
-                assert(len(var2id) == num_vars)
-                all_vars.append(var)
-                all_labels.append(set())
-                all_properties.append(set())
-            else:
-                node_idx = var2id[var]
+    def __pattern2list(self, pattern):
+        patterns, result, isolated_nodes = pattern.split(","), [], []
+        for pattern in patterns:
+            pattern = pattern.strip(" ")
+            pattern = pattern.strip("\n")
+            v1, r, v2 = "", "", ""
+            edge_counter = 0
+            for i in range(0, len(pattern)):
+                if not (v1.endswith(")")):
+                    v1 = v1 + pattern[i]
+                elif pattern[i] == "(" or v2 != "":
+                    v2 = v2 + pattern[i]
+                    if pattern[i] == ")":
+                        result.append((v1, r, v2))
+                        v1, r, v2 = v2, "", ""
+                        edge_counter += 1
+                else:
+                    r = r + pattern[i]
+            if edge_counter == 0 and len(v1) > 0:
+                isolated_nodes.append(v1)
+        # logger.debug(result)
+        # logger.debug(isolated_nodes)
+        return result, isolated_nodes
 
-            all_labels[node_idx].update(labels)
-            all_properties[node_idx].update(properties)
+    def __pattern2node(self, pattern):
+        pattern = pattern.strip(" ").strip(")").strip("(")
+        patterns = pattern.split(":")
+        result = {"name": patterns[0].strip(" ")}
+        labels = set()
+        for i in range(1, len(patterns)):
+            labels.add(patterns[i].strip(" "))
+        result["labels"] = labels
+        return result
 
-        for (st, rel, en) in edges:
-            check_node(st)
-            check_node(en)
-        for n in isolated_nodes:
-            check_node(n)
+    def pattern2asg(self, pattern: str):
+        G = ASG()
+        Node2Labels, Node2Id, Id_index = dict(), dict(), 0
+        patterns, isolated_nodes = self.__pattern2list(pattern)
+        for edge in patterns:
+            v1, v2 = edge[0], edge[2]
+            r1, r2 = self.__pattern2node(v1), self.__pattern2node(v2)
+            for r in r1, r2:
+                name, labels = r["name"], r["labels"]
+                if name not in Node2Labels.keys():
+                    Node2Labels[name] = "ALL"
+                    Node2Id[name] = Id_index
+                    Id_index += 1
+                if len(labels) > 0:
+                    if Node2Labels[name] == "ALL":
+                        Node2Labels[name] = labels
+                    else:
+                        Node2Labels[name] = Node2Labels[name] | labels
 
-        for idx in range(num_vars):
-            asg.add_node(Node(idx, all_vars[idx], all_labels[idx], all_properties[idx]))
+        for node in isolated_nodes:
+            # logger.debug(node)
+            r = self.__pattern2node(node)
+            name, labels = r["name"], r["labels"]
+            if name not in Node2Labels.keys():
+                Node2Labels[name] = "ALL"
+                Node2Id[name] = Id_index
+                Id_index += 1
+            if len(labels) > 0:
+                if Node2Labels[name] == "ALL":
+                    Node2Labels[name] = labels
+                else:
+                    Node2Labels[name] = Node2Labels[name] | labels
 
-        for (st, rel, en) in edges:
-            st_idx = var2id[st[0]]
-            en_idx = var2id[en[0]]
-            asg.add_edge(st_idx, en_idx, rel)
+        for name in sorted(Node2Labels.keys(), key=lambda x: Node2Id[x]):
+            labels, Id = Node2Labels[name], Node2Id[name]
+            G.AddNode(Node(Id, name, labels))
 
-        return asg
+        for edge in patterns:
+            v1, v2 = edge[0], edge[2]
+            r1, r2 = self.__pattern2node(v1), self.__pattern2node(v2)
+            G.AddEdge(Node2Id[r1["name"]], Node2Id[r2["name"]], edge[1])
 
-    def asg_to_pattern(self, asg: ASG):
-        """
-        Transforms the given ASG into a pattern (in string).
-        :param asg: the ASG given
-        :return: a pattern in string (not deterministic due to the randomness of path elimination)
-        """
-        decomposition = []
-        while True:
-            if asg.is_empty():
-                break
-            start_idx = random.choice(asg.get_available_nodes())
-            decomposition.append(asg.traverse(start_idx))
+        return G
 
-            # For test purpose
-            # assert num_rounds < 1000
+    def asg2pattern(self, asg: ASG):
+        result = []
+        while len(asg.DeletedEdge) < asg.M or len(asg.DeletedNode) < asg.N:
+            Availiable_Nodes = list()
+            for i in range(0, asg.N):
+                if i not in asg.DeletedNode:
+                    Availiable_Nodes.append(i)
+            start_id = random.choice(Availiable_Nodes)
+            result.append(self.__traversal(asg, start_id, 0))
+        result = ", ".join(result)
+        # logger.debug(result)
+        return result
 
-        num_paths = len(decomposition)
-        num_nodes = asg.get_num_nodes()
-        locations = [[] for _ in range(num_nodes)]
-        for path_idx in range(num_paths):
-            path = decomposition[path_idx]
-            assert(len(path) % 2 == 1)
-            for k in range(0, len(path), 2):
-                assert(isinstance(path[k], int))
-                node_idx = path[k]
-                locations[node_idx].append([path_idx, k])
-                # (Variable index, set of label expressions, set of property key-value expressions)
-                path[k] = (asg.get_node_name(node_idx), set(), set())
-
-        for node_idx in range(num_nodes):
-            assert(len(locations[node_idx]) > 0)
-
-            labels = asg.get_node_labels(node_idx)
-            for label in labels:
-                subset = get_nonempty_sample(locations[node_idx])
-                for (path_idx, k) in subset:
-                    decomposition[path_idx][k][1].add(label)
-
-            properties = asg.get_node_properties(node_idx)
-            for prop in properties:
-                subset = get_nonempty_sample(locations[node_idx])
-                for (path_idx, k) in subset:
-                    decomposition[path_idx][k][2].add(prop)
-
-        path_patterns = []
-        for path in decomposition:
-            path_patterns.append(path_to_pattern(path))
-        assert len(path_patterns) > 0
-        return ", ".join(path_patterns)
