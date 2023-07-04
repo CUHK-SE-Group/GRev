@@ -1,9 +1,8 @@
-from collections import defaultdict
 from database_tests.helper import *
 from gdb_clients import *
 from configs.conf import new_logger, config
 import csv
-
+from mutator.redis.query_transformer import QueryTransformer
 
 def compare(list1, list2):
     if len(list1) != len(list2):
@@ -21,6 +20,7 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         f"{conf.q1}\n{conf.q2}")
+            conf.num_bug_triggering += 1
         conf.logger.warning({
             "database_name": conf.database_name,
             "source_file": conf.source_file,
@@ -35,7 +35,7 @@ def oracle(conf: TestConfig, result1, result2):
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
-            
+
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
     heap = MaxHeap("logs/redis_performance.json",10)
@@ -47,6 +47,7 @@ def oracle(conf: TestConfig, result1, result2):
         if conf.mode == 'live':
             conf.report(conf.report_token,f"[{conf.database_name}][{conf.source_file}][{big}ms,{small}ms]Performance inconsistency",
                         conf.q1 + "\n" + conf.q2)
+            conf.num_bug_triggering += 1
         conf.logger.warning({
             "database_name": conf.database_name,
             "source_file": conf.source_file,
@@ -69,31 +70,13 @@ class RedisTester(TesterAbs):
             with open(logfile, 'r') as f:
                 content = f.read()
             contents = content.strip().split('\n')
-            match_statements = contents[-5000:]
+            query_statements = contents[-5000:]
             create_statements = contents[4:-5000]
-            return create_statements, match_statements
-        
-        logger = new_logger("logs/redis.log", True)
-        conf = TestConfig(
-            client=Redis(config.get("redis", 'uri'), self.database),
-            logger=logger,
-            source_file=logfile,
-            logic_inconsistency_trace_file='logs/redis_logic_error.tsv',
-            database_name='redis',
-            query_producer_func=query_producer,
-            oracle_func=oracle,
-            report_token=config.get('lark', 'redis')
-        )
-        general_testing_procedure(conf)
-        return True
-
-    def single_file_testing_alt(self, logfile, create_statements, match_statements):
-        def query_producer():
-            return create_statements, match_statements
+            return create_statements, query_statements
 
         logger = new_logger("logs/redis.log", True)
+        qt = QueryTransformer()
         conf = TestConfig(
-            # client=Redis(config.get("redis", 'uri'), self.database),
             client=Redis("10.20.10.27", self.database),
             logger=logger,
             source_file=logfile,
@@ -101,10 +84,31 @@ class RedisTester(TesterAbs):
             database_name='redis',
             query_producer_func=query_producer,
             oracle_func=oracle,
-            report_token=config.get('lark', 'redis')
+            report_token=config.get('lark', 'redis'),
+            mutator_func=qt.mutant_query_generator
         )
         general_testing_procedure(conf)
         return True
+
+    def single_file_testing_alt(self, logfile, create_statements, query_statements):
+        def query_producer():
+            return create_statements, query_statements
+
+        logger = new_logger("logs/redis.log", True)
+        qt = QueryTransformer()
+        conf = TestConfig(
+            client=Redis("10.20.10.27", self.database),
+            logger=logger,
+            source_file=logfile,
+            logic_inconsistency_trace_file='logs/redis_logic_error.tsv',
+            database_name='redis',
+            query_producer_func=query_producer,
+            oracle_func=oracle,
+            report_token=config.get('lark', 'redis'),
+            mutator_func=qt.mutant_query_generator
+        )
+        general_testing_procedure(conf)
+        return conf.num_bug_triggering
 
 
 def schedule():
@@ -114,6 +118,6 @@ def schedule():
 if __name__ == "__main__":
     if config.get('GLOBAL', 'env') == "debug":
         Tester = RedisTester('dev_graph')
-        Tester.single_file_testing("query_file/database0-cur.log")
+        Tester.single_file_testing("./query_producer/logs/composite/database263-cur.log")
     else:
         schedule()

@@ -14,6 +14,7 @@ import redis
 import traceback
 import time
 
+
 class MaxHeap:
     def __init__(self, db_path, max_size):
         self.db = TinyDB(db_path)
@@ -33,9 +34,9 @@ class MaxHeap:
     def get_heap(self):
         return [x['value'] for x in self.table.all()]
 
+
 class TestConfig:
     def __init__(self, **kwargs):
-
         self.mode = kwargs.get('mode', 'live')
         self.report = kwargs.get('report', post)
         self.report_token = kwargs.get('report_token')
@@ -55,22 +56,27 @@ class TestConfig:
         self.q1 = None
         self.q2 = None
 
+        self.num_bug_triggering = 0
+
 
 class TesterAbs(ABC):
     @abstractmethod
     def single_file_testing(self, path):
         pass
 
+
 def batch_run_with_macro(conf: TestConfig, statements):
     pre_idx = 0
     for i, v in enumerate(statements):
         if v == 'SLEEP':
             conf.client.batch_run(statements[pre_idx:i])
-            pre_idx = i+1
+            pre_idx = i + 1
             time.sleep(7)
         else:
             continue
-    
+    if pre_idx < len(statements):
+        conf.client.batch_run(statements[pre_idx:len(statements)])
+
 
 def general_testing_procedure(conf: TestConfig):
     create_statements, match_statements = conf.query_producer_func()
@@ -91,7 +97,7 @@ def general_testing_procedure(conf: TestConfig):
                 result2 = conf.client.run(query[1])
                 conf.q1 = query[0]
                 conf.q2 = query[1]
-                conf.oracle_func(conf, result1, result2) 
+                conf.oracle_func(conf, result1, result2)
             else:
                 result1 = conf.client.run(query)
                 for _ in range(0, conf.transform_times):
@@ -110,7 +116,7 @@ def general_testing_procedure(conf: TestConfig):
                 "query1": conf.q1,
                 "query2": conf.q2,
                 "traceback": tb_str
-                })
+            })
         except ValueError as e:
             tb_str = traceback.format_tb(e.__traceback__)
             conf.logger.info({
@@ -121,7 +127,7 @@ def general_testing_procedure(conf: TestConfig):
                 "query1": conf.q1,
                 "query2": conf.q2,
                 "traceback": tb_str
-                })
+            })
         except Exception as e:
             tb_str = traceback.format_tb(e.__traceback__)
             conf.logger.info({
@@ -132,10 +138,12 @@ def general_testing_procedure(conf: TestConfig):
                 "query1": conf.q1,
                 "query2": conf.q2,
                 "traceback": tb_str
-                })
+            })
             if conf.mode == 'live':
-                conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]", f"exception: \n{e} \nquery:\n{query}")
+                conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]",
+                            f"exception: \n{e} \nquery:\n{query}")
         progress_bar.update(1)
+
 
 def scheduler(folder_path, tester: TesterAbs, database):
     file_paths = []
@@ -161,7 +169,6 @@ def scheduler(folder_path, tester: TesterAbs, database):
                 table.remove(session.FileName == file_path)
 
 
-
 def gremlin_scheduler(folder_path, tester: TesterAbs, database):
     for i in range(100):
         file_path = os.path.join(folder_path, f'create-{i}.log')
@@ -176,6 +183,5 @@ def gremlin_scheduler(folder_path, tester: TesterAbs, database):
                 table.update({'status': 'done'}, session.FileName == file_path)
             else:
                 table.remove(session.FileName == file_path)
-                
-                
+
 
