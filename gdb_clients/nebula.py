@@ -13,6 +13,7 @@ from nebula3.Config import Config
 from gdb_clients import GdbFactory
 from nebula3.data.ResultSet import ResultSet
 from typing import Dict
+import configs
 
 
 def result_to_df(result: ResultSet) -> Dict:
@@ -31,7 +32,7 @@ class Nebula(GdbFactory):
         self.database = database
         config = Config()
         connection_pool = ConnectionPool()
-        ok = connection_pool.init([('graphd', 9669)], config)
+        ok = connection_pool.init([(configs.config.get('nebula', 'uri'), 9669)], config)
         if reset:
             with connection_pool.session_context('root', 'nebula') as session:
                 session.execute(f'DROP SPACE IF EXISTS {self.database}')
@@ -41,7 +42,7 @@ class Nebula(GdbFactory):
 
     def get_session(self):
         sessionPoolConfig = SessionPoolConfig()
-        self.sessionPool = SessionPool("root", "nebula", self.database, [("graphd", 9669)])
+        self.sessionPool = SessionPool("root", "nebula", self.database, [(configs.config.get('nebula', 'uri'), 9669)])
         ok = self.sessionPool.init(sessionPoolConfig)
         if not ok:
             exit(1)

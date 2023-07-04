@@ -79,7 +79,6 @@ def general_testing_procedure(conf: TestConfig):
     progress_bar = tqdm(total=len(match_statements))
 
     for query in match_statements:
-        print(f'[QUERY] {query}')
         try:
             if isinstance(query, dict):
                 result1 = conf.client.run(query['Query1'])
