@@ -7,17 +7,27 @@ import time
 
 
 def compare(result1, result2):
+    """Returns None iff the two results are identical"""
     lst1 = [v.__str__() for _, v in result1.items()]
     lst2 = [v.__str__() for _, v in result2.items()]
     lst1.sort()
     lst2.sort()
-    return lst1 == lst2
+
+    if lst1 == lst2:
+        return None
+    elif bool(lst1) != bool(lst2):
+        return "One is empty and the other is not"
+    elif len(lst1) != len(lst2):
+        return "Both non-empty but of unequal lengths"
+    else:
+        return "Have equal lengths but not identical"
 
 # result: is returned by client.run()
 def oracle(conf: TestConfig, result1, result2):
     num1 = sum([len(v) for _, v in result1[0].items()])
     num2 = sum([len(v) for _, v in result2[0].items()])
-    if not compare(result1[0], result2[0]):
+    result_compare = compare(result1[0], result2[0])
+    if result_compare:
         if conf.mode == 'live':
             conf.report(conf.report_token, f"[{conf.database_name}][{conf.source_file}]Logic inconsistency",
                         conf.q1 + "\n" + conf.q2)
