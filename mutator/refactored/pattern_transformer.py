@@ -9,7 +9,7 @@ class PatternTransformer(AbstractASGOperator):
         :param pattern: the pattern represented by a string
         :return: the corresponding ASG (which is uniquely determined)
         """
-        edges, isolated_nodes = parse_pattern(pattern)
+        edges, isolated_nodes = RefactoredMutatorHelper().parse_pattern(pattern)
 
         asg = ASG()
 
@@ -90,18 +90,18 @@ class PatternTransformer(AbstractASGOperator):
 
             labels = asg.get_node_labels(node_idx)
             for label in labels:
-                subset = get_nonempty_sample(locations[node_idx])
+                subset = RefactoredMutatorHelper.get_nonempty_sample(locations[node_idx])
                 for (path_idx, k) in subset:
                     decomposition[path_idx][k][1].add(label)
 
             properties = asg.get_node_properties(node_idx)
             for prop in properties:
-                subset = get_nonempty_sample(locations[node_idx])
+                subset = RefactoredMutatorHelper.get_nonempty_sample(locations[node_idx])
                 for (path_idx, k) in subset:
                     decomposition[path_idx][k][2].add(prop)
 
         path_patterns = []
         for path in decomposition:
-            path_patterns.append(path_to_pattern(path))
+            path_patterns.append(RefactoredMutatorHelper().path_to_pattern(path))
         assert len(path_patterns) > 0
         return ", ".join(path_patterns)

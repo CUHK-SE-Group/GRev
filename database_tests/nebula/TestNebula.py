@@ -1,23 +1,22 @@
-import csv
-from ngql.query_generator import *
+from cypher.ngql.query_generator import *
 from database_tests.helper import *
 from gdb_clients import *
 from configs.conf import *
 import time
 
-
 def compare(result1, result2):
     """Returns None iff the two results are identical"""
-    lst1 = [v.__str__() for _, v in result1.items()]
-    lst2 = [v.__str__() for _, v in result2.items()]
-    lst1.sort()
-    lst2.sort()
+    to_comparable = lambda result: sorted([(_, tuple(sorted([x.__str__() for x in v]))) for _, v in result.items()])
+    lst1 = to_comparable(result1)
+    lst2 = to_comparable(result2)
+
+    assert len(lst1) == len(lst2)
 
     if lst1 == lst2:
         return None
-    elif bool(lst1) != bool(lst2):
+    elif bool(lst1) != bool(lst2) or bool(lst1[0][1]) != bool(lst2[0][1]):
         return "One is empty and the other is not"
-    elif len(lst1) != len(lst2):
+    elif len(lst1[0][1]) != len(lst2[0][1]):
         return "Both non-empty but of unequal lengths"
     else:
         return "Have equal lengths but not identical"
@@ -41,10 +40,11 @@ def oracle(conf: TestConfig, result1, result2):
                 "query_res2": result2[0].__str__() if num2<100 else "",
                 "query_time1": result1[1],
                 "query_time2": result2[1],
+                "comp_result": result_compare
             })
         with open(conf.logic_inconsistency_trace_file, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
-            writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2])
+            writer.writerow([conf.database_name, conf.source_file, conf.q1, conf.q2, result_compare])
     big = max(result1[1], result2[1])
     small = min(result1[1], result2[1])
     heap = MaxHeap("logs/nebula_performance.json",10)
@@ -108,6 +108,7 @@ def schedule():
 
 if __name__ == "__main__":
     if config.get("GLOBAL", 'env') == "debug":
-        pass
+        tester = NebulaTester("nebulatesting")
+        tester.single_file_testing("./query_producer/logs/composite/database263-cur.log")
     else:
         schedule()

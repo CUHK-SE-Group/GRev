@@ -1,6 +1,6 @@
 """Data models used"""
 from abc import ABC, abstractmethod
-from mutator.ngql.helpers import *
+from mutator.ngql.mutator_helper_ngql import NGQLMutatorHelper
 import random
 
 
@@ -104,7 +104,7 @@ class ASG:
         self.nodes[st_idx].add_edge(en_idx, edge_content, edge_idx)
 
         # Edge going from en to st
-        self.nodes[en_idx].add_edge(st_idx, flip_edge(edge_content), edge_idx)
+        self.nodes[en_idx].add_edge(st_idx, NGQLMutatorHelper().flip_edge(edge_content), edge_idx)
 
         self.num_edges += 1
 

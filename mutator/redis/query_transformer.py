@@ -1,4 +1,3 @@
-import random
 from mutator.redis.pattern_transformer import PatternTransformer
 
 
@@ -60,5 +59,4 @@ class QueryTransformer():
 # 测试代码
 if __name__ == "__main__":
     Q = QueryTransformer()
-    print(Q.mutant_query_generator(
-        "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3)"))
+    print(Q.mutant_query_generator('query = MATCH (n0 {id : 10}), (n1 {id : 78}) MERGE(n0)-[r :T4{k60 : "Z", k62 : true, k61 : 474288688, k64 : 1763262399, k63 : -1849292085, k66 : true, id : 293}]->(n1);'))

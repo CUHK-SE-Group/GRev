@@ -1,5 +1,6 @@
 from mutator.refactored.pattern_transformer import *
-from mutator.refactored.helpers import *
+from mutator.refactored.mutator_helper_refactored import RefactoredMutatorHelper
+
 
 class PatternMutator:
     def gen_pattern(self, pattern : str):
@@ -8,8 +9,5 @@ class PatternMutator:
         return pt.asg_to_pattern(asg)
 
     def rev_pattern(self, pattern : str):
-        return reverse_path(pattern)
-
-if __name__ == "__main__":
-    mutator = PatternMutator()
-    print("OK")
+        rmh = RefactoredMutatorHelper()
+        return rmh.reverse_path(pattern)

@@ -1,7 +1,7 @@
 import random
-from ngql.schema import GraphSchema
-from ngql.where_clause import BasicWhereGenerator
-from ngql.label import LabelExpGenerator
+from cypher.ngql.schema import GraphSchema
+from cypher.ngql.where_clause import BasicWhereGenerator
+from cypher.ngql.label import LabelExpGenerator
 
 
 class PatternGenerator:

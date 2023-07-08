@@ -1,7 +1,7 @@
 """Data models used"""
 from abc import ABC, abstractmethod
-from mutator.refactored.helpers import *
 import random
+from mutator.refactored.mutator_helper_refactored import RefactoredMutatorHelper
 
 
 class Node:
@@ -107,7 +107,7 @@ class ASG:
         self.nodes[st_idx].add_edge(en_idx, edge_content, edge_idx)
 
         # Edge going from en to st
-        self.nodes[en_idx].add_edge(st_idx, flip_edge(edge_content), edge_idx)
+        self.nodes[en_idx].add_edge(st_idx, RefactoredMutatorHelper().flip_edge(edge_content), edge_idx)
 
         self.num_edges += 1
 

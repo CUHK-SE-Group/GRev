@@ -1,4 +1,4 @@
-from ngql.query_generator import *
+from cypher.ngql.query_generator import *
 import gdb_clients.nebula
 
 
