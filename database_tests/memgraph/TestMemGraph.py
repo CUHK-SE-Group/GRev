@@ -2,7 +2,7 @@ from database_tests.helper import *
 from configs.conf import new_logger, config
 from gdb_clients.mem_graph import MemGraph
 import csv
-
+from cypher.memgraph.query_generator import *
 
 def compare(list1, list2):
     if len(list1) != len(list2):
@@ -61,13 +61,23 @@ class MemgraphTester(TesterAbs):
         self.database = database
 
     def single_file_testing(self, logfile):
+        t = time.time()
+        logfile = f"./query_producer/cypher/{t}.log"
         def query_producer():
-            with open(logfile, 'r') as f:
+            generator = QueryGenerator(f"./query_producer/memgraph/{t}.log")
+            with open(f"./query_producer/memgraph/{t}.log", 'r') as f:
                 content = f.read()
-                contents = content.strip().split('\n')
-                match_statements = contents[-5000:]
-                create_statements = contents[4:-5000]
-                return create_statements, match_statements
+                f.close()
+            match_statements = [generator.gen_query() for i in range(2000)]
+            contents = content.strip().split('\n')
+            return contents, match_statements
+        # def query_producer():
+        #     with open(logfile, 'r') as f:
+        #         content = f.read()
+        #         contents = content.strip().split('\n')
+        #         match_statements = contents[-5000:]
+        #         create_statements = contents[4:-5000]
+        #         return create_statements, match_statements
         
         logger = new_logger("logs/memgraph.log", True)
         conf = TestConfig(
