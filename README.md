@@ -52,6 +52,8 @@ query_file: 用于测试的原始query请求的集合
 
 [Memgraph-954](https://github.com/memgraph/memgraph/issues/954) Status: Intended
 
+[Memgraph-1068](https://github.com/memgraph/memgraph/issues/1068) Status: Intended
+
 [RedisGraph-3081](https://github.com/RedisGraph/RedisGraph/issues/3081) Status: Intended
 
 [RedisGraph-3091](https://github.com/RedisGraph/RedisGraph/issues/3091) Status: Intended
