@@ -1,7 +1,7 @@
 from gdb_clients.redis_graph import Redis
 from mutator.redis.query_transformer import QueryTransformer
 import random
-
+from configs import config
 
 def count_number_of_plans_single(data_file, sample_method=random.choice, num_mutations=100, num_queries_generated=20):
     with open(data_file, 'r') as f:
@@ -11,7 +11,7 @@ def count_number_of_plans_single(data_file, sample_method=random.choice, num_mut
     query_statements = stuff[-num_queries_generated:]
 
     database_name = "eval0_graph"
-    r = Redis("10.20.10.27", database_name)
+    r = Redis(config.get("redis", "uri"), database_name)
     r.batch_run(create_statements)
 
     num_take = 10

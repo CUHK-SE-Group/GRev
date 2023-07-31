@@ -7,6 +7,7 @@ from gdb_clients import Redis
 from typing import List
 # import pandas as pd
 import time
+from configs import config
 
 import re
 
@@ -26,7 +27,7 @@ def read_logic_error_file():
 
 
 def validate(database, log_file, query_pairs):
-    client = Redis("10.20.10.27", database + "_validation")
+    client = Redis(config.get("redis", "uri"), database + "_validation")
     with open(log_file, 'r') as f:
         content = f.read()
         contents = content.strip().split('\n')

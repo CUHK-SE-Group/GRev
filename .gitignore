@@ -5,11 +5,6 @@ logs/*
 
 .DS_Store
 query_producer/logs
-query_producer/coverage_info
-query_producer/coverage_log
-query_producer/gremlin
-query_producer/
-query_producer/gremlin_generator
 data
 .vscode
 db.json
