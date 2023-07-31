@@ -36,8 +36,8 @@ def oracle(conf: TestConfig, result1, result2):
                 "tag": "logic_inconsistency",
                 "query1": conf.q1,
                 "query2": conf.q2,
-                "query_res1": result1[0].__str__() if num1<100 else "",
-                "query_res2": result2[0].__str__() if num2<100 else "",
+                "query_res1": result1[0].__str__() if num1<100 else num1,
+                "query_res2": result2[0].__str__() if num2<100 else num2,
                 "query_time1": result1[1],
                 "query_time2": result2[1],
                 "comp_result": result_compare
