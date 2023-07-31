@@ -1,4 +1,4 @@
-from mutator.refactored.pattern_transformer import *
+from mutator.redis.pattern_transformer import *
 
 
 def test_transformer():
@@ -23,7 +23,7 @@ def test_path_reverser():
             pattern = file.readline()
             if pattern == '':
                 break
-            rpattern = reverse_path(pattern)
+            rpattern = RedisMutatorHelper().reverse_path(pattern)
             asg = pt.pattern_to_asg(pattern)
             rasg = pt.pattern_to_asg(rpattern)
             assert asg.get_comparable() == rasg.get_comparable()

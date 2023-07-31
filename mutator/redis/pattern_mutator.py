@@ -1,15 +1,15 @@
 from mutator.redis.pattern_transformer import *
-from mutator.redis.helpers import *
+from mutator.redis.mutator_helper_redis import RedisMutatorHelper
+
 
 class PatternMutator:
-    def gen_pattern(self, pattern : str):
+    @staticmethod
+    def gen_pattern(pattern: str):
         pt = PatternTransformer()
         asg = pt.pattern_to_asg(pattern)
         return pt.asg_to_pattern(asg)
 
-    def rev_pattern(self, pattern : str):
-        return reverse_path(pattern)
-
-if __name__ == "__main__":
-    mutator = PatternMutator()
-    print("OK")
+    @staticmethod
+    def rev_pattern(pattern: str):
+        rmh = RedisMutatorHelper()
+        return rmh.reverse_path(pattern)

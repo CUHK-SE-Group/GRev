@@ -17,7 +17,13 @@ class LabelExpGenerator:
 
         labelset = copy(self.Nlabel) if mytype == "node" else copy(self.Rlabel)
         if simple_version:
-            num = random.randint(0, 3)
+            if mytype == "node":
+                num = random.randint(0, 3)
+            elif mytype == "rel":
+                num = random.randint(0, 1)
+            else:
+                assert False
+
             labels = random.sample(labelset, num)
             res = ''
             for label in labels:

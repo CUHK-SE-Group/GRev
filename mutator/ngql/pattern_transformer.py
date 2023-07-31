@@ -9,7 +9,7 @@ class PatternTransformer(AbstractASGOperator):
         :param pattern: the pattern represented by a string
         :return: the corresponding ASG (which is uniquely determined)
         """
-        edges, isolated_nodes = parse_pattern(pattern)
+        edges, isolated_nodes = NGQLMutatorHelper().parse_pattern(pattern)
 
         asg = ASG()
 
@@ -38,7 +38,7 @@ class PatternTransformer(AbstractASGOperator):
 
             for tag_name, tag_props in properties.items():
                 assert isinstance(tag_props, set)
-                if not tag_name in all_properties[node_idx]:
+                if tag_name not in all_properties[node_idx]:
                     all_properties[node_idx][tag_name] = set()
                 all_properties[node_idx][tag_name].update(tag_props)
 
@@ -66,7 +66,8 @@ class PatternTransformer(AbstractASGOperator):
         """
         decomposition = []
         while True:
-            if asg.is_empty(): break
+            if asg.is_empty():
+                break
             start_idx = random.choice(asg.get_available_nodes())
             decomposition.append(asg.traverse(start_idx))
 
@@ -84,9 +85,9 @@ class PatternTransformer(AbstractASGOperator):
                 path[k] = (asg.get_node_name(node_idx), dict())
 
         def update(properties, tag_name, prop=None):
-            if not tag_name in properties:
+            if tag_name not in properties:
                 properties[tag_name] = set()
-            if prop != None:
+            if prop is not None:
                 properties[tag_name].add(prop)
 
         for node_idx in range(num_nodes):
@@ -94,14 +95,14 @@ class PatternTransformer(AbstractASGOperator):
 
             properties = asg.get_node_properties(node_idx)
             for tag_name, tag_props in properties.items():
-                for path_idx, k in get_nonempty_sample(locations[node_idx]):
+                for path_idx, k in NGQLMutatorHelper.get_nonempty_sample(locations[node_idx]):
                     update(decomposition[path_idx][k][1], tag_name)
                 for prop in tag_props:
-                    for path_idx, k in get_nonempty_sample(locations[node_idx]):
+                    for path_idx, k in NGQLMutatorHelper.get_nonempty_sample(locations[node_idx]):
                         update(decomposition[path_idx][k][1], tag_name, prop)
 
         path_patterns = []
         for path in decomposition:
-            path_patterns.append(path_to_pattern(path))
+            path_patterns.append(NGQLMutatorHelper().path_to_pattern(path))
         assert len(path_patterns) > 0
         return ", ".join(path_patterns)

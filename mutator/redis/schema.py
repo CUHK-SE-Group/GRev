@@ -1,7 +1,7 @@
 """Data models used"""
-from abc import ABC, abstractmethod
-from mutator.redis.helpers import *
 import random
+from mutator.redis.mutator_helper_redis import RedisMutatorHelper
+from abc import ABC, abstractmethod
 
 
 class Node:
@@ -107,7 +107,7 @@ class ASG:
         self.nodes[st_idx].add_edge(en_idx, edge_content, edge_idx)
 
         # Edge going from en to st
-        self.nodes[en_idx].add_edge(st_idx, flip_edge(edge_content), edge_idx)
+        self.nodes[en_idx].add_edge(st_idx, RedisMutatorHelper().flip_edge(edge_content), edge_idx)
 
         self.num_edges += 1
 
@@ -149,11 +149,10 @@ class ASG:
 
 
 class AbstractASGOperator(ABC):
-    """Operator for ASGs"""
     @abstractmethod
     def asg_to_pattern(self, asg: ASG):
-        """Transforms the given ASG into a pattern (a string)"""
+        pass
 
     @abstractmethod
     def pattern_to_asg(self, pattern: str):
-        """Transforms the given pattern (a string) into an ASG"""
+        pass

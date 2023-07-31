@@ -1,6 +1,5 @@
 import random
-from copy import *
-from ngql.schema import GraphSchema
+from cypher.ngql.schema import GraphSchema
 
 
 class LabelExpGenerator:

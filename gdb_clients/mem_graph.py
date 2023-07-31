@@ -1,12 +1,14 @@
 from gqlalchemy import Memgraph
 from gdb_clients import GdbFactory
-from configs.conf import  config
+from configs.conf import config
 import time
+from gqlalchemy import models
 
 
 class MemGraph(GdbFactory):
     def __init__(self):
         self.connection = Memgraph(host=config.get("memgraph", "uri"), port=config.getint("memgraph", "port"))
+        models.IGNORE_SUBCLASSNOTFOUNDWARNING = True
 
     def run(self, query):
         start_time = time.time()
@@ -20,4 +22,3 @@ class MemGraph(GdbFactory):
 
     def clear(self):
         self.connection.execute("MATCH (n) DETACH DELETE n")
-
