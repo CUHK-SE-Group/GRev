@@ -62,22 +62,25 @@ class MemgraphTester(TesterAbs):
 
     def single_file_testing(self, logfile):
         t = time.time()
-        logfile = f"./query_producer/cypher/{t}.log"
+        if config.get("memgraph", "generator") != "gdsmith":
+            logfile = f"./query_producer/cypher/{t}.log"
         def query_producer():
+            if config.get("memgraph", "generator") == "gdsmith":
+                print('using gdsmith as generator...')
+                with open(logfile, 'r') as f:
+                    content = f.read()
+                contents = content.strip().split('\n')
+                query_statements = contents[-5000:]
+                create_statements = contents[4:-5000]
+                return create_statements, query_statements
+            print('using diy-cypher as generator...')
             generator = QueryGenerator(f"./query_producer/memgraph/{t}.log")
             with open(f"./query_producer/memgraph/{t}.log", 'r') as f:
                 content = f.read()
                 f.close()
-            match_statements = [generator.gen_query() for i in range(2000)]
+            match_statements = [generator.gen_query() for _ in range(2000)]
             contents = content.strip().split('\n')
             return contents, match_statements
-        # def query_producer():
-        #     with open(logfile, 'r') as f:
-        #         content = f.read()
-        #         contents = content.strip().split('\n')
-        #         match_statements = contents[-5000:]
-        #         create_statements = contents[4:-5000]
-        #         return create_statements, match_statements
         
         logger = new_logger("logs/memgraph.log", True)
         conf = TestConfig(

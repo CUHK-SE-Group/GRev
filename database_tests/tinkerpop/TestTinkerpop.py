@@ -6,10 +6,7 @@ import json
 
 
 def list_to_dict(lst):
-    # 定义一个defaultdict，用于创建一个默认值为0的字典
     result = defaultdict(int)
-    # 对于列表中的每个元素，如果它是一个列表，则递归调用list_to_dict函数
-    # 如果不是列表，则将其作为键添加到字典中，并增加其出现次数
     for elem in lst:
         if isinstance(elem, list):
             nested_dict = list_to_dict(elem)

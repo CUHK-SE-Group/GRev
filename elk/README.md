@@ -1,6 +1,6 @@
-# 创建token
+# create token
 docker exec -it elasticsearch elasticsearch-create-enrollment-token -s kibana
-# 查看验证码
+# check the validation passwd
 docker logs kibana
-# 重置密码
+# reset passwd
 docker exec -it elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic

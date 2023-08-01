@@ -78,10 +78,6 @@ def compare(array1: List[list], array2: List[list]):
         if key not in dict1:
             compare_result2[key] = value
 
-    # cnt1 = sum([v for _, v in compare_result1.items()])
-    # cnt2 = sum([v for _, v in compare_result2.items()])
-    # if cnt1 != cnt2:
-    #     print("数量不符")
 
     if compare_result1 == {} and compare_result2 == {}:
         return True, compare_result1, compare_result2
@@ -137,7 +133,6 @@ def find_keywords(string, keywords):
 def reduce(client, query1: str, query2: str):
     query1_res, _ = client.run(query1)
     query2_res, _ = client.run(query2)
-    # 如果两个结果相等，则说明没有不一致的现象
     eq, compare_result1, compare_result2 = compare(query1_res, query2_res)
     if eq:
         return
@@ -152,18 +147,18 @@ def reduce(client, query1: str, query2: str):
         keys1 = set([i for i, _ in compare_result1.items()])
         keys2 = set([i for i, _ in compare_result2.items()])
         if keys1 == keys2:
-            print("数量总和一致, 且key一致")
+            print("sum yes, key yes")
         else:
-            print("数量总和一致, 且key不一致")
+            print("sum yes, key no")
         return
     print(compare_result1)
     print(compare_result2)
     keys1 = set([i for i, _ in compare_result1.items()])
     keys2 = set([i for i, _ in compare_result2.items()])
     if keys1 == keys2:
-        print("数量总和不一致, 且key一致")
+        print("sum no, key yes")
     else:
-        print("数量总和不一致, 且key不一致")
+        print("sum no, key no")
 
 
 if __name__ == "__main__":
