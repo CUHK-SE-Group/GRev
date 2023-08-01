@@ -100,6 +100,22 @@ services:
     ports:
       - 3000:3000
       - 7688:7687
+  tinkerpop:
+    image: tinkerpop/gremlin-server:3.6
+    restart: on-failure
+    depends_on:
+      - kibana
+      - logstash
+      - elasticsearch
+    deploy:
+      resources:
+        limits:
+          memory: 10G
+    networks:
+      - gdb_testing
+    tty: true
+    ports:
+      - 8182:8182
 
   redis_client:
     image: pt
