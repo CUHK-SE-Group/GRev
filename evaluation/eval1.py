@@ -58,4 +58,6 @@ if __name__ == '__main__':
 
     result = detect_number_of_bug_triggering(num_cases=num_cases, num_mutations=5,
                                              num_queries_generated=num_queries_generated)
-    print(f'final_result = {result}')
+
+    with open("./evaluation/eval1.res", mode="w") as f:
+        print(f'result')
