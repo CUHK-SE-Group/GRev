@@ -290,19 +290,35 @@ generator = gdsmith
 ```
 
 
-## Reprocude the Evaluation Result of Redis
+## Reproduce the Evaluation Result of Redis
 
+We generated the data needed for Figure 8 with the following two scripts:
+- `evaluation/eval0.py`: Evaluates the number of distinct queries and query plans (**Q2(a)** and **Q2(b)**).
+- `evaluation/eval1.py`, Evaluates the number of bug-triggering test cases (**Q2(c)**).
 
-@hanfei chen, add some exlainations.
-
+To reproduce the results for **Q2(a)** and **Q2(b)**, execute the first script using the following command:
 
 ```bash
 $ docker compose exec -it redis_client bash   
 root@c8596f7defc9:/appdata# python evaluation/eval0.py
 ```
 
+The script will generate four integers, one on each line, in the file evaluation/eval0.res.
+These integers represent the following, in order:
+- Number of distinct queries based on _Random Base Queries_
+- Number of distinct query plans based on _Random Base Queries_
+- Number of distinct queries based on _Long Base Queries_
+- Number of distinct query plans based on _Long Base Queries_
+
+To reproduce the results for **Q2(c)**, run the second script with:
 
 ```bash
 $ docker compose exec -it redis_client bash   
 root@c8596f7defc9:/appdata# python evaluation/eval1.py
 ```
+
+This will output a single integer into the file `evaluation/eval1.res`, representing:
+- Number of bug-triggering test cases
+
+Note that the second script `evaluation/eval1.py` is expected to be quite time-intensive.
+On our testing machine, it took ~12 hours to complete the entire evaluation.
