@@ -222,7 +222,7 @@ class TestConfig:
 
 We provide the `elk` toolkits, you can find it in `elk` folder. By running the `docker compose up -d`, you have started `elasticsearch`, `kibana`, and `logstash`. However, there are no input data(log) yet, so you have to maually configure the `filebeat`, sending the log file to the `elasticserach`.
 
-You can follow the official instruction in https://www.elastic.co/cn/beats/filebeat 
+You can follow the official instruction in https://www.elastic.co/beats/filebeat
 
 We also provide a template configuration for your reference.
 
@@ -261,19 +261,6 @@ Then, search the `logstash.log` metric, and add it to the table. You can see the
 
 
 ![data view](docs/images/kibana.jpg)
-
-
-Meanwhile, you can follow the instruction in https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot , create the bot webhook, and save it to the configuration file in `configs/config.ini`. Then the warning and error message will also be sent to lark.
-
-```
-[lark]
-neo4j=replace-this-with-your-token
-redis=replace-this-with-your-token
-memgraph=replace-this-with-your-token
-tinkerpop=replace-this-with-your-token
-nebula=replace-this-with-your-token
-```
-
 
 ## About the Testing Mode
 
@@ -322,3 +309,8 @@ This will output a single integer into the file `evaluation/eval1.res`, represen
 
 Note that the second script `evaluation/eval1.py` is expected to be quite time-intensive.
 On our testing machine, it took ~12 hours to complete the entire evaluation.
+
+
+## Bug List
+
+Due to the double-blind review system for paper evaluation, we will release the bug list after the paper is published.
