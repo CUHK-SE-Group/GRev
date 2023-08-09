@@ -104,8 +104,32 @@ class GraphPattern:
             if i < len(self.patterns) - 1: res = res + ", "
             else: res = res + ")"
         return res
-
-
+    
+    def to_string_without_match(self):
+        res = ""
+        used_node = set()
+        for pattern in self.patterns:
+            chain = ""
+            for j in range(0, len(pattern)):
+                node = pattern[j]
+                if node.in_path != "__": chain += node.in_path
+                if j > 0: chain += node.constrains
+                if node.id in used_node:
+                    if j == 0: chain += '.select("' + node.id + '")'
+                    else: chain += '.where(eq("' + node.id + '"))'
+                else:
+                    used_node.add(node.id)
+                    chain += '.as("' + node.id + '")'
+                if j == 0: chain += node.constrains
+            res += chain
+        
+        res += '.select('
+        for v in used_node:
+            res += '"' + v + '"'
+            res += ', '
+        res = res.rstrip(", ") + ')'
+        return res
+        
 if __name__ == "__main__":
     G = GraphSchema()
     G.Graph_Generate()
@@ -114,3 +138,5 @@ if __name__ == "__main__":
     Pattern.GenPatterns()
     asg = Pattern.to_asg()
     print("OK")
+
+#.as("n2").out("Elabel5", "Elabel10", "Elabel8").in().both().as("n1").select("n1").or(__.where(__.inE().values("prop5").min().is(lt("8HowtrT73uModO14Hoic")))).in("Elabel8", "Elabel2", "Elabel1", "Elabel9", "Elabel4", "Elabel6", "Elabel3").in("Elabel9", "Elabel3", "Elabel7", "Elabel1", "Elabel5", "Elabel10").in("Elabel7", "Elabel2", "Elabel9", "Elabel6").both().in().as("n3").select("n2").both("Elabel10").out().and(__.has("prop3"), __.hasNot("prop7")).as("n4").as("n5").in().in().in("Elabel6", "Elabel10", "Elabel8", "Elabel5").both().where(eq("n1")).select("n3").out().where(eq("n3")).select("n5").both("Elabel4", "Elabel5", "Elabel1", "Elabel10", "Elabel8", "Elabel2", "Elabel3").both().as("n6").select("n2", "n1", "n4", "n3", "n6", "n5")
