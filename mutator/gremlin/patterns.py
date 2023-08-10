@@ -33,8 +33,8 @@ class GraphPattern:
         if self.n == 0: start_node = self.GetNode(return_old_node = False)
         else: start_node = self.GetNode(return_old_node = True)
         end_node = self.GetNode(return_old_node = False)
-        if random.randint(0, 1) == 1: 
-            start_node, end_node = end_node, start_node
+        # if random.randint(0, 1) == 1: 
+        #     start_node, end_node = end_node, start_node
 
         res = []
         if random.randint(0, 10) == 0: filters = self.PG.GenFilter()
