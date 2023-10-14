@@ -74,7 +74,7 @@ query_file: 用于测试的原始query请求的集合
 
 [NebulaGraph-py-277](https://github.com/vesoft-inc/nebula-python/issues/277) Status: Intended
 
-
+[New redis](https://github.com/FalkorDB/FalkorDB/issues/470) Status: Intended
 
 
 
