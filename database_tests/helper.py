@@ -84,6 +84,7 @@ def general_testing_procedure(conf: TestConfig):
     batch_run_with_macro(conf, create_statements)
     progress_bar = tqdm(total=len(match_statements))
 
+    ex_time = 1
     for query in match_statements:
         try:
             if isinstance(query, dict):
@@ -128,6 +129,19 @@ def general_testing_procedure(conf: TestConfig):
                 "query2": conf.q2,
                 "traceback": tb_str
             })
+        except redis.exceptions.ConnectionError as e:
+            tb_str = traceback.format_tb(e.__traceback__)
+            conf.logger.info({
+                "database_name": conf.database_name,
+                "source_file": conf.source_file,
+                "tag": "exception",
+                "exception_content": e.__str__(),
+                "query1": conf.q1,
+                "query2": conf.q2,
+                "traceback": tb_str
+            })
+            time.sleep(ex_time)
+            ex_time+=1
         except Exception as e:
             tb_str = traceback.format_tb(e.__traceback__)
             conf.logger.info({

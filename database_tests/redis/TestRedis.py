@@ -94,7 +94,7 @@ class RedisTester(TesterAbs):
         def query_producer():
             return create_statements, query_statements
 
-        logger = new_logger("logs/redis.log", True)
+        logger = new_logger("logs/redis.log")
         qt = QueryTransformer()
         conf = TestConfig(
             client=Redis(config.get("redis", "uri"), self.database),

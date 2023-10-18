@@ -1,6 +1,7 @@
 # The main file that produce the query statements
 import random
 import copy
+import re
 from cypher.pattern_clause import PatternGenerator
 from cypher.schema import GraphSchema
 from mutator.refactored.pattern_mutator import PatternMutator
@@ -71,7 +72,21 @@ class QueryGenerator:
                 last_funcs = random_funcs
 
         clause1, clause2 = self.gen_return()
-        return query1 + clause1, query2 + clause2
+        
+        text = query1 + clause1
+        matches = list(set(re.findall(r'n\d+', text)))
+        for i in range(len(matches)//2):
+            original = matches[i]
+            # 获取要替换的字符串
+            replacement = matches[-i - 1]
+            
+            # 替换原始文本中的匹配字符串
+            text = text.replace(original, "TEMP_PLACEHOLDER" + str(i))  # 使用临时占位符
+            text = text.replace(replacement, original)
+            text = text.replace("TEMP_PLACEHOLDER" + str(i), replacement)
+        if len(matches)>1:
+            assert text != query1+clause1
+        return query1+clause1, query2 + clause2
 
 if __name__ == "__main__":
     query_generator = QueryGenerator()

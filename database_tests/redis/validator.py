@@ -2,7 +2,6 @@ import csv
 
 import TestRedis
 import configs
-from database_tests.reduce_module.simplify_query import eliminate_useless_clauses
 from gdb_clients import Redis
 from typing import List
 # import pandas as pd
@@ -163,7 +162,7 @@ def reduce(client, query1: str, query2: str):
 
 if __name__ == "__main__":
     # read_logic_error_file()
-    validate("validation", "query_producer/logs/composite/database489-cur.log", [(
+    validate("validation", "query_producer/logs/composite/database100-cur.log", [(
         "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4 MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n8 :L0)-[r6 :T5]->(n9), (n2 :L0)<-[r10 :T2]-(n12 :L1), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9) RETURN n10.k20", 
         
         "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4 MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n2 :L0)<-[r10 :T2]-(n12 :L1), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9), (n8 :L0)-[r6 :T5]->(n9) RETURN n10.k20"

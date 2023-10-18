@@ -3,10 +3,10 @@ from neo4j import GraphDatabase, basic_auth
 from typing import List
 
 class Neo4j(GdbFactory):
-    def __init__(self, uri, username, passwd, database):
+    def __init__(self, uri, username, passwd, database="neo4j"):
         self.database = database
         self.driver = GraphDatabase.driver(uri, auth=basic_auth(username, passwd))
-        self.session = self.driver.session(database=database)
+        self.session = self.driver.session()
 
     def clear(self):
         self.run("MATCH (n) DETACH DELETE n")

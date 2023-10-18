@@ -38,7 +38,9 @@ class TinkerGraphClient:
             raise ValueError
         return json.loads(response.content)
 
-client = TinkerGraphClient()
+
+if __name__ == "__main__":
+    client = TinkerGraphClient()
 # print('test')
 # # print(client.send_gremlin('JanusGraphFactory.getGraphNames()'))
 # print(client.send_gremlin('g.V().count()'))

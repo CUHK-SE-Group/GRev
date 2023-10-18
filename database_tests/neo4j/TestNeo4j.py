@@ -133,12 +133,13 @@ class Neo4jTester(TesterAbs):
 
 
 def schedule():
-    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("neo4jtesting"), 'neo4j')
+    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("neo4j"), 'neo4j')
 
 
 if __name__ == "__main__":
     if config.get("GLOBAL", 'env') == "debug":
-        Tester = Neo4jTester('test4')
+        print('debug')
+        Tester = Neo4jTester('neo4j')
         Tester.single_file_testing("query_producer/logs/composite/database137-cur.log")
     else:
         schedule()
