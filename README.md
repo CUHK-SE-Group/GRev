@@ -30,11 +30,11 @@ query_file: 用于测试的原始query请求的集合
 如果是命令行执行需要 ```export PYTHONPATH=./:$PYTHONPATH```
 
 ## Detected Bugs
-[Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) Status: Duplicated (with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085))
+[Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) Status: Fixed (with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085))
 
 [Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Fixed
 
-[Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Duplicated
+[Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Fixed
 
 [Neo4j-13225](https://github.com/neo4j/neo4j/issues/13225) Status: Confirmed/Intended
 
@@ -42,13 +42,13 @@ query_file: 用于测试的原始query请求的集合
 
 [Neo4j-13233](https://github.com/neo4j/neo4j/issues/13233) Status: Fixed
 
-[Neo4j-13234](https://github.com/neo4j/neo4j/issues/13234) Status: Intended
+[Neo4j-13234](https://github.com/neo4j/neo4j/issues/13234) Status: Fixed
 
-[Neo4j-13235](https://github.com/neo4j/neo4j/issues/13235) Status: Intended (Related to 3 bugs)
+[Neo4j-13235](https://github.com/neo4j/neo4j/issues/13235) Status: Doc bugs (Related to 3 bugs)
 
-[Neo4j-13236](https://github.com/neo4j/neo4j/issues/13236) Status: Intended
+[Neo4j-13236](https://github.com/neo4j/neo4j/issues/13236) Status: Fixed
 
-[Neo4j-13262](https://github.com/neo4j/neo4j/issues/13262) Status: Confirmed
+[Neo4j-13262](https://github.com/neo4j/neo4j/issues/13262) Status: Fixed
 
 [Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Confirmed (Related to 2 bugs)
 
