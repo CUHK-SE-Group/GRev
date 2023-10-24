@@ -57,6 +57,8 @@ class TestConfig:
         self.q2 = None
 
         self.num_bug_triggering = 0
+        self.num_logic = 0
+        self.num_performance = 0
 
 
 class TesterAbs(ABC):

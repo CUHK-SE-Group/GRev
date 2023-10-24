@@ -1,8 +1,5 @@
-from database_tests.helper import *
 from database_tests.redis.TestRedis import RedisTester
-# from mutator.redis.query_transformer import QueryTransformer
-from mutator.query_transformer import QueryTransformer
-import subprocess
+from datetime import datetime
 
 
 def detect_number_of_bug_triggering_single(data_file, log_file='./evaluation/eval1.log',
@@ -17,23 +14,29 @@ def detect_number_of_bug_triggering_single(data_file, log_file='./evaluation/eva
 
     database_name = "eval1_graph"
     rt = RedisTester(database_name)
-    num_total = rt.single_file_testing_alt(logfile=data_file, create_statements=create_statements,
+    num_logic, num_performance = rt.single_file_testing_alt(logfile=data_file, create_statements=create_statements,
                                            query_statements=base_queries)
 
     with open(log_file, 'w+') as f:
-        print(f'file = {data_file}, result = {num_total}', file=f)
+        print(datetime.now())
+        print(f'file = {data_file}, # logic = {num_logic}, # performance = {num_performance}', file=f)
 
-    return num_total
+    return num_logic, num_performance
 
 
 def detect_number_of_bug_triggering(num_cases=10, num_mutations=5000, num_queries_generated=20):
-    num_total = 0
+    total_num_logic = 0
+    total_num_performance = 0
+
     for idx in range(num_cases):
         print(f'Case #{idx}')
         data_file = f'./query_producer/logs/composite/database{idx}-cur.log'
-        num_total += detect_number_of_bug_triggering_single(data_file, num_mutations=num_mutations,
+        num_logic, num_performance = detect_number_of_bug_triggering_single(data_file, num_mutations=num_mutations,
                                                             num_queries_generated=num_queries_generated)
-    return num_total
+        total_num_logic += num_logic
+        total_num_performance += num_performance
+
+    return total_num_logic, total_num_performance
 
 
 if __name__ == '__main__':
@@ -56,7 +59,7 @@ if __name__ == '__main__':
     # ]
     # subprocess.run(stuff, cwd="./query_producer")
 
-    result = detect_number_of_bug_triggering(num_cases=num_cases, num_mutations=5,
+    total_num_logic, total_num_performance = detect_number_of_bug_triggering(num_cases=num_cases, num_mutations=5,
                                              num_queries_generated=num_queries_generated)
 
     with open("./evaluation/eval1.res", mode="w") as f:

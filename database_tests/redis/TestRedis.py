@@ -77,7 +77,7 @@ class RedisTester(TesterAbs):
         logger = new_logger("logs/redis.log", True)
         qt = QueryTransformer()
         conf = TestConfig(
-            client=Redis(config.get("redis", "uri"), self.database),
+            client=Redis(uri="localhost", database=self.database),
             logger=logger,
             source_file=logfile,
             logic_inconsistency_trace_file='logs/redis_logic_error.tsv',
@@ -97,7 +97,8 @@ class RedisTester(TesterAbs):
         logger = new_logger("logs/redis.log")
         qt = QueryTransformer()
         conf = TestConfig(
-            client=Redis(config.get("redis", "uri"), self.database),
+            # client=Redis(config.get("redis", "uri"), self.database),
+            client=Redis(uri="localhost", database=self.database),
             logger=logger,
             source_file=logfile,
             logic_inconsistency_trace_file='logs/redis_logic_error.tsv',
@@ -108,7 +109,8 @@ class RedisTester(TesterAbs):
             mutator_func=qt.mutant_query_generator
         )
         general_testing_procedure(conf)
-        return conf.num_bug_triggering
+        # return conf.num_bug_triggering
+        return conf.num_logic, conf.num_performance
 
 
 def schedule():

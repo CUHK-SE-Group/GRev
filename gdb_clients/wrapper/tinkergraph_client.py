@@ -31,7 +31,7 @@ class TinkerGraphClient:
 
     def delete_all_graphs(self):
         url = self._host
-        request_body = {'gremlin': 'g.V().drop()'}
+        request_body = {'gremlin': 'g.V().drop().iterate()'}
         response = requests.post(url=url, data=json.dumps(request_body), headers=self._headers)
         if response.status_code != 200:
             logging.error(json.loads(response.content))

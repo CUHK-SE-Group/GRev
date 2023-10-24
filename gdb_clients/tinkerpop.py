@@ -8,7 +8,7 @@ import re
 
 class Tinkerpop(GdbFactory):
     def __init__(self):
-        self.client = TinkerGraphClient("0.0.0.0", "10106")
+        self.client = TinkerGraphClient("localhost", "8182")
         self.clear()
 
     def run(self, query):
