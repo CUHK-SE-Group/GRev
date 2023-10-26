@@ -68,11 +68,11 @@ query_file: 用于测试的原始query请求的集合
 
 [TinkerPop-2961](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961) Status: Confirmed (Related to 2 bugs)
 
-[NebulaGraph-5616](https://github.com/vesoft-inc/nebula/issues/5616) Status: Intended
+[NebulaGraph-5616](https://github.com/vesoft-inc/nebula/issues/5616) Status: Confirmed
 
-[NebulaGraph-5617](https://github.com/vesoft-inc/nebula/issues/5617) Status: Intended
+[NebulaGraph-5617](https://github.com/vesoft-inc/nebula/issues/5617) Status: Confirmed
 
-[NebulaGraph-py-277](https://github.com/vesoft-inc/nebula-python/issues/277) Status: Intended
+[NebulaGraph-py-277](https://github.com/vesoft-inc/nebula-python/issues/277) Status: Fixed
 
 [New redis](https://github.com/FalkorDB/FalkorDB/issues/470) Status: Intended
 
