@@ -72,6 +72,12 @@ query_file: 用于测试的原始query请求的集合
 
 [NebulaGraph-5617](https://github.com/vesoft-inc/nebula/issues/5617) Status: Confirmed
 
+[NebulaGraph-5624](https://github.com/vesoft-inc/nebula/issues/5624)  Status: Confirmed
+
+[NebulaGraph-5625](https://github.com/vesoft-inc/nebula/issues/5625) Status: Confirmed
+
+[NebulaGraph-5626](https://github.com/vesoft-inc/nebula/issues/5626) Status: Confirmed
+
 [NebulaGraph-py-277](https://github.com/vesoft-inc/nebula-python/issues/277) Status: Fixed
 
 [New redis](https://github.com/FalkorDB/FalkorDB/issues/470) Status: Intended
