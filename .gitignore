@@ -11,3 +11,5 @@ db.json
 query_file/
 
 .python-version
+evaluation/neo4j_data
+evaluation/neo4j_import_dir

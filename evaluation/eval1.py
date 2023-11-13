@@ -17,20 +17,19 @@ def detect_number_of_bug_triggering_single(data_file, log_file='./evaluation/eva
     num_logic, num_performance = rt.single_file_testing_alt(logfile=data_file, create_statements=create_statements,
                                            query_statements=base_queries)
 
-    with open(log_file, 'w+') as f:
-        print(datetime.now())
-        print(f'file = {data_file}, # logic = {num_logic}, # performance = {num_performance}', file=f)
+    with open(log_file, mode='a') as f:
+        print(f'current time: {datetime.now()}', file=f)
+        print(f'file = {data_file}, #logic = {num_logic}, #performance = {num_performance}', file=f)
+        print(file=f)
 
     return num_logic, num_performance
 
 
 def detect_number_of_bug_triggering(num_cases=10, num_mutations=5000, num_queries_generated=20):
-    total_num_logic = 0
-    total_num_performance = 0
-
+    total_num_logic, total_num_performance = 0, 0
+    offset = 300
     for idx in range(num_cases):
-        print(f'Case #{idx}')
-        data_file = f'./query_producer/logs/composite/database{idx}-cur.log'
+        data_file = f'./query_producer/logs/composite/database{offset + idx}-cur.log'
         num_logic, num_performance = detect_number_of_bug_triggering_single(data_file, num_mutations=num_mutations,
                                                             num_queries_generated=num_queries_generated)
         total_num_logic += num_logic
@@ -40,8 +39,12 @@ def detect_number_of_bug_triggering(num_cases=10, num_mutations=5000, num_querie
 
 
 if __name__ == '__main__':
-    num_cases = 50
+    num_cases = 300
     num_queries_generated = 5000
+
+    with open("./evaluation/eval1.log", mode='a') as f:
+        print(f'starting time: {datetime.now()}', file=f)
+        print(file=f)
 
     # stuff = [
     #     "java",
@@ -62,5 +65,9 @@ if __name__ == '__main__':
     total_num_logic, total_num_performance = detect_number_of_bug_triggering(num_cases=num_cases, num_mutations=5,
                                              num_queries_generated=num_queries_generated)
 
-    with open("./evaluation/eval1.res", mode="w") as f:
-        print(f'result')
+    with open("./evaluation/eval1.log", mode='a') as f:
+        print(f'total #logic = {total_num_logic}, total #performance = {total_num_performance}', file=f)
+
+    with open("./evaluation/eval1.log", mode='a') as f:
+        print(f'finishing time: {datetime.now()}', file=f)
+        print(file=f)
