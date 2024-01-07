@@ -74,7 +74,6 @@ class Neo4jTester(TesterAbs):
         print("Initializing dabtases...")
         result, _ = temp_conn.run("SHOW DATABASES")
         database_names = [record['name'] for record in result]
-        # 检查指定的数据库是否在数据库名称列表中
         if database in database_names:
             print("The database exists...")
         else:
@@ -94,8 +93,19 @@ class Neo4jTester(TesterAbs):
 
     def single_file_testing(self, logfile):
         t = time.time()
-        logfile = f"./query_producer/cypher/{t}.log"
+        if config.get("neo4j", "generator") != "gdsmith":
+            logfile = f"./query_producer/cypher/{t}.log"
         def query_producer():
+            print(config.get("neo4j", "generator"))
+            if config.get("neo4j", "generator") == "gdsmith":
+                print('using gdsmith as generator...')
+                with open(logfile, 'r') as f:
+                    content = f.read()
+                contents = content.strip().split('\n')
+                query_statements = contents[-5000:]
+                create_statements = contents[4:-5000]
+                return create_statements, query_statements
+            print('using diy-cypher as generator...')
             generator = QueryGenerator(f"./query_producer/cypher/{t}.log")
             with open(f"./query_producer/cypher/{t}.log", 'r') as f:
                 content = f.read()
@@ -103,6 +113,7 @@ class Neo4jTester(TesterAbs):
             match_statements = [generator.gen_query() for i in range(2000)]
             contents = content.strip().split('\n')
             return contents, match_statements
+        
         logger = new_logger("logs/neo4j.log", True)
         conf = TestConfig(
             client=Neo4j(config.get("neo4j", 'uri'), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),
@@ -122,12 +133,13 @@ class Neo4jTester(TesterAbs):
 
 
 def schedule():
-    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("neo4jtesting"), 'neo4j')
+    scheduler(config.get('neo4j', 'input_path'), Neo4jTester("neo4j"), 'neo4j')
 
 
 if __name__ == "__main__":
     if config.get("GLOBAL", 'env') == "debug":
-        Tester = Neo4jTester('test4')
+        print('debug')
+        Tester = Neo4jTester('neo4j')
         Tester.single_file_testing("query_producer/logs/composite/database137-cur.log")
     else:
         schedule()

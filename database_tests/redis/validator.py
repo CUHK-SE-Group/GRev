@@ -2,11 +2,11 @@ import csv
 
 import TestRedis
 import configs
-from database_tests.reduce_module.simplify_query import eliminate_useless_clauses
 from gdb_clients import Redis
 from typing import List
 # import pandas as pd
 import time
+from configs import config
 
 import re
 
@@ -26,7 +26,7 @@ def read_logic_error_file():
 
 
 def validate(database, log_file, query_pairs):
-    client = Redis("10.20.10.27", database + "_validation")
+    client = Redis(config.get("redis", "uri"), database + "_validation")
     with open(log_file, 'r') as f:
         content = f.read()
         contents = content.strip().split('\n')
@@ -77,10 +77,6 @@ def compare(array1: List[list], array2: List[list]):
         if key not in dict1:
             compare_result2[key] = value
 
-    # cnt1 = sum([v for _, v in compare_result1.items()])
-    # cnt2 = sum([v for _, v in compare_result2.items()])
-    # if cnt1 != cnt2:
-    #     print("数量不符")
 
     if compare_result1 == {} and compare_result2 == {}:
         return True, compare_result1, compare_result2
@@ -136,7 +132,6 @@ def find_keywords(string, keywords):
 def reduce(client, query1: str, query2: str):
     query1_res, _ = client.run(query1)
     query2_res, _ = client.run(query2)
-    # 如果两个结果相等，则说明没有不一致的现象
     eq, compare_result1, compare_result2 = compare(query1_res, query2_res)
     if eq:
         return
@@ -151,23 +146,23 @@ def reduce(client, query1: str, query2: str):
         keys1 = set([i for i, _ in compare_result1.items()])
         keys2 = set([i for i, _ in compare_result2.items()])
         if keys1 == keys2:
-            print("数量总和一致, 且key一致")
+            print("sum yes, key yes")
         else:
-            print("数量总和一致, 且key不一致")
+            print("sum yes, key no")
         return
     print(compare_result1)
     print(compare_result2)
     keys1 = set([i for i, _ in compare_result1.items()])
     keys2 = set([i for i, _ in compare_result2.items()])
     if keys1 == keys2:
-        print("数量总和不一致, 且key一致")
+        print("sum no, key yes")
     else:
-        print("数量总和不一致, 且key不一致")
+        print("sum no, key no")
 
 
 if __name__ == "__main__":
     # read_logic_error_file()
-    validate("validation", "query_producer/logs/composite/database489-cur.log", [(
+    validate("validation", "query_producer/logs/composite/database100-cur.log", [(
         "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4 MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n8 :L0)-[r6 :T5]->(n9), (n2 :L0)<-[r10 :T2]-(n12 :L1), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9) RETURN n10.k20", 
         
         "MATCH (n1 :L3)<-[r1 :T1]-(n2 :L4), (n3 :L0 :L1 :L4)<-[r2 :T2]-(n4 :L1 :L0)<-[r3 :T5]-(n5 :L3) WITH DISTINCT n4 MATCH (n3 :L4)<-[]-(n4 :L0)<-[]-(n5)  MATCH (n2 :L0)<-[r10 :T2]-(n12 :L1), (n11 :L3)-[r8 :T1]->(n3), (n10 :L3)-[r7 :T5]->(n9), (n8 :L0)-[r6 :T5]->(n9) RETURN n10.k20"

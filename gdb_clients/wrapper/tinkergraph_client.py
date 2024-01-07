@@ -31,14 +31,16 @@ class TinkerGraphClient:
 
     def delete_all_graphs(self):
         url = self._host
-        request_body = {'gremlin': 'g.V().drop()'}
+        request_body = {'gremlin': 'g.V().drop().iterate()'}
         response = requests.post(url=url, data=json.dumps(request_body), headers=self._headers)
         if response.status_code != 200:
             logging.error(json.loads(response.content))
             raise ValueError
         return json.loads(response.content)
 
-client = TinkerGraphClient()
+
+if __name__ == "__main__":
+    client = TinkerGraphClient()
 # print('test')
 # # print(client.send_gremlin('JanusGraphFactory.getGraphNames()'))
 # print(client.send_gremlin('g.V().count()'))

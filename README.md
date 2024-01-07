@@ -1,86 +1,316 @@
-# pattern-transformer
+# Testing Graph Database Systems via Equivalent Query Rewriting
 
+Features:
 
-## 目录结构说明
+- Efficient Deployment: Initiate testing through Docker-compose for quick and streamlined server deployment.
+- Comprehensive Monitoring: Detailed bug analysis is made possible through integration with Elastic Search and Kibana, ensuring consistent performance tracking.
+- Real-Time Notifications: Configurable Lark webhooks provide instant test messages in your Instant Messaging (IM) app, keeping you informed on-the-go.
+- Simplified Validation: Simply copy original queries to validate.py in Python to perform straightforward validation.
+
+## Quick Start
+
+### Prepare Queries
+
+You need Java version 11 to run the GDsmith.
 
 ```
-configs: 配置全局使用的一些配置文件和公用函数
-database_tests: 针对不同的db实现的测试逻辑
-gdb_client: 针对不同db实现的客户端连接，用于与db服务端通信交互
-logs: 日志文件
-mutator: 突变的主要逻辑
-query_file: 用于测试的原始query请求的集合
+$ java --version                                                                                        
+openjdk 11.0.19 2023-04-18
+OpenJDK Runtime Environment (build 11.0.19+7-post-Ubuntu-0ubuntu122.04.1)
+OpenJDK 64-Bit Server VM (build 11.0.19+7-post-Ubuntu-0ubuntu122.04.1, mixed mode, sharing)
 ```
 
-## 核心算法验证
+Then run the `GDsmith.jar` in the `query_producer`. The following command will produce 100 files in `query_producer/logs/composite`. You can change the `num-thread` and `num-tries` to speed up the generation.
 
-最核心的MR关系的变换算法位于 `mutator/pattern_transformer.py` 中。 
-
-如何验证该算法：
-1. 在`mutator/test_cases.ini`里添加pattern作为测试用例。
-2. 在当前目录运行pytest，单元测试会读取文件里的测试用例进行测试
-
-### Sample input for new pattern mutator:
-```cypher
-(n2:(L7&L2&!L3))-[r32:((T1&T7)|(%)) WHERE (r32.p19 <> r24.p2) OR (NOT (r32.p2 = r6.p6))]->(n11:(!L1&(L0)))<-[r33:(!%&!!!(T3)|!!T5)]-(n20:(L4)), (n6:(!!L6&%&(L1)))<-[r34:(!T0|T0|!!T1|!%) {p19: "1EGGYIgd7PMxHW"}]-(n5:((L5)|!(L2)) {p15: false})-[r35:((T1)|!!T0|!(T6))]-(n4:(!!%&!!!!!(%&(L2))))-[:(!T6) *]-(n6:(!!L7&%|!!L2&!!(%)))<-[:(!!!T3&T6) *]-(n9:((L5)|L6|!!L5|!!(L1))), (n21:((!L2|!L3&(L0|L5)))), (n10)-[r36:(T3&%)]-(n3:(L5&L1&L5) {p10: "T"})
+```bash
+$ cd query_producer
+$ java -jar GDsmith.jar --num-tries 100 --num-queries 5000 --algorithm compared3 --num-threads 16 composite
 ```
 
-## 运行测试
-在根目录运行测试，如测试Neo4j 使用 ```python ./database_test/neo4j/TestNeo4j.py```
-如果是命令行执行需要 ```export PYTHONPATH=./:$PYTHONPATH```
 
-## Detected Bugs
-[Neo4j-13168](https://github.com/neo4j/neo4j/issues/13168) Status: Fixed (with [Neo4j-13085](https://github.com/neo4j/neo4j/issues/13085))
+### Start Testing
 
-[Neo4j-13170](https://github.com/neo4j/neo4j/issues/13170) Status: Fixed
+Now you need to start the database servers. We have already provide the docker compose file, since Nebula requires a cluster, you have to start the Nebula cluster first.
 
-[Neo4j-13212](https://github.com/neo4j/neo4j/issues/13212) Status: Fixed
+```bash
+$ cd nebula-docker-compose
+$ docker compose up -d
+```
 
-[Neo4j-13225](https://github.com/neo4j/neo4j/issues/13225) Status: Confirmed/Intended
+Then go back to the project root, you just need to enter `docker compose up -d`, the testing will start.
 
-[Neo4j-13229](https://github.com/neo4j/neo4j/issues/13229) Status: Confirmed
-
-[Neo4j-13233](https://github.com/neo4j/neo4j/issues/13233) Status: Fixed
-
-[Neo4j-13234](https://github.com/neo4j/neo4j/issues/13234) Status: Fixed
-
-[Neo4j-13235](https://github.com/neo4j/neo4j/issues/13235) Status: Doc bugs (Related to 3 bugs)
-
-[Neo4j-13236](https://github.com/neo4j/neo4j/issues/13236) Status: Fixed
-
-[Neo4j-13262](https://github.com/neo4j/neo4j/issues/13262) Status: Fixed
-
-[Memgraph-948](https://github.com/memgraph/memgraph/issues/948) Status: Confirmed (Related to 2 bugs)
-
-[Memgraph-954](https://github.com/memgraph/memgraph/issues/954) Status: Intended
-
-[Memgraph-1068](https://github.com/memgraph/memgraph/issues/1068) Status: Intended
-
-[RedisGraph-3081](https://github.com/RedisGraph/RedisGraph/issues/3081) Status: Intended
-
-[RedisGraph-3091](https://github.com/RedisGraph/RedisGraph/issues/3091) Status: Intended
-
-[RedisGraph-3093](https://github.com/RedisGraph/RedisGraph/issues/3093) Status: Intended
-
-[RedisGraph-3100](https://github.com/RedisGraph/RedisGraph/issues/3100) Status: Intended
-
-[RedisGraph-3114](https://github.com/RedisGraph/RedisGraph/issues/3114) Status: Intended
-
-[TinkerPop-2961](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961) Status: Confirmed (Related to 2 bugs)
-
-[NebulaGraph-5616](https://github.com/vesoft-inc/nebula/issues/5616) Status: Confirmed
-
-[NebulaGraph-5617](https://github.com/vesoft-inc/nebula/issues/5617) Status: Confirmed
-
-[NebulaGraph-5624](https://github.com/vesoft-inc/nebula/issues/5624)  Status: Confirmed
-
-[NebulaGraph-5625](https://github.com/vesoft-inc/nebula/issues/5625) Status: Confirmed
-
-[NebulaGraph-5626](https://github.com/vesoft-inc/nebula/issues/5626) Status: Confirmed
-
-[NebulaGraph-py-277](https://github.com/vesoft-inc/nebula-python/issues/277) Status: Fixed
-
-[New redis](https://github.com/FalkorDB/FalkorDB/issues/470) Status: Intended
+```bash
+$ docker build -t pt .
+$ docker compose up -d                                                                       
+[+] Running 12/12
+ ✔ Container elasticsearch                           Running                                             0.0s 
+ ✔ Container pattern-transformer-cypher2gremlin-1    Running                                             0.0s 
+ ✔ Container kibana                                  Running                                             0.0s 
+ ✔ Container pattern-transformer-nebula_client-1     Running                                             0.0s 
+ ✔ Container logstash                                Running                                             0.0s 
+ ✔ Container pattern-transformer-tinkerpop_client-1  Started                                             0.8s 
+ ✔ Container pattern-transformer-redis-stack-1       Ru...                                               0.0s 
+ ✔ Container pattern-transformer-memgraph-1          Runni...                                            0.0s 
+ ✔ Container pattern-transformer-redis_client-1      R...                                                0.0s 
+ ✔ Container pattern-transformer-memgraph_client-1   Running                                             0.0s 
+ ✔ Container pattern-transformer-neo4j-1             Running                                             0.0s 
+ ✔ Container pattern-transformer-neo4j_client-1      R...                                                0.0s 
+```
 
 
+### Review Found Bugs
 
+You can monitor the runtime logs in `docker shell`, or watching the `logs` folder.
+
+#### Docker Logs
+
+First you can see what containers we have:
+
+```bash
+NAME                                     IMAGE                                                 COMMAND                  SERVICE             CREATED             STATUS              PORTS
+elasticsearch                            docker.elastic.co/elasticsearch/elasticsearch:8.8.1   "/bin/tini -- /usr/l…"   elasticsearch       14 hours ago        Up 14 hours         0.0.0.0:9200->9200/tcp, :::9200->9200/tcp, 0.0.0.0:9300->9300/tcp, :::9300->9300/tcp
+kibana                                   docker.elastic.co/kibana/kibana:8.8.1                 "/bin/tini -- /usr/l…"   kibana              14 hours ago        Up 14 hours         0.0.0.0:5601->5601/tcp, :::5601->5601/tcp
+logstash                                 docker.elastic.co/logstash/logstash:8.8.1             "/usr/local/bin/dock…"   logstash            14 hours ago        Up 14 hours         0.0.0.0:5044-5045->5044-5045/tcp, :::5044-5045->5044-5045/tcp, 9600/tcp
+pattern-transformer-cypher2gremlin-1     pattern-transformer-cypher2gremlin                    "java -jar demo-0.0.…"   cypher2gremlin      14 hours ago        Up 14 hours         0.0.0.0:8085->8080/tcp, :::8085->8080/tcp
+pattern-transformer-memgraph-1           memgraph/memgraph-platform:latest                     "/bin/sh -c '/usr/bi…"   memgraph            14 hours ago        Up 14 hours         0.0.0.0:3000->3000/tcp, :::3000->3000/tcp, 0.0.0.0:7688->7687/tcp, :::7688->7687/tcp
+pattern-transformer-memgraph_client-1    pt                                                    "bash ./scripts/run_…"   memgraph_client     14 hours ago        Up 17 minutes       
+pattern-transformer-neo4j-1              neo4j:5.6.0-enterprise                                "tini -g -- /startup…"   neo4j               14 hours ago        Up 14 hours         0.0.0.0:7474->7474/tcp, :::7474->7474/tcp, 7473/tcp, 0.0.0.0:7687->7687/tcp, :::7687->7687/tcp
+pattern-transformer-neo4j_client-1       pt                                                    "bash ./scripts/run_…"   neo4j_client        14 hours ago        Up About an hour    
+pattern-transformer-redis-stack-1        redis/redis-stack:6.2.6-v7                            "/entrypoint.sh"         redis-stack         14 hours ago        Up 14 hours         0.0.0.0:6379->6379/tcp, :::6379->6379/tcp, 8001/tcp
+pattern-transformer-redis_client-1       pt                                                    "bash ./scripts/run_…"   redis_client        14 hours ago        Up 2 hours          
+pattern-transformer-tinkerpop_client-1   pt                                                    "bash ./scripts/run_…"   tinkerpop_client    14 hours ago        Up 9 minutes
+```
+
+Take neo4j as an exmaple, you can see the logs by the following commands:
+
+```bash
+$ docker compose logs -f neo4j_client
+```
+
+#### Log Files
+
+You can see the files similar to the following. Each `*.tsv` contains the logic error that we found, each `*.log` contains the full logs of the runtime, and `*.json` contains 10 max performance inconsistency query pairs.
+```bash
+$ tree logs
+logs
+├── memgraph.log
+├── memgraph_performance.json
+├── nebula.log
+├── nebula_logic_error.tsv
+├── nebula_performance.json
+├── neo4j.log
+├── neo4j_performance.json
+├── redis.log
+├── redis_logic_error.tsv
+├── redis_performance.json
+├── tinkerpop.log
+└── tinkerpop_logic_error.tsv
+
+0 directories, 12 files
+```
+
+### Further Explaination
+
+1. **Testing Interruptions**: The testing process may encounter interruptions when queries request a large volume of data, which could overburden the graph databases.
+2. **Database Crashes**: If a query triggers a crash or kernel bug within the database, the database may terminate unexpectedly. Although we have implemented an auto-restart strategy, we cannot guarantee a successful restart every time.
+
+If these happen, you have to restart it maually.
+
+```bash
+$ docker compose restart neo4j_client
+```
+
+For a more detailed explanation and additional information, please refer to the subsequent README file.
+
+## Project Layout
+
+```bash
+├── configs                             # configurations
+├── cypher                             # cyper generator
+├── cypher2gremlin                     # an individual java project to transform cypher into gremlin
+├── database_tests                     # main test logic controllers
+├── db.json                            # a file that record the testing process
+├── docker-compose.yaml                
+├── Dockerfile
+├── elk                                # elk toolkits for monitoring the testing process
+├── evaluation                         # evaluations for paper
+├── gdb_clients                        # client stubs for the GDB server.
+├── logs                               # general logs, performance logs and logic bug log.
+├── mutator                            # implementation of mutator
+├── nebula-docker-compose              # an individual folder for establish the nebula database
+├── query_file                          # a testing data dir
+├── query_producer                     # a path that store the queries we used in the test
+├── README.md
+├── requirements.txt
+├── scripts                            # scripts for quick start testing
+└── webhook                            # webhooks for sending warning and error message to lark
+```
+
+The detailed testing procedure is archived in the `database_tests` directory. Let's delve deeper into its structure. Within `database_tests`, there are five subdirectories representing different databases: `memgraph`, `nebula`, `neo4j`, `redis`, and `tinkerpop`. As the testing procedures across these databases bear a lot of similarities, we've abstracted the overall process into a convenient script named `helper.py`. This allows for a uniform testing approach across different databases, improving efficiency and consistency.
+
+
+
+
+```bash
+├── helper.py
+├── memgraph
+│   ├── TestMemGraph.py
+│   └── validator.py
+├── nebula
+│   ├── nebula.txt
+│   ├── TestNebula.py
+│   ├── test_nebula_simple.py
+│   └── validator.py
+├── neo4j
+│   ├── TestNeo4j.py
+│   └── validator.py
+├── redis
+│   ├── TestRedis.py
+│   └── validator.py
+└── tinkerpop
+    ├── TestTinkerpop.py
+    └── validator.py
+```
+
+
+In `helper.py`, we use `general_testing_procedure` to show the general proedures of metamorphic testing. Each distinct database only needs to pass the corresponding configurations into the `general_testing_procedure`.
+
+Currently, we have the following configurable parameters:
+
+- **Mode of Testing**: 
+    - `live`: Sends messages directly to your Instant Messaging (IM) application.
+    - `debug`: Runs local tests on a single file.
+    - `normal`: Performs tests without sending messages to IM.
+- **report**: Defines the IM reporting function and webhook token.
+- **transform_times**: Sets the number of transformations to be carried out.
+- **client**: Identifies the client for a given graph database.
+- **logger**: Defines the logger.
+- **source_file**: Specifies the input file that contains query clauses.
+- **logic_inconsistency_trace_file**: Points to the logic bug output file.
+- **database_name**: Indicates the name of the database.
+- **mutator_func**: Sets the mutation strategy.
+- **query_producer_func**: Defines the approach to handling the query file.
+- **oracle_func**: Identifies the oracle.
+
+```python
+class TestConfig:
+    def __init__(self, **kwargs):
+        self.mode = kwargs.get('mode', 'live')
+        self.report = kwargs.get('report', post)
+        self.report_token = kwargs.get('report_token')
+        self.transform_times = kwargs.get('transform_times', 5)
+
+        self.client: GdbFactory = kwargs.get('client')
+        self.logger: Logger = kwargs.get('logger')
+        self.source_file = kwargs.get('source_file')
+        self.logic_inconsistency_trace_file = kwargs.get('logic_inconsistency_trace_file')
+        self.database_name = kwargs.get('database_name')
+
+        self.mutator_func: Callable[[str], str] = kwargs.get('mutator_func', QueryTransformer().mutant_query_generator)
+        self.query_producer_func = kwargs.get('query_producer_func', lambda: ([], []))
+        self.oracle_func: Callable[[TestConfig, any, any], None] = kwargs.get("oracle_func")
+
+        # temp val for consistency checker
+        self.q1 = None
+        self.q2 = None
+
+        self.num_bug_triggering = 0
+```
+
+
+## Configure filebeat to Start Monitoring
+
+We provide the `elk` toolkits, you can find it in `elk` folder. By running the `docker compose up -d`, you have started `elasticsearch`, `kibana`, and `logstash`. However, there are no input data(log) yet, so you have to maually configure the `filebeat`, sending the log file to the `elasticserach`.
+
+You can follow the official instruction in https://www.elastic.co/beats/filebeat
+
+We also provide a template configuration for your reference.
+
+```yaml
+filebeat.inputs:
+
+- type: log
+  paths: 
+    - /home/replace-with-your-path/logs/*.log
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.ilm.overwrite: true
+setup.template.settings:
+  index.number_of_shards: 1
+setup.kibana:
+  host: "localhost:5601"
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+```
+
+Then configure it in `kibana` dashboard, you can open the browser, `http://localhost:5601`
+
+By creating a dataview of filebeat you can have a table of these bugs
+
+![adding dataview](docs/images/addview.jpg)
+
+Then, search the `logstash.log` metric, and add it to the table. You can see the following image:
+
+
+![data view](docs/images/kibana.jpg)
+
+## About the Testing Mode
+
+We utilize the `GDsmith` as the cypher generator, we also implement our own cypher and gremlin generator. To control the behavior, you can change the `config.ini`.
+
+
+```
+[memgraph]
+uri = memgraph
+port = 7687
+input_path = query_producer/logs/composite
+; you can replace `gdsmith` with `cypher`
+generator = gdsmith
+```
+
+
+## Reproduce the Evaluation Result of Redis
+
+We generated the data needed for Figure 8 with the following two scripts:
+- `evaluation/eval0.py`: Evaluates the number of distinct queries and query plans (**Q2(a)** and **Q2(b)**).
+- `evaluation/eval1.py`, Evaluates the number of bug-triggering test cases (**Q2(c)**).
+
+To reproduce the results for **Q2(a)** and **Q2(b)**, execute the first script using the following command:
+
+```bash
+$ docker compose exec -it redis_client bash   
+root@c8596f7defc9:/appdata# python evaluation/eval0.py
+```
+
+The script will generate four integers, one on each line, in the file evaluation/eval0.res.
+These integers represent the following, in order:
+- Number of distinct queries based on _Random Base Queries_
+- Number of distinct query plans based on _Random Base Queries_
+- Number of distinct queries based on _Long Base Queries_
+- Number of distinct query plans based on _Long Base Queries_
+
+To reproduce the results for **Q2(c)**, run the second script with:
+
+```bash
+$ docker compose exec -it redis_client bash   
+root@c8596f7defc9:/appdata# python evaluation/eval1.py
+```
+
+This will output a single integer into the file `evaluation/eval1.res`, representing:
+- Number of bug-triggering test cases
+
+Note that the second script `evaluation/eval1.py` is expected to be quite time-intensive.
+On our testing machine, it took ~12 hours to complete the entire evaluation.
+
+
+## Bug List
+
+Due to the double-blind review system for paper evaluation, we will release the bug list after the paper is published.

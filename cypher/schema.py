@@ -1,6 +1,12 @@
 import random
+import os
 from cypher.constant import ConstantGenerator
 
+def create_folders_if_not_exist(file_path):
+    dir_path = os.path.dirname(file_path)
+
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
 class GraphSchema:
     def __init__(self):
@@ -32,6 +38,8 @@ class GraphSchema:
             self.edge_prop_val["p" + str(i)] = []
             self.types2prop[self.prop["p" + str(i)]].append("p" + str(i))
 
+        if not os.path.exists(output_file):
+            create_folders_if_not_exist(output_file)
         with open(output_file, "w", encoding="utf-8") as f:
             for i in range(0, node_num):
                 statement = "CREATE(n0"

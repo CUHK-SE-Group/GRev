@@ -3,13 +3,9 @@ from database_tests.helper import *
 from gdb_clients import *
 from configs.conf import new_logger, config
 import json
-
-
+from mutator.gremlin.testcase_generator import *
 def list_to_dict(lst):
-    # 定义一个defaultdict，用于创建一个默认值为0的字典
     result = defaultdict(int)
-    # 对于列表中的每个元素，如果它是一个列表，则递归调用list_to_dict函数
-    # 如果不是列表，则将其作为键添加到字典中，并增加其出现次数
     for elem in lst:
         if isinstance(elem, list):
             nested_dict = list_to_dict(elem)
@@ -55,6 +51,9 @@ class TinkerTester(TesterAbs):
         self.database = database
 
     def single_file_testing(self, logfile:str):
+        ts = time.time()
+        if config.get('tinkerpop', 'input_mode') == "gremlin":
+            logfile = f"./query_producer/gremlin_generator/create-{ts}.log"
         def query_producer():
             if config.get('tinkerpop', 'input_mode') == "cypher":
                 with open(logfile, 'r') as f:
@@ -64,6 +63,9 @@ class TinkerTester(TesterAbs):
                 create_statements = contents[4:-5000]
                 return create_statements, match_statements
             elif config.get('tinkerpop', 'input_mode') == "gremlin":
+                if not os.path.exists("./query_producer/gremlin_generator"):
+                    os.makedirs("./query_producer/gremlin_generator")
+                GenTestcase(f"./query_producer/gremlin_generator/create-{ts}.log", f"./query_producer/gremlin_generator/query-{ts}.log", 2000)
                 with open(logfile, "r", encoding = "utf-8") as f:
                     create_statements = f.read().strip().split('\n')
                 with open(logfile.replace("create", "query"), "r", encoding = "utf-8") as f:

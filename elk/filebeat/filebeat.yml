@@ -1,0 +1,23 @@
+filebeat.inputs:
+
+- type: log
+  paths: 
+    - /home/replace-with-your-path/logs/*.log
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.ilm.overwrite: true
+setup.template.settings:
+  index.number_of_shards: 1
+setup.kibana:
+  host: "localhost:5601"
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+

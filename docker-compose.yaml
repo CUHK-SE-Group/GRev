@@ -47,7 +47,7 @@ services:
       - ./elk/logstash/pipeline:/usr/share/logstash/pipeline/
   # databases
   neo4j:
-    image: neo4j:5.8.0-enterprise
+    image: neo4j:5.12.0-enterprise
     restart: on-failure
     depends_on:
       - kibana
@@ -71,11 +71,13 @@ services:
     image: redis/redis-stack:6.2.6-v7
     restart: on-failure
     ports:
-      - 6379:6379
+      - 6380:6379
     depends_on:
       - kibana
       - logstash
       - elasticsearch
+    environment:
+      - REDISGRAPH_ARGS=MAX_QUEUED_QUERIES 25 TIMEOUT 10000 RESULTSET_SIZE 10000 QUERY_MEM_CAPACITY 1048576
     deploy:
       resources:
         limits:
@@ -100,9 +102,27 @@ services:
     ports:
       - 3000:3000
       - 7688:7687
+  tinkerpop:
+    image: tinkerpop/gremlin-server:3.6
+    restart: on-failure
+    depends_on:
+      - kibana
+      - logstash
+      - elasticsearch
+    entrypoint: ["/bin/sleep"]
+    command: ["infinity"]
+    deploy:
+      resources:
+        limits:
+          memory: 10G
+    networks:
+      - gdb_testing
+    tty: true
+    ports:
+      - 8182:8182
 
   redis_client:
-    image: lincyaw/patterntransfromer:latest
+    image: pt
     working_dir: /appdata
     restart: on-failure
     tty: true
@@ -115,7 +135,7 @@ services:
     entrypoint: [ "bash", "./scripts/run_redis.sh" ]
 
   memgraph_client:
-    image: lincyaw/patterntransfromer:latest
+    image: pt
     working_dir: /appdata
     tty: true
     restart: on-failure
@@ -132,7 +152,7 @@ services:
     entrypoint: [ "bash", "./scripts/run_memgraph.sh" ]
 
   neo4j_client:
-    image: lincyaw/patterntransfromer:latest
+    image: pt
     working_dir: /appdata
     tty: true
     restart: on-failure
@@ -148,7 +168,7 @@ services:
           memory: 10G
     entrypoint: [ "bash", "./scripts/run_neo4j.sh" ]
   nebula_client:
-    image: lincyaw/patterntransfromer:latest
+    image: pt
     working_dir: /appdata
     restart: on-failure
     networks:
@@ -162,7 +182,7 @@ services:
     entrypoint: [ "bash", "./scripts/run_nebula.sh" ]
 
   tinkerpop_client:
-    image: lincyaw/patterntransfromer:latest
+    image: pt
     working_dir: /appdata
     tty: true
     restart: on-failure
@@ -179,7 +199,7 @@ services:
     entrypoint: [ "bash", "./scripts/run_tinkerpop.sh" ]
 
   cypher2gremlin:
-    image: lincyaw/cypher2gremlin:latest
+    build: cypher2gremlin
     networks:
       - gdb_testing
     ports:
@@ -192,14 +212,4 @@ networks:
 
 volumes:
   kibanadata:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/nn/storage/gdb_testing_data/kibana
   elasticsearch_data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/nn/storage/gdb_testing_data/elasticsearch

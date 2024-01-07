@@ -1,7 +1,13 @@
 import random
 from cypher.constant import ConstantGenerator
+import os
 
 
+def create_folders_if_not_exist(file_path):
+    dir_path = os.path.dirname(file_path)
+
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 class GraphSchema:
     def __init__(self):
         self.num_vertices = None
@@ -161,7 +167,8 @@ class GraphSchema:
                 "en": en_idx,
                 "props": tag_props
             }
-
+        if not os.path.exists(output_file):
+            create_folders_if_not_exist(output_file)
         with open(output_file, "w", encoding="utf-8") as f:
             def wait():
                 nonlocal f

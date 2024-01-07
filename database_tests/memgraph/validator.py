@@ -8,7 +8,6 @@ def read_logic_error_file():
     with open('logs/memgraph_logic_error.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')
 
-        # 逐行读取数据
         data = []
         for row in reader:
             if len(data) == 0 or data[-1][1] == row[1]:

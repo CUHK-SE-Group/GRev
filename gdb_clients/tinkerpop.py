@@ -1,13 +1,15 @@
 from gdb_clients import GdbFactory
 from configs import config
 import subprocess
-from .wrapper.tinkergraph_client import TinkerGraphClient
+# from .wrapper.tinkergraph_client import TinkerGraphClient
+from gdb_clients.wrapper.tinkergraph_client import TinkerGraphClient
 from gdb_clients.wrapper.cypher2gremlin import cypher2gremlin
 import re
 
 class Tinkerpop(GdbFactory):
     def __init__(self):
-        self.client = TinkerGraphClient("10.26.1.146")
+        self.client = TinkerGraphClient("localhost", "8182")
+        self.clear()
 
     def run(self, query):
         if config.get('tinkerpop', 'input_mode') == "cypher":
@@ -24,7 +26,6 @@ class Tinkerpop(GdbFactory):
 
     def clear(self):
         self.client.delete_all_graphs()
-
 
 
 if __name__ == "__main__":

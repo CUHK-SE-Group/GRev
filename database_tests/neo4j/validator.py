@@ -5,10 +5,9 @@ import configs
 from gdb_clients import *
 
 def read_logic_error_file():
-    with open('logs/memgraph_ue.tsv', mode='r') as file:
+    with open('logs/neo4j_logic_error.tsv', mode='r') as file:
         reader = csv.reader(file, delimiter='\t')
 
-        # 逐行读取数据
         data = []
         for row in reader:
             if len(data) == 0 or data[-1][1] == row[1]:
@@ -20,8 +19,7 @@ def read_logic_error_file():
 
 
 def validate(database, log_file, query_pairs):
-
-    client = Neo4j("bolt://localhost:7687", config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),'testtest')
+    client = Neo4j(config.get("neo4j", "uri"), config.get('neo4j', 'username'), config.get('neo4j', 'passwd'),'testtest')
     with open(log_file, 'r') as f:
         content = f.read()
         contents = content.strip().split('\n')

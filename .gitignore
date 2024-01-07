@@ -4,15 +4,12 @@ __pycache__
 logs/*
 
 .DS_Store
-query_producer/logs
-query_producer/coverage_info
-query_producer/coverage_log
-query_producer/gremlin
-query_producer/
-query_producer/gremlin_generator
+query_producer
 data
 .vscode
 db.json
 query_file/
 
 .python-version
+evaluation/neo4j_data
+evaluation/neo4j_import_dir

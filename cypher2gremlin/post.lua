@@ -1,0 +1,2 @@
+wrk.method = "POST"
+wrk.body   = '{"query": "MATCH (n0 :L2 :L4)<-[r0 :T5]-(n1 :L1 :L2), (n3)<-[r2 :T3]-(n4 :L2 :L4) WHERE (((r0.id) > -1) AND ((r0.id) <> (r2.id))) OPTIONAL MATCH (n3)<-[]-(n4 :L4)-[]->(n1) OPTIONAL MATCH (n3)<-[]-(n4)-[]->(n1 :L1 :L2), (n5 :L4)<-[r4 :T1]-(n6 :L3) WHERE ((r4.id) > -1) WITH n3, (n6.k21) AS a0 WHERE true UNWIND [-427223909, 2119866999, -1812320357] AS a1 UNWIND [-1485420855, -1485420855, -1485420855] AS a2 WITH * WHERE (a0 ENDS WITH a0) RETURN a1;"}'
