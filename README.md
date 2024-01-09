@@ -30,7 +30,7 @@ $ java -jar GDsmith.jar --num-tries 100 --num-queries 5000 --algorithm compared3
 
 ### Start Testing
 
-Now you need to start the database servers. We have already provide the docker compose file, since Nebula requires a cluster, you have to start the Nebula cluster first.
+Now you need to start the database servers. We have already provided the docker-compose file, since Nebula requires a cluster, you have to start the Nebula cluster first.
 
 ```bash
 $ cd nebula-docker-compose
@@ -81,7 +81,7 @@ pattern-transformer-redis_client-1       pt                                     
 pattern-transformer-tinkerpop_client-1   pt                                                    "bash ./scripts/run_…"   tinkerpop_client    14 hours ago        Up 9 minutes
 ```
 
-Take neo4j as an exmaple, you can see the logs by the following commands:
+Take neo4j as an example, you can see the logs by the following commands:
 
 ```bash
 $ docker compose logs -f neo4j_client
@@ -220,9 +220,9 @@ class TestConfig:
 
 ## Configure filebeat to Start Monitoring
 
-We provide the `elk` toolkits, you can find it in `elk` folder. By running the `docker compose up -d`, you have started `elasticsearch`, `kibana`, and `logstash`. However, there are no input data(log) yet, so you have to maually configure the `filebeat`, sending the log file to the `elasticserach`.
+We provide the `elk` toolkits, you can find it in `elk` folder. By running the `docker compose up -d`, you have started `elasticsearch`, `kibana`, and `logstash`. However, there is no input data(log) yet, so you have to manually configure the `filebeat`, sending the log file to the `elasticserach`.
 
-You can follow the official instruction in https://www.elastic.co/beats/filebeat
+You can follow the official instructions at https://www.elastic.co/beats/filebeat
 
 We also provide a template configuration for your reference.
 
@@ -279,7 +279,7 @@ generator = gdsmith
 
 ## To Reproduce the Evaluation Results in the Paper
 
-We generated the data needed for Figure 8 with the following two scripts:
+We generated the data needed for the evaluation using the following scripts:
 - `evaluation/eval0.py`: Evaluates the number of distinct queries and query plans (**Q2(a)** and **Q2(b)**).
 - `evaluation/eval1.py`, Evaluates the number of bug-triggering test cases (**Q2(c)**).
 
