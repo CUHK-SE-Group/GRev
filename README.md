@@ -1,4 +1,4 @@
-# Testing Graph Database Systems via Equivalent Query Rewriting
+# GRev: Testing Graph Database Systems via Equivalent Query Rewriting
 
 Features:
 
@@ -277,7 +277,7 @@ generator = gdsmith
 ```
 
 
-## Reproduce the Evaluation Result of Redis
+## To Reproduce the Evaluation Results in the Paper
 
 We generated the data needed for Figure 8 with the following two scripts:
 - `evaluation/eval0.py`: Evaluates the number of distinct queries and query plans (**Q2(a)** and **Q2(b)**).
@@ -316,9 +316,9 @@ Because two of the bug-inducing test cases are associated with multiple bugs (al
 
 [TinkerGraph](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961), [MemGraph](https://github.com/memgraph/memgraph/issues?q=is%3Aissue+948+954+1068), [Neo4j](https://github.com/neo4j/neo4j/issues?q=is%3Aissue+13262+13229+13236), [NebulaGraph](https://github.com/vesoft-inc/nebula/issues?q=is%3Aissue+5715+5704+5624+5626+5616+5617+), [RedisGraph-main](https://github.com/RedisGraph/RedisGraph/issues?q=is%3Aissue+3100+3091+3093+3081+3114), [RedisGraph-FalkorDB](https://github.com/FalkorDB/FalkorDB/issues/470)
 
-##Citation
+## Citation
 🔭: If you use any tools or datasets in this project, please kindly cite the following paper:
 + Qiuyang Mang*, Aoyang Fang*, Boxi Yu, Hanfei Chen, and Pinjia He (*: equal contribution). [**ICSE'24**] 
 
-### Feedback
+## Feedback
 Should you have any questions, please post to the issue page, or email Qiuyang Mang via qiuyangmang@link.cuhk.edu.cn.
