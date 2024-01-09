@@ -109,12 +109,12 @@ logs
 0 directories, 12 files
 ```
 
-### Further Explaination
+### Further Explanation
 
 1. **Testing Interruptions**: The testing process may encounter interruptions when queries request a large volume of data, which could overburden the graph databases.
 2. **Database Crashes**: If a query triggers a crash or kernel bug within the database, the database may terminate unexpectedly. Although we have implemented an auto-restart strategy, we cannot guarantee a successful restart every time.
 
-If these happen, you have to restart it maually.
+If these happen, you have to restart it manually.
 
 ```bash
 $ docker compose restart neo4j_client
@@ -312,6 +312,13 @@ On our testing machine, it took ~12 hours to complete the entire evaluation.
 
 
 ## Bug List
-Because two of the bug-inducing test casess are associated with multiple bugs (all bugs in such cases have been confirmed by developers on Discord), the count of bug-inducing cases here slightly varies from the one documented on paper.
+Because two of the bug-inducing test cases are associated with multiple bugs (all bugs in such cases have been confirmed by developers on Discord), the count of bug-inducing cases here slightly varies from the one documented on paper.
 
 [TinkerGraph](https://issues.apache.org/jira/projects/TINKERPOP/issues/TINKERPOP-2961), [MemGraph](https://github.com/memgraph/memgraph/issues?q=is%3Aissue+948+954+1068), [Neo4j](https://github.com/neo4j/neo4j/issues?q=is%3Aissue+13262+13229+13236), [NebulaGraph](https://github.com/vesoft-inc/nebula/issues?q=is%3Aissue+5715+5704+5624+5626+5616+5617+), [RedisGraph-main](https://github.com/RedisGraph/RedisGraph/issues?q=is%3Aissue+3100+3091+3093+3081+3114), [RedisGraph-FalkorDB](https://github.com/FalkorDB/FalkorDB/issues/470)
+
+##Citation
+🔭: If you use any tools or datasets in this project, please kindly cite the following paper:
++ Qiuyang Mang*, Aoyang Fang*, Boxi Yu, Hanfei Chen, and Pinjia He (*: equal contribution). [**ICSE'24**] 
+
+### Feedback
+Should you have any questions, please post to the issue page, or email Qiuyang Mang via qiuyangmang@link.cuhk.edu.cn.
